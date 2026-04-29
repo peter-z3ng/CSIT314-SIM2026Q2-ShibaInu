@@ -1,11 +1,11 @@
-import type { AccountRole } from "@/entity/UserAccount";
+import { profileToPath, type Profile } from "@/entity/Profile";
 
 export class RouteController {
-  static getDashboardPath(role: AccountRole) {
-    return `/${role}/dashboard`;
+  static getDashboardPath(profile: Pick<Profile, "profile">) {
+    return `/${profileToPath(profile)}/dashboard`;
   }
 
-  static getLogoutPath(role: AccountRole) {
-    return `/${role}/logout`;
+  static getLogoutPath(profile: Pick<Profile, "profile">) {
+    return `/${profileToPath(profile)}/logout`;
   }
 }

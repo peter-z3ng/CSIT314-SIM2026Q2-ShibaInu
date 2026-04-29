@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { RegistrationRequest } from "@/entity/RegistrationRequest";
-import type { AccountRole, PublicProfileType } from "@/entity/UserAccount";
+import type { Profile } from "@/entity/Profile";
 import { AuthController, type EmailLookupResult } from "@/controller/AuthController";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -13,25 +13,46 @@ type ActionResult = {
   message: string;
 };
 
+type ProfileRow = {
+  profile_id: string;
+  profile: string;
+};
+
+export async function listPublicProfiles(): Promise<Profile[]> {
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("user_profile")
+    .select("profile_id, profile")
+    .neq("profile", "Admin")
+    .order("profile", { ascending: true })
+    .returns<ProfileRow[]>();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data.map(mapProfileRow);
+}
+
 export async function lookupEmail(email: string): Promise<EmailLookupResult> {
   const normalizedEmail = normalizeEmail(email);
   const supabase = createSupabaseAdminClient();
 
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("email, role")
+  const { data: account, error: accountError } = await supabase
+    .from("user_account")
+    .select("email, profile:user_profile(profile_id, profile)")
     .eq("email", normalizedEmail)
-    .maybeSingle<{ email: string; role: AccountRole }>();
+    .maybeSingle<{ email: string; profile: ProfileRow }>();
 
-  if (profileError) {
-    throw new Error(profileError.message);
+  if (accountError) {
+    throw new Error(accountError.message);
   }
 
-  if (profile) {
+  if (account) {
     return {
       status: "existing",
       email: normalizedEmail,
-      role: profile.role,
+      profile: mapProfileRow(account.profile),
     };
   }
 
@@ -56,7 +77,7 @@ export async function lookupEmail(email: string): Promise<EmailLookupResult> {
 export async function submitRegistrationRequest(input: {
   username: string;
   email: string;
-  requestedRole: PublicProfileType;
+  requestedProfileId: string;
 }): Promise<ActionResult> {
   const request = new RegistrationRequest(input);
   const supabase = createSupabaseAdminClient();
@@ -73,10 +94,24 @@ export async function submitRegistrationRequest(input: {
     };
   }
 
+  const { data: profile, error: profileError } = await supabase
+    .from("user_profile")
+    .select("profile_id, profile")
+    .eq("profile_id", request.requestedProfileId)
+    .single<{ profile_id: string; profile: string }>();
+
+  if (profileError || !profile) {
+    return { ok: false, message: profileError?.message ?? "Selected profile was not found." };
+  }
+
+  if (profile.profile.toLowerCase() === "admin") {
+    return { ok: false, message: "This profile cannot be requested publicly." };
+  }
+
   const { error } = await supabase.from("registration_requests").insert({
     username: request.username,
     email: request.email,
-    requested_role: request.requestedRole,
+    requested_profile_id: request.requestedProfileId,
     status: "pending",
   });
 
@@ -89,7 +124,7 @@ export async function submitRegistrationRequest(input: {
 }
 
 export async function approveRegistrationRequest(formData: FormData) {
-  await AuthController.requireRole("admin");
+  await AuthController.requireAdmin();
 
   const requestId = String(formData.get("requestId") ?? "");
   const temporaryPassword = String(formData.get("temporaryPassword") ?? "");
@@ -101,13 +136,13 @@ export async function approveRegistrationRequest(formData: FormData) {
   const supabase = createSupabaseAdminClient();
   const { data: request, error: requestError } = await supabase
     .from("registration_requests")
-    .select("id, username, email, requested_role, status")
+    .select("id, username, email, requested_profile_id, status")
     .eq("id", requestId)
     .single<{
       id: string;
       username: string;
       email: string;
-      requested_role: PublicProfileType;
+      requested_profile_id: string;
       status: string;
     }>();
 
@@ -125,7 +160,7 @@ export async function approveRegistrationRequest(formData: FormData) {
     email_confirm: true,
     user_metadata: {
       username: request.username,
-      role: request.requested_role,
+      profile_id: request.requested_profile_id,
     },
   });
 
@@ -133,16 +168,16 @@ export async function approveRegistrationRequest(formData: FormData) {
     throw new Error(createError?.message ?? "Unable to create user account.");
   }
 
-  const { error: profileError } = await supabase.from("profiles").insert({
-    id: createdUser.user.id,
+  const { error: accountError } = await supabase.from("user_account").insert({
+    user_id: createdUser.user.id,
     username: request.username,
     email: request.email,
-    role: request.requested_role,
+    profile_id: request.requested_profile_id,
   });
 
-  if (profileError) {
+  if (accountError) {
     await supabase.auth.admin.deleteUser(createdUser.user.id);
-    throw new Error(profileError.message);
+    throw new Error(accountError.message);
   }
 
   const { error: updateError } = await supabase
@@ -158,7 +193,7 @@ export async function approveRegistrationRequest(formData: FormData) {
 }
 
 export async function rejectRegistrationRequest(formData: FormData) {
-  await AuthController.requireRole("admin");
+  await AuthController.requireAdmin();
 
   const requestId = String(formData.get("requestId") ?? "");
   const supabase = createSupabaseAdminClient();
@@ -174,10 +209,38 @@ export async function rejectRegistrationRequest(formData: FormData) {
   revalidatePath("/admin/dashboard");
 }
 
+export async function createProfile(formData: FormData) {
+  await AuthController.requireAdmin();
+
+  const name = String(formData.get("name") ?? "").trim();
+  if (!name) {
+    throw new Error("Profile name is required.");
+  }
+
+  const supabase = createSupabaseAdminClient();
+  const { error } = await supabase.from("user_profile").insert({
+    profile: name,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/admin/dashboard");
+  revalidatePath("/login");
+}
+
 export async function signOutAndRedirect() {
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
   redirect("/login");
+}
+
+function mapProfileRow(row: ProfileRow): Profile {
+  return {
+    profileId: row.profile_id,
+    profile: row.profile,
+  };
 }
 
 function normalizeEmail(email: string) {

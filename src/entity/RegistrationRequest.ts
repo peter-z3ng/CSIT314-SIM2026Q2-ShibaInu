@@ -1,15 +1,18 @@
-import type { PublicProfileType } from "./UserAccount";
+import type { Profile } from "./Profile";
 
 export type RegistrationRequestStatus = "pending" | "approved" | "rejected";
 
 export type RegistrationRequestInput = {
   username: string;
   email: string;
-  requestedRole: PublicProfileType;
+  requestedProfileId: string;
 };
 
-export type RegistrationRequestRecord = RegistrationRequestInput & {
+export type RegistrationRequestRecord = {
   id: string;
+  username: string;
+  email: string;
+  requestedProfile: Profile;
   status: RegistrationRequestStatus;
   createdAt: string;
 };
@@ -17,7 +20,7 @@ export type RegistrationRequestRecord = RegistrationRequestInput & {
 export class RegistrationRequest {
   readonly username: string;
   readonly email: string;
-  readonly requestedRole: PublicProfileType;
+  readonly requestedProfileId: string;
 
   constructor(input: RegistrationRequestInput) {
     if (!input.username.trim()) {
@@ -28,8 +31,12 @@ export class RegistrationRequest {
       throw new Error("Enter a valid email address.");
     }
 
+    if (!input.requestedProfileId) {
+      throw new Error("Select a profile.");
+    }
+
     this.username = input.username.trim();
     this.email = input.email.trim().toLowerCase();
-    this.requestedRole = input.requestedRole;
+    this.requestedProfileId = input.requestedProfileId;
   }
 }

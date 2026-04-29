@@ -1,23 +1,25 @@
 import { redirect } from "next/navigation";
-import type { AccountRole, PublicProfileType, UserProfile } from "@/entity/UserAccount";
+import { isAdminProfile, profileToPath, type Profile, type UserAccount } from "@/entity/Profile";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { RouteController } from "./RouteController";
 
+type UserAccountRow = {
+  user_id: string;
+  username: string;
+  email: string;
+  profile: {
+    profile_id: string;
+    profile: string;
+  };
+};
+
 export type EmailLookupResult =
-  | { status: "existing"; email: string; role: AccountRole }
+  | { status: "existing"; email: string; profile: Profile }
   | { status: "pending"; email: string }
   | { status: "new"; email: string };
 
 export class AuthController {
-  static getDashboardPath(role: AccountRole) {
-    return RouteController.getDashboardPath(role);
-  }
-
-  static getLogoutPath(role: AccountRole) {
-    return RouteController.getLogoutPath(role);
-  }
-
-  static async getCurrentProfile() {
+  static async getCurrentAccount(): Promise<UserAccount | null> {
     const supabase = await createSupabaseServerClient();
     const {
       data: { user },
@@ -27,34 +29,56 @@ export class AuthController {
       return null;
     }
 
-    const { data: profile, error } = await supabase
-      .from("profiles")
-      .select("id, username, email, role")
-      .eq("id", user.id)
-      .single<UserProfile>();
+    const { data: account, error } = await supabase
+      .from("user_account")
+      .select("user_id, username, email, profile:user_profile(profile_id, profile)")
+      .eq("user_id", user.id)
+      .single<UserAccountRow>();
 
-    if (error || !profile) {
+    if (error || !account) {
       return null;
     }
 
-    return profile;
+    return mapUserAccountRow(account);
   }
 
-  static async requireRole(role: AccountRole) {
-    const profile = await AuthController.getCurrentProfile();
+  static async requireProfilePath(profilePath: string) {
+    const account = await AuthController.getCurrentAccount();
 
-    if (!profile) {
+    if (!account) {
       redirect("/login");
     }
 
-    if (profile.role !== role) {
-      redirect(AuthController.getDashboardPath(profile.role));
+    if (profileToPath(account.profile) !== profilePath) {
+      redirect(RouteController.getDashboardPath(account.profile));
     }
 
-    return profile;
+    return account;
   }
 
-  static isPublicRole(role: string): role is PublicProfileType {
-    return role === "donee" || role === "fundraiser" || role === "platform-management";
+  static async requireAdmin() {
+    const account = await AuthController.getCurrentAccount();
+
+    if (!account) {
+      redirect("/login");
+    }
+
+    if (!isAdminProfile(account.profile)) {
+      redirect(RouteController.getDashboardPath(account.profile));
+    }
+
+    return account;
   }
+}
+
+function mapUserAccountRow(row: UserAccountRow): UserAccount {
+  return {
+    userId: row.user_id,
+    username: row.username,
+    email: row.email,
+    profile: {
+      profileId: row.profile.profile_id,
+      profile: row.profile.profile,
+    },
+  };
 }

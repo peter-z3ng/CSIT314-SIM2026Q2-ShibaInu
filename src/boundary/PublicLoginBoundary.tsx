@@ -6,12 +6,12 @@ import { useRouter } from "next/navigation";
 import type { EmailLookupResult } from "@/controller/AuthController";
 import { RouteController } from "@/controller/RouteController";
 import { lookupEmail, submitRegistrationRequest } from "@/controller/authActions";
-import { publicProfileOptions, type PublicProfileType } from "@/entity/UserAccount";
+import type { Profile } from "@/entity/Profile";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type LoginStep = "email" | "password" | "signup";
 
-export function PublicLoginBoundary() {
+export function PublicLoginBoundary({ profiles }: { profiles: Profile[] }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [step, setStep] = useState<LoginStep>("email");
@@ -58,7 +58,7 @@ export function PublicLoginBoundary() {
         throw new Error(error.message);
       }
 
-      router.push(RouteController.getDashboardPath(lookup.role));
+      router.push(RouteController.getDashboardPath(lookup.profile));
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Unable to sign in.");
     }
@@ -73,7 +73,7 @@ export function PublicLoginBoundary() {
         const result = await submitRegistrationRequest({
           username: String(form.get("username") ?? ""),
           email,
-          requestedRole: String(form.get("role") ?? "donee") as PublicProfileType,
+          requestedProfileId: String(form.get("profileId") ?? ""),
         });
 
         setMessage(result.message);
@@ -162,14 +162,21 @@ export function PublicLoginBoundary() {
                 <label className="block text-sm font-medium">
                   Profile Type
                   <select
-                    name="role"
+                    name="profileId"
+                    disabled={!profiles.length}
                     className="mt-2 h-11 w-full rounded-md border border-[#cfc7b5] bg-white px-3 text-sm outline-none transition focus:border-[#1f5a46] focus:ring-2 focus:ring-[#1f5a46]/20"
                   >
-                    {publicProfileOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
+                    {profiles.length ? (
+                      profiles.map((profile) => (
+                        <option key={profile.profileId} value={profile.profileId}>
+                          {profile.profile}
+                        </option>
+                      ))
+                    ) : (
+                      <option value="">
+                        No profiles available
                       </option>
-                    ))}
+                    )}
                   </select>
                 </label>
                 <SubmitButton label={isPending ? "Submitting..." : "Submit Request"} />

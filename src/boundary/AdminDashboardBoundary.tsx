@@ -1,21 +1,60 @@
-import { approveRegistrationRequest, rejectRegistrationRequest } from "@/controller/authActions";
+import {
+  approveRegistrationRequest,
+  createProfile,
+  rejectRegistrationRequest,
+} from "@/controller/authActions";
+import type { Profile, UserAccount } from "@/entity/Profile";
 import type { RegistrationRequestRecord } from "@/entity/RegistrationRequest";
-import { getRoleLabel, type UserProfile } from "@/entity/UserAccount";
 
 export function AdminDashboardBoundary({
-  profile,
+  account,
   requests,
+  profiles,
 }: {
-  profile: UserProfile;
+  account: UserAccount;
   requests: RegistrationRequestRecord[];
+  profiles: Profile[];
 }) {
   return (
-    <section className="mt-8">
+    <section className="mt-8 grid gap-8">
+      <div className="grid gap-5 lg:grid-cols-[360px_1fr]">
+        <form
+          action={createProfile}
+          className="rounded-lg border border-[#dfdacd] bg-[#fffdf8] p-5 shadow-sm"
+        >
+          <h2 className="text-2xl font-bold">Create Profile</h2>
+          <div className="mt-5 grid gap-4">
+            <label className="block text-sm font-medium">
+              Profile Name
+              <input
+                name="name"
+                placeholder="Volunteer Coordinator"
+                className="mt-2 h-11 w-full rounded-md border border-[#cfc7b5] px-3 text-sm outline-none transition focus:border-[#1f5a46] focus:ring-2 focus:ring-[#1f5a46]/20"
+              />
+            </label>
+          </div>
+          <button className="mt-5 h-11 w-full rounded-md bg-[#1f5a46] px-4 text-sm font-semibold text-white transition hover:bg-[#174435]">
+            Create Profile
+          </button>
+        </form>
+
+        <div className="rounded-lg border border-[#dfdacd] bg-[#fffdf8] p-5 shadow-sm">
+          <h2 className="text-2xl font-bold">Profiles</h2>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            {profiles.map((profile) => (
+              <div key={profile.profileId} className="rounded-md border border-[#e7e0d1] p-4">
+                <p className="font-semibold">{profile.profile}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
         <div>
           <h2 className="text-2xl font-bold">Registration Requests</h2>
           <p className="mt-1 text-sm text-[#586158]">
-            Signed in as {profile.username}. Approving a request creates the Supabase Auth account
+            Signed in as {account.username}. Approving a request creates the Supabase Auth account
             and the user profile.
           </p>
         </div>
@@ -34,7 +73,7 @@ export function AdminDashboardBoundary({
               <div className="grid gap-4 lg:grid-cols-[1fr_360px] lg:items-end">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8a5a2f]">
-                    {getRoleLabel(request.requestedRole)}
+                    {request.requestedProfile.profile}
                   </p>
                   <h3 className="mt-2 text-xl font-semibold">{request.username}</h3>
                   <p className="mt-1 text-sm text-[#586158]">{request.email}</p>
