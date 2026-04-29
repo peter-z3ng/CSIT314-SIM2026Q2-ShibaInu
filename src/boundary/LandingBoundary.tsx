@@ -38,7 +38,7 @@ export function LandingBoundary() {
             title="Platform Management"
             text="Review activity, maintain records, and support daily operations."
           />
-          <InfoPanel title="Admin" text="Admin access is separated from the public login flow." />
+          <InfoPanel title="Admin" text="Admins approve requests and create user accounts." />
         </div>
       </section>
     </main>

@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { getRoleLabel, type AccountRole } from "@/entity/UserAccount";
+import { RouteController } from "@/controller/RouteController";
+import { getRoleLabel, type AccountRole, type UserProfile } from "@/entity/UserAccount";
 
 const dashboardCopy: Record<AccountRole, string> = {
   admin: "Manage platform users, approve management accounts, and monitor system activity.",
@@ -8,7 +9,15 @@ const dashboardCopy: Record<AccountRole, string> = {
   "platform-management": "Moderate platform records, support users, and review operational tasks.",
 };
 
-export function DashboardBoundary({ role }: { role: AccountRole }) {
+export function DashboardBoundary({
+  role,
+  profile,
+  children,
+}: {
+  role: AccountRole;
+  profile: UserProfile;
+  children?: React.ReactNode;
+}) {
   return (
     <main className="min-h-screen bg-[#f7f5ef] text-[#1d2520]">
       <header className="border-b border-[#dfdacd] bg-[#fffdf8]">
@@ -16,7 +25,7 @@ export function DashboardBoundary({ role }: { role: AccountRole }) {
           <Link href="/" className="text-lg font-bold">
             ShibaInu Giving
           </Link>
-          <Link href="/login" className="text-sm font-semibold text-[#1f5a46]">
+          <Link href={RouteController.getLogoutPath(role)} className="text-sm font-semibold text-[#1f5a46]">
             Log Out
           </Link>
         </div>
@@ -32,10 +41,11 @@ export function DashboardBoundary({ role }: { role: AccountRole }) {
         </p>
 
         <div className="mt-8 grid gap-4 md:grid-cols-3">
-          <DashboardCard title="Profile" text="Account and role details will appear here." />
+          <DashboardCard title="Profile" text={`${profile.username} (${profile.email})`} />
           <DashboardCard title="Tasks" text="Role-specific actions will be connected here." />
           <DashboardCard title="Reports" text="Activity summaries will be shown here." />
         </div>
+        {children}
       </section>
     </main>
   );

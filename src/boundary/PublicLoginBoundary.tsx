@@ -1,42 +1,64 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { AuthController, type EmailLookupResult } from "@/controller/AuthController";
+import type { EmailLookupResult } from "@/controller/AuthController";
+import { RouteController } from "@/controller/RouteController";
+import { lookupEmail, submitRegistrationRequest } from "@/controller/authActions";
 import { publicProfileOptions, type PublicProfileType } from "@/entity/UserAccount";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type LoginStep = "email" | "password" | "signup";
 
 export function PublicLoginBoundary() {
   const router = useRouter();
-  const controller = useMemo(() => new AuthController(), []);
+  const [isPending, startTransition] = useTransition();
   const [step, setStep] = useState<LoginStep>("email");
   const [lookup, setLookup] = useState<EmailLookupResult | null>(null);
   const [message, setMessage] = useState("");
-  const email = lookup?.status === "new" ? lookup.email : lookup?.account.email ?? "";
+  const email = lookup?.email ?? "";
 
   function handleEmailLookup(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
 
-    try {
-      const result = controller.findPublicAccountByEmail(String(form.get("email") ?? ""));
-      setLookup(result);
-      setStep(result.status === "existing" ? "password" : "signup");
-      setMessage("");
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Unable to continue.");
-    }
+    startTransition(async () => {
+      try {
+        const result = await lookupEmail(String(form.get("email") ?? ""));
+        setLookup(result);
+        setStep(result.status === "existing" ? "password" : "signup");
+        setMessage(
+          result.status === "pending"
+            ? "Your registration request is waiting for admin approval."
+            : "",
+        );
+      } catch (error) {
+        setMessage(error instanceof Error ? error.message : "Unable to continue.");
+      }
+    });
   }
 
-  function handlePasswordSignIn(event: FormEvent<HTMLFormElement>) {
+  async function handlePasswordSignIn(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
 
     try {
-      const account = controller.signInPublicUser(email, String(form.get("password") ?? ""));
-      router.push(controller.getDashboardPath(account.role));
+      if (lookup?.status !== "existing") {
+        throw new Error("Enter an approved account email first.");
+      }
+
+      const supabase = createSupabaseBrowserClient();
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password: String(form.get("password") ?? ""),
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      router.push(RouteController.getDashboardPath(lookup.role));
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Unable to sign in.");
     }
@@ -46,18 +68,25 @@ export function PublicLoginBoundary() {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
 
-    try {
-      const account = controller.signUpPublicUser({
-        username: String(form.get("username") ?? ""),
-        email,
-        password: String(form.get("password") ?? ""),
-        role: String(form.get("role") ?? "donee") as PublicProfileType,
-      });
+    startTransition(async () => {
+      try {
+        const result = await submitRegistrationRequest({
+          username: String(form.get("username") ?? ""),
+          email,
+          requestedRole: String(form.get("role") ?? "donee") as PublicProfileType,
+        });
 
-      router.push(controller.getDashboardPath(account.role));
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Unable to create account.");
-    }
+        setMessage(result.message);
+
+        if (result.ok) {
+          setStep("email");
+          setLookup(null);
+          event.currentTarget.reset();
+        }
+      } catch (error) {
+        setMessage(error instanceof Error ? error.message : "Unable to submit request.");
+      }
+    });
   }
 
   function resetFlow() {
@@ -84,10 +113,10 @@ export function PublicLoginBoundary() {
               Public Login
             </p>
             <h1 className="mt-4 max-w-xl text-4xl font-bold leading-tight sm:text-5xl">
-              Sign in as a donee, fundraiser, or platform management user.
+              Sign in with your approved account.
             </h1>
             <p className="mt-5 max-w-lg text-base leading-7 text-[#586158]">
-              Admin login is kept separate and is not exposed from this public flow.
+              New users submit a profile request first. Admins approve requests and create accounts.
             </p>
           </div>
 
@@ -97,11 +126,11 @@ export function PublicLoginBoundary() {
                 <div>
                   <h2 className="text-2xl font-semibold">Enter your email</h2>
                   <p className="mt-2 text-sm leading-6 text-[#586158]">
-                    Existing users continue with a password. New emails continue to sign up.
+                    Approved users continue with a password. New emails submit a request for admin approval.
                   </p>
                 </div>
                 <Field label="Email" name="email" type="email" placeholder="name@example.com" />
-                <SubmitButton label="Continue" />
+                <SubmitButton label={isPending ? "Checking..." : "Continue"} />
               </form>
             ) : null}
 
@@ -126,11 +155,10 @@ export function PublicLoginBoundary() {
             {step === "signup" ? (
               <form onSubmit={handleSignUp} className="space-y-5">
                 <div>
-                  <h2 className="text-2xl font-semibold">Create your account</h2>
+                  <h2 className="text-2xl font-semibold">Request an account</h2>
                   <p className="mt-2 text-sm text-[#586158]">{email}</p>
                 </div>
                 <Field label="Username" name="username" placeholder="Your name" />
-                <Field label="Password" name="password" type="password" placeholder="Password" />
                 <label className="block text-sm font-medium">
                   Profile Type
                   <select
@@ -144,7 +172,7 @@ export function PublicLoginBoundary() {
                     ))}
                   </select>
                 </label>
-                <SubmitButton label="Sign Up" />
+                <SubmitButton label={isPending ? "Submitting..." : "Submit Request"} />
                 <button
                   type="button"
                   onClick={resetFlow}

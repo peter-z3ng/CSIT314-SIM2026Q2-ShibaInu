@@ -4,7 +4,13 @@ export type AccountRole = PublicProfileType | "admin";
 export type UserAccountInput = {
   username: string;
   email: string;
-  password: string;
+  role: AccountRole;
+};
+
+export type UserProfile = {
+  id: string;
+  username: string;
+  email: string;
   role: AccountRole;
 };
 
@@ -19,7 +25,6 @@ export class UserAccount {
   readonly id: string;
   readonly username: string;
   readonly email: string;
-  readonly password: string;
   readonly role: AccountRole;
 
   constructor(input: UserAccountInput, id = crypto.randomUUID()) {
@@ -31,14 +36,9 @@ export class UserAccount {
       throw new Error("Enter a valid email address.");
     }
 
-    if (input.password.length < 6) {
-      throw new Error("Password must be at least 6 characters.");
-    }
-
     this.id = id;
     this.username = input.username.trim();
     this.email = input.email.trim().toLowerCase();
-    this.password = input.password;
     this.role = input.role;
   }
 
