@@ -1,5 +1,5 @@
-import { FundraisingBoundary } from "@/boundary/FundraisingBoundary";
+import { LandingBoundary } from "@/boundary/LandingBoundary";
 
 export default function Home() {
-  return <FundraisingBoundary />;
+  return <LandingBoundary />;
 }

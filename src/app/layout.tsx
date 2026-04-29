@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Fundraising System",
-  description: "A BCE structured fundraising web application.",
+  title: "ShibaInu Giving",
+  description: "Role-based fundraising platform login and dashboard system.",
 };
 
 export default function RootLayout({
