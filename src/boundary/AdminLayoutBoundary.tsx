@@ -40,7 +40,7 @@ export function AdminLayoutBoundary({
           <button
             type="button"
             onClick={() => setIsMenuOpen(true)}
-            className="ml-auto rounded-md border border-[#f0c48a] bg-white px-4 py-2 text-sm font-semibold text-[#9b5d12] transition hover:bg-[#fff2df]"
+            className="ml-auto rounded-2xl px-3 py-1 text-xl font-semibold text-[#00401A] cursor-pointer transition hover:bg-[#fff2df]"
           >
             {account.username}
           </button>
