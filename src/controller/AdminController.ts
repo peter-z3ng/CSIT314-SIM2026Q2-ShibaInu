@@ -1,4 +1,5 @@
-import type { Profile, UserAccount } from "@/entity/Profile";
+import { UserAccount } from "@/entity/UserAccount";
+import { UserProfile, type Profile } from "@/entity/UserProfile";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 type ProfileRow = {
@@ -15,7 +16,27 @@ type UserAccountRow = {
 };
 
 export class AdminController {
-  static async listProfiles(): Promise<Profile[]> {
+  async createProfile(name: string) {
+    const profile = UserProfile.createNew(name);
+    const supabase = createSupabaseAdminClient();
+    const { error } = await supabase.from("user_profile").insert({
+      profile,
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async approveUserAccount(userId: string) {
+    await this.updateUserAccountStatus(userId, "active");
+  }
+
+  async suspendUserAccount(userId: string) {
+    await this.updateUserAccountStatus(userId, "suspended");
+  }
+
+  async listProfiles(): Promise<Profile[]> {
     const supabase = createSupabaseAdminClient();
     const { data, error } = await supabase
       .from("user_profile")
@@ -30,7 +51,7 @@ export class AdminController {
     return data.map(mapProfile);
   }
 
-  static async listPendingUserAccounts(): Promise<UserAccount[]> {
+  async listPendingUserAccounts(): Promise<UserAccount[]> {
     const supabase = createSupabaseAdminClient();
     const { data, error } = await supabase
       .from("user_account")
@@ -43,7 +64,7 @@ export class AdminController {
       throw new Error(error.message);
     }
 
-    return data.map((account) => ({
+    return data.map((account) => new UserAccount({
       userId: account.user_id,
       username: account.username,
       email: account.email,
@@ -51,11 +72,24 @@ export class AdminController {
       profile: mapProfile(account.profile),
     }));
   }
+
+  private async updateUserAccountStatus(userId: string, status: UserAccount["status"]) {
+    if (!userId.trim()) {
+      throw new Error("User id is required.");
+    }
+
+    const supabase = createSupabaseAdminClient();
+    const { error } = await supabase
+      .from("user_account")
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq("user_id", userId);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+  }
 }
 
 function mapProfile(profile: ProfileRow): Profile {
-  return {
-    profileId: profile.profile_id,
-    profile: profile.profile,
-  };
+  return new UserProfile(profile.profile_id, profile.profile);
 }

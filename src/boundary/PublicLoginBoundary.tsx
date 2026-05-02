@@ -3,19 +3,18 @@
 import Link from "next/link";
 import { FormEvent, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import type { EmailLookupResult } from "@/controller/AuthController";
 import { RouteController } from "@/controller/RouteController";
-import { createPendingUserAccount, lookupEmail } from "@/controller/authActions";
-import type { Profile } from "@/entity/Profile";
+import { createPendingUserAccount, lookupEmail, type EmailLookupDTO } from "@/controller/authActions";
+import type { UserProfileDTO } from "@/entity/UserProfile";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type LoginStep = "email" | "password" | "signup";
 
-export function PublicLoginBoundary({ profiles }: { profiles: Profile[] }) {
+export function PublicLoginBoundary({ profiles }: { profiles: UserProfileDTO[] }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [step, setStep] = useState<LoginStep>("email");
-  const [lookup, setLookup] = useState<EmailLookupResult | null>(null);
+  const [lookup, setLookup] = useState<EmailLookupDTO | null>(null);
   const [message, setMessage] = useState("");
   const email = lookup?.email ?? "";
 

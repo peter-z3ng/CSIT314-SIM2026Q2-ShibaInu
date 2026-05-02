@@ -1,4 +1,4 @@
-import { profileToPath, type Profile } from "@/entity/Profile";
+import { profileToPath, type Profile } from "@/entity/UserProfile";
 
 export class RouteController {
   static getDashboardPath(profile: Pick<Profile, "profile">) {

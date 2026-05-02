@@ -1,5 +1,5 @@
 import { signOutAndRedirect } from "@/controller/authActions";
-import type { Profile } from "@/entity/Profile";
+import type { Profile } from "@/entity/UserProfile";
 
 export function LogoutBoundary({ profile }: { profile: Profile }) {
   return (

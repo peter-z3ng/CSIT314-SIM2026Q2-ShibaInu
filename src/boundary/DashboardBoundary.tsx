@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { RouteController } from "@/controller/RouteController";
-import { isAdminProfile, type UserAccount } from "@/entity/Profile";
+import type { UserAccount } from "@/entity/UserAccount";
+import { isAdminProfile } from "@/entity/UserProfile";
 
 const adminCopy = "Manage platform users, approve pending accounts, and create profiles.";
 const userCopy = "View account details, profile-specific tasks, and activity summaries.";
@@ -19,7 +20,7 @@ export function DashboardBoundary({
       <header className="border-b border-[#dfdacd] bg-[#fffdf8]">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
           <Link href="/" className="text-lg font-bold">
-            ShibaInu Giving
+            Hope Spring
           </Link>
           <Link
             href={RouteController.getLogoutPath(account.profile)}

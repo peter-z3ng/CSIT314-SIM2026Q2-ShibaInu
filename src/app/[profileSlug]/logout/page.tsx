@@ -9,7 +9,7 @@ export default async function ProfileLogoutPage({
   params: Promise<{ profileSlug: string }>;
 }) {
   const { profileSlug } = await params;
-  const account = await AuthController.requireProfilePath(profileSlug);
+  const account = await new AuthController().requireProfilePath(profileSlug);
 
   return <LogoutBoundary profile={account.profile} />;
 }

@@ -11,15 +11,17 @@ export default async function ProfileDashboardPage({
   params: Promise<{ profileSlug: string }>;
 }) {
   const { profileSlug } = await params;
-  const account = await AuthController.requireProfilePath(profileSlug);
+  const authController = new AuthController();
+  const account = await authController.requireProfilePath(profileSlug);
 
   if (account.profile.profile.toLowerCase() !== "admin") {
     return <DashboardBoundary account={account} />;
   }
 
+  const adminController = new AdminController();
   const [pendingAccounts, profiles] = await Promise.all([
-    AdminController.listPendingUserAccounts(),
-    AdminController.listProfiles(),
+    adminController.listPendingUserAccounts(),
+    adminController.listProfiles(),
   ]);
 
   return (

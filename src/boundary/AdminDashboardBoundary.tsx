@@ -3,7 +3,8 @@ import {
   createProfile,
   suspendUserAccount,
 } from "@/controller/authActions";
-import type { Profile, UserAccount } from "@/entity/Profile";
+import type { UserAccount } from "@/entity/UserAccount";
+import type { Profile } from "@/entity/UserProfile";
 
 export function AdminDashboardBoundary({
   account,
