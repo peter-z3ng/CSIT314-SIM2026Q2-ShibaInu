@@ -71,6 +71,17 @@ export async function createProfile(formData: FormData) {
   revalidatePath("/login");
 }
 
+export async function createUserAccount(formData: FormData) {
+  await new AuthController().requireAdmin();
+  await new AdminController().createUserAccount({
+    username: String(formData.get("username") ?? ""),
+    email: String(formData.get("email") ?? ""),
+    password: String(formData.get("password") ?? ""),
+    profileId: String(formData.get("profileId") ?? ""),
+  });
+  revalidatePath("/admin/dashboard");
+}
+
 export async function signOutAndRedirect() {
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();

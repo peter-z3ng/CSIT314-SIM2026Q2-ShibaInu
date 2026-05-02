@@ -16,6 +16,51 @@ type UserAccountRow = {
 };
 
 export class AdminController {
+  async createUserAccount(input: {
+    username: string;
+    email: string;
+    password: string;
+    profileId: string;
+  }) {
+    const username = input.username.trim();
+    const email = UserAccount.normalizeEmail(input.email);
+
+    UserAccount.validateUsername(username);
+    UserAccount.validatePassword(input.password);
+
+    if (!input.profileId.trim()) {
+      throw new Error("Profile is required.");
+    }
+
+    const supabase = createSupabaseAdminClient();
+    const { data: createdUser, error: createError } = await supabase.auth.admin.createUser({
+      email,
+      password: input.password,
+      email_confirm: true,
+      user_metadata: {
+        username,
+        profile_id: input.profileId,
+      },
+    });
+
+    if (createError || !createdUser.user) {
+      throw new Error(createError?.message ?? "Unable to create user account.");
+    }
+
+    const { error: accountError } = await supabase.from("user_account").insert({
+      user_id: createdUser.user.id,
+      username,
+      email,
+      profile_id: input.profileId,
+      status: "active",
+    });
+
+    if (accountError) {
+      await supabase.auth.admin.deleteUser(createdUser.user.id);
+      throw new Error(accountError.message);
+    }
+  }
+
   async createProfile(name: string) {
     const profile = UserProfile.createNew(name);
     const supabase = createSupabaseAdminClient();
@@ -52,11 +97,20 @@ export class AdminController {
   }
 
   async listPendingUserAccounts(): Promise<UserAccount[]> {
+    const accounts = await this.listUserAccounts();
+    return accounts.filter((account) => account.status === "pending");
+  }
+
+  async listActiveUserAccounts(): Promise<UserAccount[]> {
+    const accounts = await this.listUserAccounts();
+    return accounts.filter((account) => account.status === "active");
+  }
+
+  async listUserAccounts(): Promise<UserAccount[]> {
     const supabase = createSupabaseAdminClient();
     const { data, error } = await supabase
       .from("user_account")
       .select("user_id, username, email, status, profile:user_profile(profile_id, profile)")
-      .eq("status", "pending")
       .order("created_at", { ascending: true })
       .returns<UserAccountRow[]>();
 

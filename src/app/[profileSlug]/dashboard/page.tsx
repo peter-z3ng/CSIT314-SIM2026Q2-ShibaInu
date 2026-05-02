@@ -19,18 +19,10 @@ export default async function ProfileDashboardPage({
   }
 
   const adminController = new AdminController();
-  const [pendingAccounts, profiles] = await Promise.all([
-    adminController.listPendingUserAccounts(),
-    adminController.listProfiles(),
-  ]);
+  const userAccounts = await adminController.listUserAccounts();
 
-  return (
-    <DashboardBoundary account={account}>
-      <AdminDashboardBoundary
-        account={account}
-        pendingAccounts={pendingAccounts}
-        profiles={profiles}
-      />
-    </DashboardBoundary>
-  );
+  return <AdminDashboardBoundary
+    account={account.toDTO()}
+    userAccounts={userAccounts.map((userAccount) => userAccount.toDTO())}
+  />;
 }
