@@ -2,15 +2,15 @@ import Link from "next/link";
 
 export function LandingBoundary() {
   return (
-    <main className="min-h-screen bg-[#f7f5ef] text-[#1d2520]">
+    <main className="min-h-screen bg-[#FFF4EC] text-[#1d2520]">
       <header className="border-b border-[#dfdacd] bg-[#fffdf8]">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
           <Link href="/" className="text-lg font-bold">
-            ShibaInu Giving
+            Hope Spring
           </Link>
           <Link
             href="/login"
-            className="rounded-md bg-[#1f5a46] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#174435]"
+            className="rounded-md bg-[#FFB347] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#FFBE5C]"
           >
             Log In
           </Link>
@@ -29,16 +29,6 @@ export function LandingBoundary() {
             Manage help requests, fundraising campaigns, donor activity, and platform
             operations through role-based dashboards.
           </p>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <InfoPanel title="Donee" text="Submit support requests and follow campaign progress." />
-          <InfoPanel title="Fundraiser" text="Create campaigns and coordinate donor engagement." />
-          <InfoPanel
-            title="Platform Management"
-            text="Review activity, maintain records, and support daily operations."
-          />
-          <InfoPanel title="Admin" text="Admins approve requests and create user accounts." />
         </div>
       </section>
     </main>

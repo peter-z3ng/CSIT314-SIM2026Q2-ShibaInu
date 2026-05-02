@@ -32,15 +32,3 @@ create policy "Users can read own account"
 on public.user_account
 for select
 using (user_id = auth.uid());
-
--- Bootstrap only the first admin profile/account manually.
--- After this, use the admin dashboard to create all other user profiles.
---
--- insert into public.user_profile (profile)
--- values ('Admin');
---
--- Create the first admin manually in Supabase Auth, then run this with that user's id.
--- insert into public.user_account (user_id, profile_id, full_name, email, username)
--- select 'AUTH_USER_ID_HERE', profile_id, 'Admin User', 'admin@example.com', 'admin'
--- from public.user_profile
--- where lower(profile) = 'admin';

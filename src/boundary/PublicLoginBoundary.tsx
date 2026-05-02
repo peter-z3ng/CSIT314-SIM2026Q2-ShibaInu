@@ -105,41 +105,18 @@ export function PublicLoginBoundary({ profiles }: { profiles: Profile[] }) {
   }
 
   return (
-    <main className="min-h-screen bg-[#f7f5ef] text-[#1d2520]">
-      <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-5 py-5 lg:px-8">
-        <header className="flex items-center justify-between">
-          <Link href="/" className="text-lg font-bold">
-            ShibaInu Giving
-          </Link>
-          <Link href="/" className="text-sm font-semibold text-[#1f5a46]">
-            Back to Home
-          </Link>
-        </header>
-
-        <section className="grid flex-1 items-center gap-8 py-10 lg:grid-cols-[0.9fr_1.1fr]">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#8a5a2f]">
-              Public Login
-            </p>
-            <h1 className="mt-4 max-w-xl text-4xl font-bold leading-tight sm:text-5xl">
-              Sign in with your approved account.
-            </h1>
-            <p className="mt-5 max-w-lg text-base leading-7 text-[#586158]">
-              New users create a pending account first. Admins approve accounts before dashboard access.
-            </p>
-          </div>
-
-          <div className="rounded-lg border border-[#dfdacd] bg-[#fffdf8] p-6 shadow-sm">
+    <main className="flex min-h-screen items-center justify-center bg-[#FFF4EC] px-5 py-10 text-[#1d2520]">
+      <section className="w-full max-w-md rounded-4xl border border-[#FFFFFF] bg-[#FFF4EC] p-6 shadow-2xl shadow-orange-300">
             {step === "email" ? (
               <form onSubmit={handleEmailLookup} className="space-y-5">
                 <div>
-                  <h2 className="text-2xl font-semibold">Enter your email</h2>
-                  <p className="mt-2 text-sm leading-6 text-[#586158]">
-                    Approved users continue with a password. New emails create a pending account for admin approval.
-                  </p>
+                  <h2 className="flex justify-center text-2xl font-semibold">Log in</h2>
                 </div>
                 <Field label="Email" name="email" type="email" placeholder="name@example.com" />
                 <SubmitButton label={isPending ? "Checking..." : "Continue"} />
+                <Link href="/" className="flex justify-center text-sm font-semibold text-[#FFB347]">
+                  Back to Home
+                </Link>
               </form>
             ) : null}
 
@@ -154,7 +131,7 @@ export function PublicLoginBoundary({ profiles }: { profiles: Profile[] }) {
                 <button
                   type="button"
                   onClick={resetFlow}
-                  className="text-sm font-semibold text-[#1f5a46]"
+                  className="flex w-full justify-center text-sm font-semibold text-[#FFB347]"
                 >
                   Use another email
                 </button>
@@ -205,9 +182,7 @@ export function PublicLoginBoundary({ profiles }: { profiles: Profile[] }) {
                 {message}
               </p>
             ) : null}
-          </div>
-        </section>
-      </div>
+      </section>
     </main>
   );
 }
@@ -238,7 +213,7 @@ function Field({
 
 function SubmitButton({ label }: { label: string }) {
   return (
-    <button className="h-11 w-full rounded-md bg-[#1f5a46] px-4 text-sm font-semibold text-white transition hover:bg-[#174435]">
+    <button className="h-11 w-full rounded-md bg-[#FFB347] px-4 text-sm font-semibold text-white transition hover:bg-[#FFBE5C]">
       {label}
     </button>
   );
