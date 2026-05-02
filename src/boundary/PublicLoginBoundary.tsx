@@ -5,7 +5,7 @@ import { FormEvent, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { EmailLookupResult } from "@/controller/AuthController";
 import { RouteController } from "@/controller/RouteController";
-import { lookupEmail, submitRegistrationRequest } from "@/controller/authActions";
+import { createPendingUserAccount, lookupEmail } from "@/controller/authActions";
 import type { Profile } from "@/entity/Profile";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
@@ -27,10 +27,18 @@ export function PublicLoginBoundary({ profiles }: { profiles: Profile[] }) {
       try {
         const result = await lookupEmail(String(form.get("email") ?? ""));
         setLookup(result);
-        setStep(result.status === "existing" ? "password" : "signup");
+        setStep(
+          result.status === "existing"
+            ? "password"
+            : result.status === "new"
+              ? "signup"
+              : "email",
+        );
         setMessage(
           result.status === "pending"
-            ? "Your registration request is waiting for admin approval."
+            ? "Your account is waiting for admin approval."
+            : result.status === "suspended"
+              ? "This account is suspended. Contact an administrator."
             : "",
         );
       } catch (error) {
@@ -70,9 +78,10 @@ export function PublicLoginBoundary({ profiles }: { profiles: Profile[] }) {
 
     startTransition(async () => {
       try {
-        const result = await submitRegistrationRequest({
+        const result = await createPendingUserAccount({
           username: String(form.get("username") ?? ""),
           email,
+          password: String(form.get("password") ?? ""),
           requestedProfileId: String(form.get("profileId") ?? ""),
         });
 
@@ -84,7 +93,7 @@ export function PublicLoginBoundary({ profiles }: { profiles: Profile[] }) {
           event.currentTarget.reset();
         }
       } catch (error) {
-        setMessage(error instanceof Error ? error.message : "Unable to submit request.");
+        setMessage(error instanceof Error ? error.message : "Unable to create account.");
       }
     });
   }
@@ -116,7 +125,7 @@ export function PublicLoginBoundary({ profiles }: { profiles: Profile[] }) {
               Sign in with your approved account.
             </h1>
             <p className="mt-5 max-w-lg text-base leading-7 text-[#586158]">
-              New users submit a profile request first. Admins approve requests and create accounts.
+              New users create a pending account first. Admins approve accounts before dashboard access.
             </p>
           </div>
 
@@ -126,7 +135,7 @@ export function PublicLoginBoundary({ profiles }: { profiles: Profile[] }) {
                 <div>
                   <h2 className="text-2xl font-semibold">Enter your email</h2>
                   <p className="mt-2 text-sm leading-6 text-[#586158]">
-                    Approved users continue with a password. New emails submit a request for admin approval.
+                    Approved users continue with a password. New emails create a pending account for admin approval.
                   </p>
                 </div>
                 <Field label="Email" name="email" type="email" placeholder="name@example.com" />
@@ -155,10 +164,11 @@ export function PublicLoginBoundary({ profiles }: { profiles: Profile[] }) {
             {step === "signup" ? (
               <form onSubmit={handleSignUp} className="space-y-5">
                 <div>
-                  <h2 className="text-2xl font-semibold">Request an account</h2>
+                  <h2 className="text-2xl font-semibold">Create a pending account</h2>
                   <p className="mt-2 text-sm text-[#586158]">{email}</p>
                 </div>
                 <Field label="Username" name="username" placeholder="Your name" />
+                <Field label="Password" name="password" type="password" placeholder="Password" />
                 <label className="block text-sm font-medium">
                   Profile Type
                   <select
@@ -179,7 +189,7 @@ export function PublicLoginBoundary({ profiles }: { profiles: Profile[] }) {
                     )}
                   </select>
                 </label>
-                <SubmitButton label={isPending ? "Submitting..." : "Submit Request"} />
+                <SubmitButton label={isPending ? "Creating..." : "Create Account"} />
                 <button
                   type="button"
                   onClick={resetFlow}

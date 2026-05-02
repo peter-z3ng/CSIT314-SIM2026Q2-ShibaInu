@@ -17,14 +17,18 @@ export default async function ProfileDashboardPage({
     return <DashboardBoundary account={account} />;
   }
 
-  const [requests, profiles] = await Promise.all([
-    AdminController.listPendingRegistrationRequests(),
+  const [pendingAccounts, profiles] = await Promise.all([
+    AdminController.listPendingUserAccounts(),
     AdminController.listProfiles(),
   ]);
 
   return (
     <DashboardBoundary account={account}>
-      <AdminDashboardBoundary account={account} requests={requests} profiles={profiles} />
+      <AdminDashboardBoundary
+        account={account}
+        pendingAccounts={pendingAccounts}
+        profiles={profiles}
+      />
     </DashboardBoundary>
   );
 }

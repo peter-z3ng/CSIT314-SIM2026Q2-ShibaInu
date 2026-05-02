@@ -1,17 +1,17 @@
-import type { Profile } from "@/entity/Profile";
-import type { RegistrationRequestRecord } from "@/entity/RegistrationRequest";
+import type { Profile, UserAccount } from "@/entity/Profile";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
-type RegistrationRequestRow = {
-  id: string;
+type ProfileRow = {
+  profile_id: string;
+  profile: string;
+};
+
+type UserAccountRow = {
+  user_id: string;
   username: string;
   email: string;
-  requested_profile: {
-    profile_id: string;
-    profile: string;
-  };
-  status: RegistrationRequestRecord["status"];
-  created_at: string;
+  status: UserAccount["status"];
+  profile: ProfileRow;
 };
 
 export class AdminController {
@@ -21,7 +21,7 @@ export class AdminController {
       .from("user_profile")
       .select("profile_id, profile")
       .order("profile", { ascending: true })
-      .returns<RegistrationRequestRow["requested_profile"][]>();
+      .returns<ProfileRow[]>();
 
     if (error) {
       throw new Error(error.message);
@@ -30,33 +30,30 @@ export class AdminController {
     return data.map(mapProfile);
   }
 
-  static async listPendingRegistrationRequests(): Promise<RegistrationRequestRecord[]> {
+  static async listPendingUserAccounts(): Promise<UserAccount[]> {
     const supabase = createSupabaseAdminClient();
     const { data, error } = await supabase
-      .from("registration_requests")
-      .select(
-        "id, username, email, requested_profile:user_profile(profile_id, profile), status, created_at",
-      )
+      .from("user_account")
+      .select("user_id, username, email, status, profile:user_profile(profile_id, profile)")
       .eq("status", "pending")
       .order("created_at", { ascending: true })
-      .returns<RegistrationRequestRow[]>();
+      .returns<UserAccountRow[]>();
 
     if (error) {
       throw new Error(error.message);
     }
 
-    return data.map((request) => ({
-      id: request.id,
-      username: request.username,
-      email: request.email,
-      requestedProfile: mapProfile(request.requested_profile),
-      status: request.status,
-      createdAt: request.created_at,
+    return data.map((account) => ({
+      userId: account.user_id,
+      username: account.username,
+      email: account.email,
+      status: account.status,
+      profile: mapProfile(account.profile),
     }));
   }
 }
 
-function mapProfile(profile: RegistrationRequestRow["requested_profile"]): Profile {
+function mapProfile(profile: ProfileRow): Profile {
   return {
     profileId: profile.profile_id,
     profile: profile.profile,

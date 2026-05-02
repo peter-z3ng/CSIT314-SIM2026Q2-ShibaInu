@@ -7,6 +7,7 @@ type UserAccountRow = {
   user_id: string;
   username: string;
   email: string;
+  status: UserAccount["status"];
   profile: {
     profile_id: string;
     profile: string;
@@ -16,6 +17,7 @@ type UserAccountRow = {
 export type EmailLookupResult =
   | { status: "existing"; email: string; profile: Profile }
   | { status: "pending"; email: string }
+  | { status: "suspended"; email: string }
   | { status: "new"; email: string };
 
 export class AuthController {
@@ -31,7 +33,7 @@ export class AuthController {
 
     const { data: account, error } = await supabase
       .from("user_account")
-      .select("user_id, username, email, profile:user_profile(profile_id, profile)")
+      .select("user_id, username, email, status, profile:user_profile(profile_id, profile)")
       .eq("user_id", user.id)
       .single<UserAccountRow>();
 
@@ -49,6 +51,10 @@ export class AuthController {
       redirect("/login");
     }
 
+    if (account.status !== "active") {
+      redirect("/login");
+    }
+
     if (profileToPath(account.profile) !== profilePath) {
       redirect(RouteController.getDashboardPath(account.profile));
     }
@@ -60,6 +66,10 @@ export class AuthController {
     const account = await AuthController.getCurrentAccount();
 
     if (!account) {
+      redirect("/login");
+    }
+
+    if (account.status !== "active") {
       redirect("/login");
     }
 
@@ -76,6 +86,7 @@ function mapUserAccountRow(row: UserAccountRow): UserAccount {
     userId: row.user_id,
     username: row.username,
     email: row.email,
+    status: row.status,
     profile: {
       profileId: row.profile.profile_id,
       profile: row.profile.profile,

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { RouteController } from "@/controller/RouteController";
 import { isAdminProfile, type UserAccount } from "@/entity/Profile";
 
-const adminCopy = "Manage platform users, approve account requests, and create profiles.";
+const adminCopy = "Manage platform users, approve pending accounts, and create profiles.";
 const userCopy = "View account details, profile-specific tasks, and activity summaries.";
 
 export function DashboardBoundary({

@@ -2,8 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { RegistrationRequest } from "@/entity/RegistrationRequest";
-import type { Profile } from "@/entity/Profile";
+import type { Profile, UserAccount } from "@/entity/Profile";
 import { AuthController, type EmailLookupResult } from "@/controller/AuthController";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -16,6 +15,12 @@ type ActionResult = {
 type ProfileRow = {
   profile_id: string;
   profile: string;
+};
+
+type AccountLookupRow = {
+  email: string;
+  status: UserAccount["status"];
+  profile: ProfileRow;
 };
 
 export async function listPublicProfiles(): Promise<Profile[]> {
@@ -38,169 +43,140 @@ export async function lookupEmail(email: string): Promise<EmailLookupResult> {
   const normalizedEmail = normalizeEmail(email);
   const supabase = createSupabaseAdminClient();
 
-  const { data: account, error: accountError } = await supabase
+  const { data: account, error } = await supabase
     .from("user_account")
-    .select("email, profile:user_profile(profile_id, profile)")
+    .select("email, status, profile:user_profile(profile_id, profile)")
     .eq("email", normalizedEmail)
-    .maybeSingle<{ email: string; profile: ProfileRow }>();
+    .maybeSingle<AccountLookupRow>();
 
-  if (accountError) {
-    throw new Error(accountError.message);
+  if (error) {
+    throw new Error(error.message);
   }
 
-  if (account) {
-    return {
-      status: "existing",
-      email: normalizedEmail,
-      profile: mapProfileRow(account.profile),
-    };
+  if (!account) {
+    return { status: "new", email: normalizedEmail };
   }
 
-  const { data: request, error: requestError } = await supabase
-    .from("registration_requests")
-    .select("email, status")
-    .eq("email", normalizedEmail)
-    .eq("status", "pending")
-    .maybeSingle<{ email: string; status: string }>();
-
-  if (requestError) {
-    throw new Error(requestError.message);
-  }
-
-  if (request) {
+  if (account.status === "pending") {
     return { status: "pending", email: normalizedEmail };
   }
 
-  return { status: "new", email: normalizedEmail };
+  if (account.status === "suspended") {
+    return { status: "suspended", email: normalizedEmail };
+  }
+
+  return {
+    status: "existing",
+    email: normalizedEmail,
+    profile: mapProfileRow(account.profile),
+  };
 }
 
-export async function submitRegistrationRequest(input: {
+export async function createPendingUserAccount(input: {
   username: string;
   email: string;
+  password: string;
   requestedProfileId: string;
 }): Promise<ActionResult> {
-  const request = new RegistrationRequest(input);
-  const supabase = createSupabaseAdminClient();
+  const username = input.username.trim();
+  const email = normalizeEmail(input.email);
 
-  const existing = await lookupEmail(request.email);
+  if (!username) {
+    return { ok: false, message: "Username is required." };
+  }
+
+  if (input.password.length < 6) {
+    return { ok: false, message: "Password must be at least 6 characters." };
+  }
+
+  if (!input.requestedProfileId) {
+    return { ok: false, message: "Select a profile." };
+  }
+
+  const existing = await lookupEmail(email);
 
   if (existing.status !== "new") {
     return {
       ok: false,
       message:
         existing.status === "pending"
-          ? "A registration request is already pending for this email."
+          ? "Your account is waiting for admin approval."
           : "An account already exists for this email.",
     };
   }
 
+  const supabase = createSupabaseAdminClient();
   const { data: profile, error: profileError } = await supabase
     .from("user_profile")
     .select("profile_id, profile")
-    .eq("profile_id", request.requestedProfileId)
-    .single<{ profile_id: string; profile: string }>();
+    .eq("profile_id", input.requestedProfileId)
+    .single<ProfileRow>();
 
   if (profileError || !profile) {
     return { ok: false, message: profileError?.message ?? "Selected profile was not found." };
   }
 
   if (profile.profile.toLowerCase() === "admin") {
-    return { ok: false, message: "This profile cannot be requested publicly." };
-  }
-
-  const { error } = await supabase.from("registration_requests").insert({
-    username: request.username,
-    email: request.email,
-    requested_profile_id: request.requestedProfileId,
-    status: "pending",
-  });
-
-  if (error) {
-    return { ok: false, message: error.message };
-  }
-
-  revalidatePath("/admin/dashboard");
-  return { ok: true, message: "Registration request submitted for admin approval." };
-}
-
-export async function approveRegistrationRequest(formData: FormData) {
-  await AuthController.requireAdmin();
-
-  const requestId = String(formData.get("requestId") ?? "");
-  const temporaryPassword = String(formData.get("temporaryPassword") ?? "");
-
-  if (temporaryPassword.length < 6) {
-    throw new Error("Temporary password must be at least 6 characters.");
-  }
-
-  const supabase = createSupabaseAdminClient();
-  const { data: request, error: requestError } = await supabase
-    .from("registration_requests")
-    .select("id, username, email, requested_profile_id, status")
-    .eq("id", requestId)
-    .single<{
-      id: string;
-      username: string;
-      email: string;
-      requested_profile_id: string;
-      status: string;
-    }>();
-
-  if (requestError || !request) {
-    throw new Error(requestError?.message ?? "Request was not found.");
-  }
-
-  if (request.status !== "pending") {
-    throw new Error("Only pending requests can be approved.");
+    return { ok: false, message: "Admin accounts cannot be requested publicly." };
   }
 
   const { data: createdUser, error: createError } = await supabase.auth.admin.createUser({
-    email: request.email,
-    password: temporaryPassword,
+    email,
+    password: input.password,
     email_confirm: true,
     user_metadata: {
-      username: request.username,
-      profile_id: request.requested_profile_id,
+      username,
+      profile_id: input.requestedProfileId,
     },
   });
 
   if (createError || !createdUser.user) {
-    throw new Error(createError?.message ?? "Unable to create user account.");
+    return { ok: false, message: createError?.message ?? "Unable to create account." };
   }
 
   const { error: accountError } = await supabase.from("user_account").insert({
     user_id: createdUser.user.id,
-    username: request.username,
-    email: request.email,
-    profile_id: request.requested_profile_id,
+    username,
+    email,
+    profile_id: input.requestedProfileId,
+    status: "pending",
   });
 
   if (accountError) {
     await supabase.auth.admin.deleteUser(createdUser.user.id);
-    throw new Error(accountError.message);
+    return { ok: false, message: accountError.message };
   }
 
-  const { error: updateError } = await supabase
-    .from("registration_requests")
-    .update({ status: "approved", reviewed_at: new Date().toISOString() })
-    .eq("id", request.id);
+  revalidatePath("/admin/dashboard");
+  return { ok: true, message: "Account created and waiting for admin approval." };
+}
 
-  if (updateError) {
-    throw new Error(updateError.message);
+export async function approveUserAccount(formData: FormData) {
+  await AuthController.requireAdmin();
+
+  const userId = String(formData.get("userId") ?? "");
+  const supabase = createSupabaseAdminClient();
+  const { error } = await supabase
+    .from("user_account")
+    .update({ status: "active", updated_at: new Date().toISOString() })
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error(error.message);
   }
 
   revalidatePath("/admin/dashboard");
 }
 
-export async function rejectRegistrationRequest(formData: FormData) {
+export async function suspendUserAccount(formData: FormData) {
   await AuthController.requireAdmin();
 
-  const requestId = String(formData.get("requestId") ?? "");
+  const userId = String(formData.get("userId") ?? "");
   const supabase = createSupabaseAdminClient();
   const { error } = await supabase
-    .from("registration_requests")
-    .update({ status: "rejected", reviewed_at: new Date().toISOString() })
-    .eq("id", requestId);
+    .from("user_account")
+    .update({ status: "suspended", updated_at: new Date().toISOString() })
+    .eq("user_id", userId);
 
   if (error) {
     throw new Error(error.message);

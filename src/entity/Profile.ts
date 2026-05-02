@@ -7,6 +7,7 @@ export type UserAccount = {
   userId: string;
   username: string;
   email: string;
+  status: "active" | "pending" | "suspended";
   profile: Profile;
 };
 
