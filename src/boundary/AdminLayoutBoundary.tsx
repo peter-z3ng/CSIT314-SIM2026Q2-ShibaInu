@@ -85,27 +85,6 @@ export function AdminLayoutBoundary({
 
             <nav className="mt-5 grid gap-3">
               <Link
-                href="/admin/dashboard"
-                onClick={() => setIsMenuOpen(false)}
-                className="rounded-md px-3 py-2 text-sm font-semibold text-[#1d2520] transition hover:bg-[#fff2df]"
-              >
-                All User Account
-              </Link>
-              <Link
-                href="/admin/account"
-                onClick={() => setIsMenuOpen(false)}
-                className="rounded-md px-3 py-2 text-sm font-semibold text-[#1d2520] transition hover:bg-[#fff2df]"
-              >
-                Create Account
-              </Link>
-              <Link
-                href="/admin/profile"
-                onClick={() => setIsMenuOpen(false)}
-                className="rounded-md px-3 py-2 text-sm font-semibold text-[#1d2520] transition hover:bg-[#fff2df]"
-              >
-                Create Profile
-              </Link>
-              <Link
                 href="/admin/info"
                 onClick={() => setIsMenuOpen(false)}
                 className="rounded-md px-3 py-2 text-sm font-semibold text-[#1d2520] transition hover:bg-[#fff2df]"
