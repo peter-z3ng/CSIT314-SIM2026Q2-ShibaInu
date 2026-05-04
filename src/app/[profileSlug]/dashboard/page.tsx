@@ -16,7 +16,7 @@ export default async function ProfileDashboardPage({
   const account = await authController.requireProfilePath(profileSlug);
 
   if (account.profile.profile.toLowerCase() === "donee") {
-    return <DoneeDashboardBoundary account={account} />;
+    return <DoneeDashboardBoundary account={account.toDTO()} />;
   }
 
   if (account.profile.profile.toLowerCase() !== "admin") {
