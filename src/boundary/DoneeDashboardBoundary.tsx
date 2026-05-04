@@ -17,6 +17,14 @@ export function DoneeDashboardBoundary({ account }: { account: UserAccount }) {
             unoptimized
             className="object-contain"
           />
+          <div className="absolute left-8 top-1/2 max-w-xl -translate-y-1/2 rounded-3xl border border-white/55 bg-[#FFB347]/10 p-7 shadow-2xl backdrop-blur-xs md:left-28 md:p-9">
+            <h1 className="text-4xl font-black text-[#FFB347] md:text-6xl">Welcome back!</h1>
+            <p className="mt-5 text-base leading-6 md:text-xl">
+              Thank you for being a part of our mission.
+              <br />
+              Together, we can create a better tomorrow.
+            </p>
+          </div>
         </section>
 
         <section className="mt-8">
