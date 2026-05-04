@@ -12,12 +12,15 @@ export default async function AdminAccountPage({
   const { profileSlug } = await params;
   const account = await new AuthController().requireProfilePath(profileSlug);
   const adminAccount = await new AuthController().requireAdmin();
-  const profiles = await new AdminController().listProfiles();
+  const adminController = new AdminController();
+  const profiles = await adminController.listProfiles();
+  const pendingAccounts = await adminController.listPendingUserAccounts();
 
   return (
     <AdminAccountBoundary
       account={(adminAccount ?? account).toDTO()}
       profiles={profiles.map((profile) => profile.toDTO())}
+      pendingAccounts={pendingAccounts.map((pendingAccount) => pendingAccount.toDTO())}
     />
   );
 }

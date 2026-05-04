@@ -56,6 +56,7 @@ export async function approveUserAccount(formData: FormData) {
   await new AuthController().requireAdmin();
   await new AdminController().approveUserAccount(String(formData.get("userId") ?? ""));
   revalidatePath("/admin/dashboard");
+  revalidatePath("/admin/account");
 }
 
 export async function suspendUserAccount(formData: FormData) {
@@ -80,6 +81,7 @@ export async function createUserAccount(formData: FormData) {
     profileId: String(formData.get("profileId") ?? ""),
   });
   revalidatePath("/admin/dashboard");
+  revalidatePath("/admin/account");
 }
 
 export async function signOutAndRedirect() {

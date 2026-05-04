@@ -1,5 +1,6 @@
 import { AdminDashboardBoundary } from "@/boundary/AdminDashboardBoundary";
 import { DashboardBoundary } from "@/boundary/DashboardBoundary";
+import { DoneeDashboardBoundary } from "@/boundary/DoneeDashboardBoundary";
 import { AdminController } from "@/controller/AdminController";
 import { AuthController } from "@/controller/AuthController";
 
@@ -13,6 +14,10 @@ export default async function ProfileDashboardPage({
   const { profileSlug } = await params;
   const authController = new AuthController();
   const account = await authController.requireProfilePath(profileSlug);
+
+  if (account.profile.profile.toLowerCase() === "donee") {
+    return <DoneeDashboardBoundary account={account} />;
+  }
 
   if (account.profile.profile.toLowerCase() !== "admin") {
     return <DashboardBoundary account={account} />;
