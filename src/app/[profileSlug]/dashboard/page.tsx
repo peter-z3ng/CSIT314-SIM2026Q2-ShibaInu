@@ -3,6 +3,7 @@ import { DashboardBoundary } from "@/boundary/DashboardBoundary";
 import { DoneeDashboardBoundary } from "@/boundary/DoneeDashboardBoundary";
 import { AdminController } from "@/controller/AdminController";
 import { AuthController } from "@/controller/AuthController";
+import { DoneeController } from "@/controller/DoneeController";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +17,19 @@ export default async function ProfileDashboardPage({
   const account = await authController.requireProfilePath(profileSlug);
 
   if (account.profile.profile.toLowerCase() === "donee") {
-    return <DoneeDashboardBoundary account={account.toDTO()} />;
+    const doneeController = new DoneeController();
+    const [totalDonated, fraList] = await Promise.all([
+      doneeController.getTotalDonated(account.userId),
+      doneeController.listFRA(),
+    ]);
+
+    return (
+      <DoneeDashboardBoundary
+        account={account.toDTO()}
+        totalDonated={totalDonated}
+        fraList={fraList.map((fra) => fra.toDTO())}
+      />
+    );
   }
 
   if (account.profile.profile.toLowerCase() !== "admin") {
