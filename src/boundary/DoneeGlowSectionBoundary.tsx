@@ -47,6 +47,9 @@ export function DoneeGlowSectionBoundary({ totalDonated }: { totalDonated: numbe
         <p className="mt-2 text-5xl font-black text-[#1d2520]">
           ${totalDonated.toFixed(2)}
         </p>
+        <p className="text-sm mt-4 tracking-[0.18em] text-[#9b5d12]">
+          Thank you for your generosity.
+        </p>
       </div>
     </div>
   );
