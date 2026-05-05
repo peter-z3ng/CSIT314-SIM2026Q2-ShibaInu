@@ -54,7 +54,7 @@ export function DoneeDashboardBoundary({
                 : "pointer-events-none translate-x-[110%] opacity-0"
             }`}
           >
-            <div className="flex h-full flex-col justify-end gap-3">
+            <div className="absolute left-1/2 top-1/2 flex w-full -translate-x-1/2 -translate-y-2/5 flex-col items-center gap-4">
               <DoneePanelButton 
                 href="/donee/browse"
                 icon={
@@ -102,7 +102,7 @@ function DoneePanelButton({
   return (
     <Link
       href={href}
-      className="flex min-h-11 items-center justify-center gap-2 rounded-3xl text-center text-md font-bold text-[#FFB347] shadow-lg transition hover:border border-[#FFBE5C]/40 hover:brightness-120"
+      className="flex min-h-14 w-50 items-center justify-center gap-3 rounded-4xl text-center text-md font-bold text-[#FFB347] shadow-lg transition hover:border border-[#FFBE5C]/40 hover:brightness-120"
     >
       {icon}
       <span>{children}</span>

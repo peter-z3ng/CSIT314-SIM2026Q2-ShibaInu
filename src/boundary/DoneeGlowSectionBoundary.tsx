@@ -34,7 +34,7 @@ export function DoneeGlowSectionBoundary({ totalDonated }: { totalDonated: numbe
 
   return (
     <div
-      className="relative left-1/2 z-10 mt-[12vw] h-[22vw] w-[40vw] -translate-x-1/2 rounded-t-full transition-[background,box-shadow] duration-500"
+      className="relative left-1/2 z-10 mt-70 h-[22vw] w-[40vw] -translate-x-1/2 rounded-t-full transition-[background,box-shadow] duration-500"
       style={{
         background: `linear-gradient(180deg, hsl(35 100% ${topLightness}%) 10%, hsl(34 100% ${middleLightness}%) 40%, #FFF4EC 90%)`,
         boxShadow: `0 -70px 120px rgba(255, 179, 71, ${glowAlpha})`,
