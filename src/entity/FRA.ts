@@ -5,6 +5,8 @@ export class FRA {
   readonly targetAmount: number;
   readonly currentAmount: number;
   readonly status: string;
+  readonly categoryId: string | null;
+  readonly category: string | null;
 
   constructor(input: {
     fraId: string;
@@ -13,6 +15,8 @@ export class FRA {
     targetAmount: number;
     currentAmount: number;
     status: string;
+    categoryId?: string | null;
+    category?: string | null;
   }) {
     this.fraId = input.fraId;
     this.title = input.title;
@@ -20,6 +24,8 @@ export class FRA {
     this.targetAmount = input.targetAmount;
     this.currentAmount = input.currentAmount;
     this.status = input.status;
+    this.categoryId = input.categoryId ?? null;
+    this.category = input.category ?? null;
   }
 
   get progressPercentage() {
@@ -38,6 +44,8 @@ export class FRA {
       targetAmount: this.targetAmount,
       currentAmount: this.currentAmount,
       status: this.status,
+      categoryId: this.categoryId,
+      category: this.category,
       progressPercentage: this.progressPercentage,
     };
   }
@@ -50,5 +58,7 @@ export type FRADTO = {
   targetAmount: number;
   currentAmount: number;
   status: string;
+  categoryId: string | null;
+  category: string | null;
   progressPercentage: number;
 };

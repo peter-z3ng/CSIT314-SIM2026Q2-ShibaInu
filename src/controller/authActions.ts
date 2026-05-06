@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { AdminController } from "@/controller/AdminController";
 import { AuthController, type EmailLookupResult } from "@/controller/AuthController";
+import { CreateUserAccount } from "@/controller/CreateUserAccount";
 import type { UserProfileDTO } from "@/entity/UserProfile";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -54,7 +55,7 @@ export async function createPendingUserAccount(input: {
 
 export async function approveUserAccount(formData: FormData) {
   await new AuthController().requireAdmin();
-  await new AdminController().approveUserAccount(String(formData.get("userId") ?? ""));
+  await new CreateUserAccount().approvePendingAccount(String(formData.get("userId") ?? ""));
   revalidatePath("/admin/dashboard");
   revalidatePath("/admin/account");
 }
@@ -74,7 +75,7 @@ export async function createProfile(formData: FormData) {
 
 export async function createUserAccount(formData: FormData) {
   await new AuthController().requireAdmin();
-  await new AdminController().createUserAccount({
+  await new CreateUserAccount().createByAdmin({
     username: String(formData.get("username") ?? ""),
     email: String(formData.get("email") ?? ""),
     password: String(formData.get("password") ?? ""),

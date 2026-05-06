@@ -1,4 +1,4 @@
-import { DoneeHeaderBoundary } from "@/boundary/DoneeHeaderBoundary";
+import { Header } from "@/components/Header";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 
 export function DoneePageBoundary({
@@ -10,7 +10,7 @@ export function DoneePageBoundary({
 }) {
   return (
     <main className="min-h-screen bg-[#FFF4EC] text-[#111111]">
-      <DoneeHeaderBoundary account={account} />
+      <Header account={account} />
       <section className="mx-auto max-w-7xl px-6 py-10 lg:px-8">
         <div className="rounded-[2rem] bg-white p-8 shadow-sm">
           <h1 className="text-4xl font-black text-[#FFB347]">{title}</h1>

@@ -4,14 +4,19 @@ import Link from "next/link";
 import { useState } from "react";
 import { RouteController } from "@/controller/RouteController";
 import type { UserAccountDTO } from "@/entity/UserAccount";
+import { profileToPath } from "@/entity/UserProfile";
 
-export function DoneeHeaderBoundary({ account }: { account: UserAccountDTO }) {
+export function Header({ account }: { account: UserAccountDTO }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const profilePath = profileToPath(account.profile);
 
   return (
     <header className="border-b border-[#f0d8bd] bg-[#fffaf5]">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 lg:px-8">
-        <Link href="/" className="text-lg font-bold">
+        <Link
+          href={RouteController.getDashboardPath(account.profile)}
+          className="text-lg font-bold"
+        >
           Hope Spring
         </Link>
 
@@ -36,7 +41,7 @@ export function DoneeHeaderBoundary({ account }: { account: UserAccountDTO }) {
             <div className="flex items-start justify-between gap-4 border-b border-[#f0d8bd] pb-4">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#9b5d12]">
-                  Donee
+                  {account.profile.profile}
                 </p>
                 <h2 className="mt-1 text-2xl font-bold">{account.username}</h2>
                 <p className="mt-1 text-sm text-[#6f6258]">{account.email}</p>
@@ -52,7 +57,7 @@ export function DoneeHeaderBoundary({ account }: { account: UserAccountDTO }) {
 
             <nav className="mt-5 grid gap-3">
               <Link
-                href="/donee/info"
+                href={`/${profilePath}/info`}
                 onClick={() => setIsMenuOpen(false)}
                 className="rounded-md px-3 py-2 text-sm font-semibold text-[#1d2520] transition hover:bg-[#fff2df]"
               >

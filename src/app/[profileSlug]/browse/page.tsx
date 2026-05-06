@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
-import { DoneePageBoundary } from "@/boundary/DoneePageBoundary";
+import { SearchBoundary } from "@/boundary/SearchBoundary";
 import { AuthController } from "@/controller/AuthController";
 import { RouteController } from "@/controller/RouteController";
+import { SearchFRAController } from "@/controller/SearchFRAController";
 
 export const dynamic = "force-dynamic";
 
@@ -17,5 +18,17 @@ export default async function DoneeBrowsePage({
     redirect(RouteController.getDashboardPath(account.profile));
   }
 
-  return <DoneePageBoundary account={account.toDTO()} title="Browse" />;
+  const searchFRAController = new SearchFRAController();
+  const [fraList, categories] = await Promise.all([
+    searchFRAController.searchFRA(),
+    searchFRAController.listCategories(),
+  ]);
+
+  return (
+    <SearchBoundary
+      account={account.toDTO()}
+      fraList={fraList.map((fra) => fra.toDTO())}
+      categories={categories}
+    />
+  );
 }

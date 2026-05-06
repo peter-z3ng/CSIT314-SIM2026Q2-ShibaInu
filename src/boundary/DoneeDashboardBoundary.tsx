@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { DoneeFRASectionBoundary } from "@/boundary/DoneeFRASectionBoundary";
 import { DoneeGlowSectionBoundary } from "@/boundary/DoneeGlowSectionBoundary";
-import { DoneeHeaderBoundary } from "@/boundary/DoneeHeaderBoundary";
+import { Header } from "@/components/Header";
 import type { FRADTO } from "@/entity/FRA";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 
@@ -22,7 +22,7 @@ export function DoneeDashboardBoundary({
 
   return (
     <main className="min-h-screen bg-[#FFF4EC] text-[#111111]">
-      <DoneeHeaderBoundary account={account} />
+      <Header account={account} />
 
       <div className="mx-auto max-w-[80vw] px-9 py-10">
         <section className="sticky top-6 z-0 aspect-[1920/748] overflow-hidden rounded-[2rem] bg-[#111111]">
