@@ -38,7 +38,7 @@ export class AdminController {
       .from("user_profile")
       .select("profile_id, profile")
       .order("profile", { ascending: true })
-      .returns<ProfileRow[]>();
+      .overrideTypes<ProfileRow[], { merge: false }>();
 
     if (error) {
       throw new Error(error.message);
@@ -63,7 +63,7 @@ export class AdminController {
       .from("user_account")
       .select("user_id, username, email, status, profile:user_profile(profile_id, profile)")
       .order("created_at", { ascending: true })
-      .returns<UserAccountRow[]>();
+      .overrideTypes<UserAccountRow[], { merge: false }>();
 
     if (error) {
       throw new Error(error.message);

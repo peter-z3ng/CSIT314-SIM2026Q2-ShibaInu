@@ -7,21 +7,19 @@ type DonationAmountRow = {
 
 type FRARow = {
   fra_id: string;
-  user_id: string | null;
+  user_id: string;
+  category_id: string;
   title: string;
   description: string | null;
   target_amount: number;
   current_amount: number;
+  start_date: string;
   status: string;
-  category_id: string | null;
-  start_date: string | null;
+  view_count: number;
+  fav_count: number;
   end_date: string | null;
-  created_at: string | null;
+  created_at: string;
   updated_at: string | null;
-  category: {
-    category_id: string;
-    category_name: string;
-  } | null;
 };
 
 export class DoneeController {
@@ -31,7 +29,7 @@ export class DoneeController {
       .from("donation")
       .select("amount")
       .eq("user_id", userId)
-      .returns<DonationAmountRow[]>();
+      .overrideTypes<DonationAmountRow[], { merge: false }>();
 
     if (error) {
       throw new Error(error.message);
@@ -45,10 +43,10 @@ export class DoneeController {
     const { data, error } = await supabase
       .from("fra")
       .select(
-        "fra_id, user_id, title, description, target_amount, current_amount, status, category_id, start_date, end_date, created_at, updated_at, category:fra_category(category_id, category_name)",
+        "fra_id, user_id, category_id, title, description, target_amount, current_amount, start_date, status, view_count, fav_count, end_date, created_at, updated_at",
       )
       .order("updated_at", { ascending: false, nullsFirst: false })
-      .returns<FRARow[]>();
+      .overrideTypes<FRARow[], { merge: false }>();
 
     if (error) {
       throw new Error(error.message);
@@ -57,14 +55,15 @@ export class DoneeController {
     return data.map((fra) => new FRA({
       fraId: fra.fra_id,
       userId: fra.user_id,
+      categoryId: fra.category_id,
       title: fra.title,
       description: fra.description,
       targetAmount: Number(fra.target_amount),
       currentAmount: Number(fra.current_amount),
-      status: fra.status,
-      categoryId: fra.category_id,
-      category: fra.category?.category_name ?? null,
       startDate: fra.start_date,
+      status: fra.status,
+      viewCount: Number(fra.view_count),
+      favCount: Number(fra.fav_count),
       endDate: fra.end_date,
       createdAt: fra.created_at,
       updatedAt: fra.updated_at,

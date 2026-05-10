@@ -21,7 +21,11 @@ create table public.user_account (
 
 create table if not exists public.fra_category (
   category_id uuid primary key default gen_random_uuid(),
-  category_name varchar(255) not null unique
+  category_name varchar(255) not null unique,
+  user_id uuid not null references public.user_account(user_id),
+  description text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz
 );
 
 create table if not exists public.fra (
@@ -33,7 +37,9 @@ create table if not exists public.fra (
   target_amount numeric(12, 2) not null default 0,
   current_amount numeric(12, 2) not null default 0,
   status varchar(50) not null default 'active',
-  start_date date,
+  start_date date not null default current_date,
+  view_count integer not null default 0,
+  fav_count integer not null default 0,
   end_date date,
   created_at timestamptz not null default now(),
   updated_at timestamptz
@@ -50,6 +56,12 @@ add column if not exists start_date date;
 
 alter table public.fra
 add column if not exists end_date date;
+
+alter table public.fra
+add column if not exists view_count integer not null default 0;
+
+alter table public.fra
+add column if not exists fav_count integer not null default 0;
 
 alter table public.user_profile enable row level security;
 alter table public.user_account enable row level security;

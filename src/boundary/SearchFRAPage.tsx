@@ -2,8 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { Header } from "@/components/Header";
-import type { FRACategoryDTO } from "@/controller/SearchFRAController";
 import type { FRADTO } from "@/entity/FRA";
+import type { FRACategoryDTO } from "@/entity/FRACategory";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 
 export function SearchFRAPage({
@@ -18,22 +18,29 @@ export function SearchFRAPage({
   const [keyword, setKeyword] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState("all");
 
+  const categoryNameById = useMemo(() => {
+    return new Map(
+      categories.map((category) => [category.categoryId, category.categoryName]),
+    );
+  }, [categories]);
+
   const filteredFRA = useMemo(() => {
     const normalizedKeyword = keyword.trim().toLowerCase();
 
     return fraList.filter((fra) => {
+      const categoryName = categoryNameById.get(fra.categoryId);
       const matchesKeyword =
         !normalizedKeyword ||
         fra.title.toLowerCase().includes(normalizedKeyword) ||
         (fra.description?.toLowerCase().includes(normalizedKeyword) ?? false) ||
-        (fra.category?.toLowerCase().includes(normalizedKeyword) ?? false);
+        (categoryName?.toLowerCase().includes(normalizedKeyword) ?? false);
 
       const matchesCategory =
         selectedCategoryId === "all" || fra.categoryId === selectedCategoryId;
 
       return matchesKeyword && matchesCategory;
     });
-  }, [fraList, keyword, selectedCategoryId]);
+  }, [categoryNameById, fraList, keyword, selectedCategoryId]);
 
   const hasFilters = keyword.trim() !== "" || selectedCategoryId !== "all";
 
@@ -57,7 +64,7 @@ export function SearchFRAPage({
       <article key={fra.fraId} className="rounded-2xl bg-white p-5 shadow-sm">
         <div className="flex items-center justify-between gap-3">
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#9b5d12]">
-            {fra.category ?? "General"}
+            {categoryNameById.get(fra.categoryId) ?? "General"}
           </p>
           <span className="rounded-md bg-[#fff2df] px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.1em] text-[#9b5d12]">
             {fra.status}
@@ -126,7 +133,7 @@ export function SearchFRAPage({
                   <option value="all">All</option>
                   {categories.map((category) => (
                     <option key={category.categoryId} value={category.categoryId}>
-                      {category.category}
+                      {category.categoryName}
                     </option>
                   ))}
                 </select>

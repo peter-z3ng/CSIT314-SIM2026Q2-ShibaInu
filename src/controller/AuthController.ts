@@ -46,7 +46,7 @@ export class AuthController {
       .select("profile_id, profile")
       .neq("profile", "Admin")
       .order("profile", { ascending: true })
-      .returns<ProfileRow[]>();
+      .overrideTypes<ProfileRow[], { merge: false }>();
 
     if (error) {
       throw new Error(error.message);

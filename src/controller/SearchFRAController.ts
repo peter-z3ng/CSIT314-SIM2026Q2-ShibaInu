@@ -1,4 +1,6 @@
 import { FRA } from "@/entity/FRA";
+import { FRACategory } from "@/entity/FRACategory";
+import type { FRACategoryDTO } from "@/entity/FRACategory";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 type FRARow = {
@@ -11,8 +13,8 @@ type FRARow = {
   current_amount: number;
   start_date: string;
   status: string;
-  viewCount: number;
-  favCount: number;
+  view_count: number;
+  fav_count: number;
   end_date: string | null;
   created_at: string;
   updated_at: string | null;
@@ -21,11 +23,10 @@ type FRARow = {
 type FRACategoryRow = {
   category_id: string;
   category_name: string;
-};
-
-export type FRACategoryDTO = {
-  categoryId: string;
-  category: string;
+  user_id: string;
+  description: string | null;
+  created_at: string;
+  updated_at: string | null;
 };
 
 export class SearchFRAController {
@@ -37,7 +38,7 @@ export class SearchFRAController {
     let query = supabase
       .from("fra")
       .select(
-        "fra_id, user_id, title, description, target_amount, current_amount, status, category_id, start_date, end_date, created_at, updated_at, category:fra_category(category_id, category_name)",
+        "fra_id, user_id, category_id, title, description, target_amount, current_amount, start_date, status, view_count, fav_count, end_date, created_at, updated_at",
       )
       .order("updated_at", { ascending: false, nullsFirst: false });
 
@@ -50,7 +51,7 @@ export class SearchFRAController {
       query = query.eq("category_id", categoryId);
     }
 
-    const { data, error } = await query.returns<FRARow[]>();
+    const { data, error } = await query.overrideTypes<FRARow[], { merge: false }>();
 
     if (error) {
       throw new Error(error.message);
@@ -63,18 +64,24 @@ export class SearchFRAController {
     const supabase = createSupabaseAdminClient();
     const { data, error } = await supabase
       .from("fra_category")
-      .select("category_id, category_name")
+      .select("category_id, category_name, user_id, description, created_at, updated_at")
       .order("category_name", { ascending: true })
-      .returns<FRACategoryRow[]>();
+      .overrideTypes<FRACategoryRow[], { merge: false }>();
 
     if (error) {
       throw new Error(error.message);
     }
 
-    return data.map((category) => ({
-      categoryId: category.category_id,
-      category: category.category_name,
-    }));
+    return data.map((category) =>
+      new FRACategory({
+        categoryId: category.category_id,
+        categoryName: category.category_name,
+        userId: category.user_id,
+        description: category.description,
+        createdAt: category.created_at,
+        updatedAt: category.updated_at,
+      }).toDTO(),
+    );
   }
 }
 
@@ -82,14 +89,15 @@ function mapFRARow(row: FRARow) {
   return new FRA({
     fraId: row.fra_id,
     userId: row.user_id,
+    categoryId: row.category_id,
     title: row.title,
     description: row.description,
     targetAmount: Number(row.target_amount),
     currentAmount: Number(row.current_amount),
     status: row.status,
-    categoryId: row.category_id,
-    category: row.category?.category_name ?? null,
     startDate: row.start_date,
+    viewCount: Number(row.view_count),
+    favCount: Number(row.fav_count),
     endDate: row.end_date,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
