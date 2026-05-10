@@ -3,21 +3,19 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 type FRARow = {
   fra_id: string;
-  user_id: string | null;
+  user_id: string;
+  category_id: string;
   title: string;
   description: string | null;
   target_amount: number;
   current_amount: number;
+  start_date: string;
   status: string;
-  category_id: string | null;
-  start_date: string | null;
+  viewCount: number;
+  favCount: number;
   end_date: string | null;
-  created_at: string | null;
+  created_at: string;
   updated_at: string | null;
-  category: {
-    category_id: string;
-    category_name: string;
-  } | null;
 };
 
 type FRACategoryRow = {

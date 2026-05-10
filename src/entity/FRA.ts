@@ -19,7 +19,7 @@ export class FRA {
     userId: string;
     categoryId: string;
     title: string;
-    description: string | null;
+    description?: string | null;
     targetAmount: number;
     currentAmount: number;
     startDate: string;
@@ -34,7 +34,7 @@ export class FRA {
     this.userId = input.userId;
     this.categoryId = input.categoryId;
     this.title = input.title;
-    this.description = input.description;
+    this.description = input.description ?? null;
     this.targetAmount = input.targetAmount;
     this.currentAmount = input.currentAmount;
     this.startDate = input.startDate;
