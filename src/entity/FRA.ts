@@ -54,6 +54,14 @@ export class FRA {
     return Math.min(100, Math.round((this.currentAmount / this.targetAmount) * 100));
   }
 
+  viewFRADetails(fraId: string) {
+    if (this.fraId !== fraId) {
+      throw new Error("FRA details do not match the requested id.");
+    }
+
+    return this;
+  }
+
   toDTO(): FRADTO {
     return {
       fraId: this.fraId,

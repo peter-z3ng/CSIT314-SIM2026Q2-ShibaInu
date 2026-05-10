@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Header } from "@/components/Header";
 import type { FRADTO } from "@/entity/FRA";
 import type { FRACategoryDTO } from "@/entity/FRACategory";
 import type { UserAccountDTO } from "@/entity/UserAccount";
+import { profileToPath } from "@/entity/UserProfile";
 
 export function SearchFRAPage({
   account,
@@ -17,6 +19,7 @@ export function SearchFRAPage({
 }) {
   const [keyword, setKeyword] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState("all");
+  const profilePath = profileToPath(account.profile);
 
   const categoryNameById = useMemo(() => {
     return new Map(
@@ -57,7 +60,7 @@ export function SearchFRAPage({
 
   const displayFRASearchResults = (results: FRADTO[]) => {
     if (!results.length) {
-      return displayError("No fundraising requests match your search.");
+      return displayError("No matching fundraising activities found.");
     }
 
     return results.map((fra) => (
@@ -85,6 +88,12 @@ export function SearchFRAPage({
             ${fra.currentAmount.toFixed(2)} raised of ${fra.targetAmount.toFixed(2)}
           </p>
         </div>
+        <Link
+          href={`/${profilePath}/browse/${fra.fraId}`}
+          className="mt-5 flex h-10 w-full items-center justify-center rounded-md bg-[#FFB347] px-4 text-sm font-semibold text-white transition hover:bg-[#FFBE5C]"
+        >
+          View details
+        </Link>
       </article>
     ));
   };

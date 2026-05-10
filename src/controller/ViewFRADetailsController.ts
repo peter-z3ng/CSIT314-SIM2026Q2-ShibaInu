@@ -1,0 +1,68 @@
+import { FRA } from "@/entity/FRA";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+
+type FRARow = {
+  fra_id: string;
+  user_id: string;
+  category_id: string;
+  title: string;
+  description: string | null;
+  target_amount: number;
+  current_amount: number;
+  start_date: string;
+  status: string;
+  view_count: number;
+  fav_count: number;
+  end_date: string | null;
+  created_at: string;
+  updated_at: string | null;
+};
+
+export class ViewFRADetailsController {
+  async viewFRADetails(fra_id: string): Promise<FRA> {
+    if (!fra_id.trim()) {
+      throw new Error("FRA id is required.");
+    }
+
+    const supabase = createSupabaseAdminClient();
+    const { data, error } = await supabase
+      .from("fra")
+      .select(
+        "fra_id, user_id, category_id, title, description, target_amount, current_amount, start_date, status, view_count, fav_count, end_date, created_at, updated_at",
+      )
+      .eq("fra_id", fra_id)
+      .limit(1)
+      .overrideTypes<FRARow[], { merge: false }>();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    const fra = data[0];
+
+    if (!fra) {
+      throw new Error("FRA was not found.");
+    }
+
+    return mapFRARow(fra).viewFRADetails(fra_id);
+  }
+}
+
+function mapFRARow(row: FRARow) {
+  return new FRA({
+    fraId: row.fra_id,
+    userId: row.user_id,
+    categoryId: row.category_id,
+    title: row.title,
+    description: row.description,
+    targetAmount: Number(row.target_amount),
+    currentAmount: Number(row.current_amount),
+    startDate: row.start_date,
+    status: row.status,
+    viewCount: Number(row.view_count),
+    favCount: Number(row.fav_count),
+    endDate: row.end_date,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  });
+}
