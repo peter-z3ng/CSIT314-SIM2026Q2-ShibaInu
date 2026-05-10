@@ -26,18 +26,30 @@ create table if not exists public.fra_category (
 
 create table if not exists public.fra (
   fra_id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.user_account(user_id),
+  category_id uuid not null references public.fra_category(category_id),
   title varchar(255) not null,
   description text,
-  category_id uuid references public.fra_category(category_id),
   target_amount numeric(12, 2) not null default 0,
   current_amount numeric(12, 2) not null default 0,
   status varchar(50) not null default 'active',
+  start_date date,
+  end_date date,
   created_at timestamptz not null default now(),
   updated_at timestamptz
 );
 
 alter table public.fra
 add column if not exists category_id uuid references public.fra_category(category_id);
+
+alter table public.fra
+add column if not exists user_id uuid references public.user_account(user_id);
+
+alter table public.fra
+add column if not exists start_date date;
+
+alter table public.fra
+add column if not exists end_date date;
 
 alter table public.user_profile enable row level security;
 alter table public.user_account enable row level security;

@@ -6,7 +6,7 @@ import type { FRACategoryDTO } from "@/controller/SearchFRAController";
 import type { FRADTO } from "@/entity/FRA";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 
-export function SearchBoundary({
+export function SearchFRAPage({
   account,
   fraList,
   categories,
@@ -42,6 +42,46 @@ export function SearchBoundary({
     setSelectedCategoryId("all");
   };
 
+  const displayError = (message: string) => (
+    <p className="rounded-2xl bg-white p-5 text-sm text-[#6f6258] md:col-span-2 xl:col-span-3">
+      {message}
+    </p>
+  );
+
+  const displayFRASearchResults = (results: FRADTO[]) => {
+    if (!results.length) {
+      return displayError("No fundraising requests match your search.");
+    }
+
+    return results.map((fra) => (
+      <article key={fra.fraId} className="rounded-2xl bg-white p-5 shadow-sm">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#9b5d12]">
+            {fra.category ?? "General"}
+          </p>
+          <span className="rounded-md bg-[#fff2df] px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.1em] text-[#9b5d12]">
+            {fra.status}
+          </span>
+        </div>
+        <h2 className="mt-4 text-xl font-black">{fra.title}</h2>
+        <p className="mt-3 line-clamp-3 text-sm leading-6 text-[#6f6258]">
+          {fra.description ?? "No description added yet."}
+        </p>
+        <div className="mt-5">
+          <div className="h-2 overflow-hidden rounded-full bg-[#ffe2bd]">
+            <div
+              className="h-full rounded-full bg-[#FFB347]"
+              style={{ width: `${fra.progressPercentage}%` }}
+            />
+          </div>
+          <p className="mt-2 text-sm font-semibold text-[#6f6258]">
+            ${fra.currentAmount.toFixed(2)} raised of ${fra.targetAmount.toFixed(2)}
+          </p>
+        </div>
+      </article>
+    ));
+  };
+
   return (
     <main className="min-h-screen bg-[#FFF4EC] text-[#111111]">
       <Header account={account} />
@@ -50,11 +90,8 @@ export function SearchBoundary({
         <div className="rounded-[2rem] bg-white p-6 shadow-sm md:p-8">
           <div className="flex flex-col justify-between gap-3 md:flex-row md:items-end">
             <div>
-              <p className="text-sm font-bold uppercase tracking-[0.16em] text-[#9b5d12]">
-                Browse
-              </p>
               <h1 className="mt-2 text-4xl font-black text-[#FFB347]">
-                Fundraising Requests
+                Fundraising Activities
               </h1>
             </div>
             <p className="text-sm font-semibold text-[#6f6258]">
@@ -108,39 +145,7 @@ export function SearchBoundary({
         </div>
 
         <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {filteredFRA.map((fra) => (
-            <article key={fra.fraId} className="rounded-2xl bg-white p-5 shadow-sm">
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#9b5d12]">
-                  {fra.category ?? "General"}
-                </p>
-                <span className="rounded-md bg-[#fff2df] px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.1em] text-[#9b5d12]">
-                  {fra.status}
-                </span>
-              </div>
-              <h2 className="mt-4 text-xl font-black">{fra.title}</h2>
-              <p className="mt-3 line-clamp-3 text-sm leading-6 text-[#6f6258]">
-                {fra.description ?? "No description added yet."}
-              </p>
-              <div className="mt-5">
-                <div className="h-2 overflow-hidden rounded-full bg-[#ffe2bd]">
-                  <div
-                    className="h-full rounded-full bg-[#FFB347]"
-                    style={{ width: `${fra.progressPercentage}%` }}
-                  />
-                </div>
-                <p className="mt-2 text-sm font-semibold text-[#6f6258]">
-                  ${fra.currentAmount.toFixed(2)} raised of ${fra.targetAmount.toFixed(2)}
-                </p>
-              </div>
-            </article>
-          ))}
-
-          {!filteredFRA.length ? (
-            <p className="rounded-2xl bg-white p-5 text-sm text-[#6f6258] md:col-span-2 xl:col-span-3">
-              No fundraising requests match your search.
-            </p>
-          ) : null}
+          {displayFRASearchResults(filteredFRA)}
         </div>
       </section>
     </main>

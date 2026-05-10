@@ -7,12 +7,17 @@ type DonationAmountRow = {
 
 type FRARow = {
   fra_id: string;
+  user_id: string | null;
   title: string;
   description: string | null;
   target_amount: number;
   current_amount: number;
   status: string;
   category_id: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  created_at: string | null;
+  updated_at: string | null;
   category: {
     category_id: string;
     category_name: string;
@@ -40,7 +45,7 @@ export class DoneeController {
     const { data, error } = await supabase
       .from("fra")
       .select(
-        "fra_id, title, description, target_amount, current_amount, status, category_id, category:fra_category(category_id, category_name)",
+        "fra_id, user_id, title, description, target_amount, current_amount, status, category_id, start_date, end_date, created_at, updated_at, category:fra_category(category_id, category_name)",
       )
       .order("updated_at", { ascending: false, nullsFirst: false })
       .returns<FRARow[]>();
@@ -51,6 +56,7 @@ export class DoneeController {
 
     return data.map((fra) => new FRA({
       fraId: fra.fra_id,
+      userId: fra.user_id,
       title: fra.title,
       description: fra.description,
       targetAmount: Number(fra.target_amount),
@@ -58,6 +64,10 @@ export class DoneeController {
       status: fra.status,
       categoryId: fra.category_id,
       category: fra.category?.category_name ?? null,
+      startDate: fra.start_date,
+      endDate: fra.end_date,
+      createdAt: fra.created_at,
+      updatedAt: fra.updated_at,
     }));
   }
 }

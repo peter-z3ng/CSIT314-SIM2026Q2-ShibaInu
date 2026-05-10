@@ -3,12 +3,17 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 type FRARow = {
   fra_id: string;
+  user_id: string | null;
   title: string;
   description: string | null;
   target_amount: number;
   current_amount: number;
   status: string;
   category_id: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  created_at: string | null;
+  updated_at: string | null;
   category: {
     category_id: string;
     category_name: string;
@@ -20,31 +25,26 @@ type FRACategoryRow = {
   category_name: string;
 };
 
-export type SearchFRAInput = {
-  keyword?: string;
-  categoryId?: string;
-};
-
 export type FRACategoryDTO = {
   categoryId: string;
   category: string;
 };
 
 export class SearchFRAController {
-  async searchFRA(input: SearchFRAInput = {}): Promise<FRA[]> {
-    const keyword = input.keyword?.trim() ?? "";
-    const categoryId = input.categoryId?.trim() ?? "";
+  async searchFRA(keyword: string = "", category: string = "all"): Promise<FRA[]> {
+    const normalizedKeyword = keyword.trim();
+    const categoryId = category.trim();
     const supabase = createSupabaseAdminClient();
 
     let query = supabase
       .from("fra")
       .select(
-        "fra_id, title, description, target_amount, current_amount, status, category_id, category:fra_category(category_id, category_name)",
+        "fra_id, user_id, title, description, target_amount, current_amount, status, category_id, start_date, end_date, created_at, updated_at, category:fra_category(category_id, category_name)",
       )
       .order("updated_at", { ascending: false, nullsFirst: false });
 
-    if (keyword) {
-      const pattern = `%${escapeSearchPattern(keyword)}%`;
+    if (normalizedKeyword) {
+      const pattern = `%${escapeSearchPattern(normalizedKeyword)}%`;
       query = query.or(`title.ilike.${pattern},description.ilike.${pattern}`);
     }
 
@@ -83,6 +83,7 @@ export class SearchFRAController {
 function mapFRARow(row: FRARow) {
   return new FRA({
     fraId: row.fra_id,
+    userId: row.user_id,
     title: row.title,
     description: row.description,
     targetAmount: Number(row.target_amount),
@@ -90,6 +91,10 @@ function mapFRARow(row: FRARow) {
     status: row.status,
     categoryId: row.category_id,
     category: row.category?.category_name ?? null,
+    startDate: row.start_date,
+    endDate: row.end_date,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
   });
 }
 

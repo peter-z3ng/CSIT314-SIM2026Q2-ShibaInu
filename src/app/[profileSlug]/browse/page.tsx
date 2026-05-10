@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { SearchBoundary } from "@/boundary/SearchBoundary";
+import { SearchFRAPage } from "@/boundary/SearchFRAPage";
 import { AuthController } from "@/controller/AuthController";
 import { RouteController } from "@/controller/RouteController";
 import { SearchFRAController } from "@/controller/SearchFRAController";
@@ -20,12 +20,12 @@ export default async function DoneeBrowsePage({
 
   const searchFRAController = new SearchFRAController();
   const [fraList, categories] = await Promise.all([
-    searchFRAController.searchFRA(),
+    searchFRAController.searchFRA("", "all"),
     searchFRAController.listCategories(),
   ]);
 
   return (
-    <SearchBoundary
+    <SearchFRAPage
       account={account.toDTO()}
       fraList={fraList.map((fra) => fra.toDTO())}
       categories={categories}
