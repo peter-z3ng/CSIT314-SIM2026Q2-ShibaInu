@@ -4,6 +4,7 @@ import { DoneeDashboardBoundary } from "@/boundary/DoneeDashboardBoundary";
 import { AdminController } from "@/controller/AdminController";
 import { AuthController } from "@/controller/AuthController";
 import { DoneeController } from "@/controller/DoneeController";
+import { FundraiserDashboardBoundary } from "@/boundary/FundraiserDashboardBoundary";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +32,10 @@ export default async function ProfileDashboardPage({
       />
     );
   }
+
+  if (account.profile.profile.toLowerCase() === "fundraiser") {
+  return <FundraiserDashboardBoundary account={account.toDTO()} />;
+}
 
   if (account.profile.profile.toLowerCase() !== "admin") {
     return <DashboardBoundary account={account} />;
