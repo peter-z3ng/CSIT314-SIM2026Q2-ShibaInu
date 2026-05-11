@@ -116,7 +116,7 @@ export function FRADetailsPage({
       </div>
 
       <div className="mt-5 grid gap-6 xl:grid-cols-[5fr_3fr]">
-        <article className="rounded-[2rem] bg-white p-6 shadow-sm md:p-8">
+        <article className="rounded-[2rem] bg-white/30 p-6 shadow-md md:p-8">
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
             <div>
               <div className="flex flex-wrap items-center gap-3">
@@ -173,7 +173,7 @@ export function FRADetailsPage({
           </div>
         </article>
 
-        <aside className="h-fit rounded-[2rem] bg-white p-6 shadow-sm md:p-8">
+        <aside className="h-fit rounded-[2rem] bg-white/10 p-6 shadow-md md:p-8 border border-[#FFB347]/80">
           {/*
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#9b5d12]">
             Recent Donations

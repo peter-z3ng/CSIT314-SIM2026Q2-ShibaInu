@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
-import { DoneePageBoundary } from "@/boundary/DoneePageBoundary";
+import { SearchFavouriteListPage } from "@/boundary/SearchFavouriteListPage";
 import { AuthController } from "@/controller/AuthController";
 import { RouteController } from "@/controller/RouteController";
+import { SearchFavouriteController } from "@/controller/SearchFavouriteController";
+import { SearchFRAController } from "@/controller/SearchFRAController";
 
 export const dynamic = "force-dynamic";
 
@@ -17,5 +19,16 @@ export default async function DoneeFavoritesPage({
     redirect(RouteController.getDashboardPath(account.profile));
   }
 
-  return <DoneePageBoundary account={account.toDTO()} title="Favorites" />;
+  const [favourites, categories] = await Promise.all([
+    new SearchFavouriteController().searchFavourite(account.userId, "", "all", "all"),
+    new SearchFRAController().listCategories(),
+  ]);
+
+  return (
+    <SearchFavouriteListPage
+      account={account.toDTO()}
+      favouriteList={favourites.map((favourite) => favourite.toDTO())}
+      categories={categories}
+    />
+  );
 }

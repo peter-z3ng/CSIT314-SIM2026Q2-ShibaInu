@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
-import { DoneePageBoundary } from "@/boundary/DoneePageBoundary";
+import { DonationHistoryPage } from "@/boundary/DonationHistoryPage";
 import { AuthController } from "@/controller/AuthController";
 import { RouteController } from "@/controller/RouteController";
+import { SearchFRAController } from "@/controller/SearchFRAController";
+import { ViewDonationHistoryController } from "@/controller/ViewDonationHistoryController";
 
 export const dynamic = "force-dynamic";
 
@@ -17,5 +19,16 @@ export default async function DoneeDonationsPage({
     redirect(RouteController.getDashboardPath(account.profile));
   }
 
-  return <DoneePageBoundary account={account.toDTO()} title="My donations" />;
+  const [donations, categories] = await Promise.all([
+    new ViewDonationHistoryController().viewDonationHistory(account.userId),
+    new SearchFRAController().listCategories(),
+  ]);
+
+  return (
+    <DonationHistoryPage
+      account={account.toDTO()}
+      donations={donations.map((donation) => donation.toDTO())}
+      categories={categories}
+    />
+  );
 }
