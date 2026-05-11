@@ -8,6 +8,27 @@ type FavouriteRow = {
 };
 
 export class SaveFavouriteController {
+  async isFavourite(user_id: string, fra_id: string): Promise<boolean> {
+    if (!user_id.trim() || !fra_id.trim()) {
+      return false;
+    }
+
+    const supabase = createSupabaseAdminClient();
+    const { data, error } = await supabase
+      .from("favourite")
+      .select("fav_id")
+      .eq("user_id", user_id)
+      .eq("fra_id", fra_id)
+      .limit(1)
+      .overrideTypes<Pick<FavouriteRow, "fav_id">[], { merge: false }>();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return Boolean(data[0]?.fav_id);
+  }
+
   async saveFavourite(user_id: string, fra_id: string): Promise<string> {
     if (!user_id.trim()) {
       throw new Error("User id is required.");
@@ -45,6 +66,29 @@ export class SaveFavouriteController {
     }
 
     return favourite.fav_id;
+  }
+
+  async removeFavourite(user_id: string, fra_id: string): Promise<boolean> {
+    if (!user_id.trim()) {
+      throw new Error("User id is required.");
+    }
+
+    if (!fra_id.trim()) {
+      throw new Error("FRA id is required.");
+    }
+
+    const supabase = createSupabaseAdminClient();
+    const { error } = await supabase
+      .from("favourite")
+      .delete()
+      .eq("user_id", user_id)
+      .eq("fra_id", fra_id);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return true;
   }
 
   private async getExistingFavourite(user_id: string, fra_id: string) {

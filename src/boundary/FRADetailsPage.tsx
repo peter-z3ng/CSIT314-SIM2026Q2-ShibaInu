@@ -14,6 +14,7 @@ export function FRADetailsPage({
   previousFraId,
   nextFraId,
   recentDonations,
+  isFavourite,
 }: {
   account: UserAccountDTO;
   fra: FRADTO;
@@ -22,6 +23,7 @@ export function FRADetailsPage({
   previousFraId: string | null;
   nextFraId: string | null;
   recentDonations: DonationDTO[];
+  isFavourite: boolean;
 }) {
   const profilePath = profileToPath(account.profile);
 
@@ -117,20 +119,23 @@ export function FRADetailsPage({
         <article className="rounded-[2rem] bg-white p-6 shadow-sm md:p-8">
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#9b5d12]">
-                {categoryName}
-              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#9b5d12]">
+                  {categoryName}
+                </p>
+                <span className="w-fit rounded-md bg-[#fff2df] px-3 py-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#9b5d12]">
+                  {selectedFRA.status}
+                </span>
+              </div>
               <h1 className="mt-3 text-4xl font-black text-[#111111]">
                 {selectedFRA.title}
               </h1>
             </div>
             <div className="flex w-fit flex-col items-end gap-3">
-              <span className="w-fit rounded-md bg-[#fff2df] px-3 py-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#9b5d12]">
-                {selectedFRA.status}
-              </span>
               <SaveFavouritePage
                 profilePath={profilePath}
                 fra_id={selectedFRA.fraId}
+                isSavedInitially={isFavourite}
               />
             </div>
           </div>

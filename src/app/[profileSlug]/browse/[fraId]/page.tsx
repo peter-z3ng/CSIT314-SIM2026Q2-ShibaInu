@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { FRADetailsPage } from "@/boundary/FRADetailsPage";
 import { AuthController } from "@/controller/AuthController";
 import { RouteController } from "@/controller/RouteController";
+import { SaveFavouriteController } from "@/controller/SaveFavouriteController";
 import { SearchFRAController } from "@/controller/SearchFRAController";
 import { ViewFRADetailsController } from "@/controller/ViewFRADetailsController";
 
@@ -20,12 +21,14 @@ export default async function DoneeFRADetailsRoute({
   }
 
   const searchFRAController = new SearchFRAController();
+  const saveFavouriteController = new SaveFavouriteController();
   const viewFRADetailsController = new ViewFRADetailsController();
-  const [fra, categories, fraList, recentDonations] = await Promise.all([
+  const [fra, categories, fraList, recentDonations, isFavourite] = await Promise.all([
     viewFRADetailsController.viewFRADetails(fraId),
     searchFRAController.listCategories(),
     searchFRAController.searchFRA("", "all"),
     viewFRADetailsController.viewRecentDonations(fraId),
+    saveFavouriteController.isFavourite(account.userId, fraId),
   ]);
   const fundraiserUsername = await viewFRADetailsController.viewFundraiserUsername(fra.userId);
   const categoryName =
@@ -47,6 +50,7 @@ export default async function DoneeFRADetailsRoute({
       previousFraId={previousFraId}
       nextFraId={nextFraId}
       recentDonations={recentDonations.map((donation) => donation.toDTO())}
+      isFavourite={isFavourite}
     />
   );
 }
