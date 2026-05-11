@@ -33,7 +33,10 @@ export default async function ProfileDashboardPage({
     );
   }
 
-  if (account.profile.profile.toLowerCase() === "fundraiser") {
+  if (
+    account.profile.profile.toLowerCase() === "fundraiser" ||
+    account.profile.profile.toLowerCase() === "fund raiser"
+  ) {
   return <FundraiserDashboardBoundary account={account.toDTO()} />;
 }
 
