@@ -19,37 +19,38 @@ type FRARow = {
 };
 
 export class FundraiserController {
-  async listMyFRA(userId: string): Promise<FRA[]> {
+  async listMyFRAs(userId: string): Promise<FRA[]> {
     const supabase = createSupabaseAdminClient();
 
     const { data, error } = await supabase
       .from("fra")
-      .select(
-        "fra_id, user_id, category_id, title, description, target_amount, current_amount, start_date, status, view_count, fav_count, end_date, created_at, updated_at",
-      )
+      .select("*")
       .eq("user_id", userId)
-      .order("updated_at", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false })
       .overrideTypes<FRARow[], { merge: false }>();
 
     if (error) {
       throw new Error(error.message);
     }
 
-    return data.map((fra) => new FRA({
-      fraId: fra.fra_id,
-      userId: fra.user_id,
-      categoryId: fra.category_id,
-      title: fra.title,
-      description: fra.description,
-      targetAmount: Number(fra.target_amount),
-      currentAmount: Number(fra.current_amount),
-      startDate: fra.start_date,
-      status: fra.status,
-      viewCount: Number(fra.view_count),
-      favCount: Number(fra.fav_count),
-      endDate: fra.end_date,
-      createdAt: fra.created_at,
-      updatedAt: fra.updated_at,
-    }));
+    return data.map(
+      (fra) =>
+        new FRA({
+          fraId: fra.fra_id,
+          userId: fra.user_id,
+          categoryId: fra.category_id,
+          title: fra.title,
+          description: fra.description,
+          targetAmount: Number(fra.target_amount),
+          currentAmount: Number(fra.current_amount),
+          startDate: fra.start_date,
+          status: fra.status,
+          viewCount: Number(fra.view_count),
+          favCount: Number(fra.fav_count),
+          endDate: fra.end_date,
+          createdAt: fra.created_at,
+          updatedAt: fra.updated_at,
+        }),
+    );
   }
 }
