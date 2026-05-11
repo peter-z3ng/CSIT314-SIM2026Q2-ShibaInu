@@ -17,7 +17,7 @@ export function MyFRAPage({
       <Header account={account} />
 
       <main className="mx-auto max-w-7xl px-5 py-8 lg:px-8">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#9b5d12]">
               Fundraiser
@@ -30,7 +30,7 @@ export function MyFRAPage({
 
           <Link
             href={`/${profilePath}/create-fra`}
-            className="rounded-md bg-[#FFB347] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#FFBE5C]"
+            className="rounded-2xl bg-[#FFB347] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#FFBE5C]"
           >
             Create FRA
           </Link>
@@ -38,38 +38,56 @@ export function MyFRAPage({
 
         <section className="mt-8">
           {fraList.length === 0 ? (
-            <div className="rounded-2xl border border-[#f0d8bd] bg-white p-6 shadow-sm">
+            <div className="rounded-3xl border border-[#f0d8bd] bg-white p-6 shadow-sm">
               <p className="text-[#6f6258]">No FRA found.</p>
             </div>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {fraList.map((fra) => (
-                <Link
+                <div
                   key={fra.fraId}
-                  href={`/${profilePath}/my-fras/${fra.fraId}`}
-                  className="rounded-2xl border border-[#f0d8bd] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                  className="rounded-2xl border border-[#f0d8bd] bg-white p-4 shadow-sm"
                 >
                   <div className="flex items-start justify-between gap-4">
-                    <h2 className="text-xl font-bold">{fra.title}</h2>
-                    <span className="rounded-full bg-[#fff2df] px-3 py-1 text-xs font-semibold text-[#9b5d12]">
+                    <div>
+                      <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#c77700]">
+                        Education
+                      </p>
+
+                      <h2 className="mt-3 text-2xl font-bold">{fra.title}</h2>
+                    </div>
+
+                    <span className="rounded-2xl bg-[#fff2df] px-5 py-2 text-sm font-bold uppercase tracking-[0.15em] text-[#c77700]">
                       {fra.status}
                     </span>
                   </div>
 
-                  <p className="mt-3 line-clamp-2 text-sm text-[#6f6258]">
-                    {fra.description || "No description provided."}
+                  <div className="mt-5 h-3 w-full overflow-hidden rounded-full bg-[#fff2df]">
+                    <div
+                      className="h-full rounded-full bg-[#FFB347]"
+                      style={{ width: `${fra.progressPercentage}%` }}
+                    />
+                  </div>
+
+                  <div className="mt-3 flex items-center justify-between text-sm font-semibold">
+                    <p>${fra.currentAmount.toFixed(2)} raised</p>
+                    <p>${fra.targetAmount.toFixed(2)} goal</p>
+                  </div>
+
+                  <p className="mt-3 text-sm font-semibold text-[#FFB347]">
+                    {fra.progressPercentage}% funded
                   </p>
 
-                  <div className="mt-4 grid gap-2 text-sm text-[#6f6258]">
-                    <p>
-                      Target: ${fra.targetAmount} | Current: ${fra.currentAmount}
-                    </p>
-                    <p>Progress: {fra.progressPercentage}%</p>
-                    <p>
-                      Views: {fra.viewCount} | Shortlisted: {fra.favCount}
-                    </p>
-                  </div>
-                </Link>
+                  <p className="mt-2 text-sm text-[#6f6258]">
+                    {fra.viewCount} views · {fra.favCount} shortlisted
+                  </p>
+
+                  <Link
+                    href={`/${profilePath}/my-fras/${fra.fraId}`}
+                        className="mt-4 flex w-full items-center justify-center rounded-xl bg-[#FFB347] py-2.5 text-sm font-bold text-white transition hover:bg-[#FFBE5C]"                  >
+                    View details
+                  </Link>
+                </div>
               ))}
             </div>
           )}

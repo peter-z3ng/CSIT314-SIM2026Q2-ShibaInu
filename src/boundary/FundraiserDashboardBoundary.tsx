@@ -9,6 +9,8 @@ export function FundraiserDashboardBoundary({
   account: UserAccountDTO;
   fraList: FRADTO[];
 }) {
+  const profilePath = account.profile.profile.toLowerCase().replace(" ", "-");
+
   const totalFRAs = fraList.length;
   const activeFRAs = fraList.filter(
     (fra) => fra.status.toLowerCase() === "active",
@@ -16,10 +18,7 @@ export function FundraiserDashboardBoundary({
   const completedFRAs = fraList.filter(
     (fra) => fra.status.toLowerCase() === "completed",
   ).length;
-  const totalViews = fraList.reduce(
-    (total, fra) => total + fra.viewCount,
-    0,
-  );
+  const totalViews = fraList.reduce((total, fra) => total + fra.viewCount, 0);
 
   const recentFRAs = fraList.slice(0, 2);
 
@@ -60,13 +59,13 @@ export function FundraiserDashboardBoundary({
           </div>
         </section>
 
-        <section className="mt-8">
+        <section className="mt-10">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold">Recent FRAs</h2>
 
             <a
-              href={`/${account.profile.profile.toLowerCase().replace(" ", "-")}/my-fras`}
-              className="text-sm font-semibold text-[#9b5d12] hover:underline"
+              href={`/${profilePath}/my-fras`}
+              className="text-sm font-semibold text-[#c77700] hover:underline"
             >
               View all
             </a>
@@ -77,25 +76,47 @@ export function FundraiserDashboardBoundary({
               <p className="text-[#6f6258]">No recent FRA found.</p>
             </div>
           ) : (
-            <div className="mt-5 flex gap-4 overflow-x-auto pb-2">
+            <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {recentFRAs.map((fra) => (
                 <div
                   key={fra.fraId}
-                  className="min-w-[320px] rounded-2xl border border-[#f0d8bd] bg-white p-5 shadow-sm"
+                  className="rounded-2xl border border-[#f0d8bd] bg-white p-4 shadow-sm"
                 >
-                  <h3 className="text-lg font-bold">{fra.title}</h3>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#c77700]">
+                        Education
+                      </p>
 
-                  <p className="mt-2 text-sm text-[#6f6258]">
-                    Status: {fra.status}
-                  </p>
+                      <h3 className="mt-2 text-xl font-bold">{fra.title}</h3>
+                    </div>
 
-                  <p className="mt-1 text-sm text-[#6f6258]">
-                    Progress: ${fra.currentAmount} / ${fra.targetAmount}
-                  </p>
+                    <span className="rounded-xl bg-[#fff2df] px-3 py-1 text-xs font-bold uppercase tracking-[0.1em] text-[#c77700]">
+                      {fra.status}
+                    </span>
+                  </div>
 
-                  <p className="mt-1 text-sm text-[#6f6258]">
-                    Views: {fra.viewCount}
-                  </p>
+                  <div className="mt-5 h-3 w-full overflow-hidden rounded-full bg-[#fff2df]">
+                    <div
+                      className="h-full rounded-full bg-[#FFB347]"
+                      style={{ width: `${fra.progressPercentage}%` }}
+                    />
+                  </div>
+
+                  <div className="mt-3 flex items-center justify-between text-sm font-semibold">
+                    <p>${fra.currentAmount.toFixed(2)} raised</p>
+                    <p>${fra.targetAmount.toFixed(2)} goal</p>
+                  </div>
+
+                  <div className="mt-4 flex items-center justify-between">
+                    <p className="text-sm font-semibold text-[#FFB347]">
+                      {fra.progressPercentage}% funded
+                    </p>
+
+                    <p className="text-xs text-[#6f6258]">
+                      {fra.viewCount} views
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
