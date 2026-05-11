@@ -48,9 +48,18 @@ const formatDate = (date: string | null) => {
               </p>
             </div>
 
+            <div className="flex flex-col gap-3">
             <span className="rounded-2xl bg-[#fff2df] px-5 py-2 text-sm font-bold uppercase tracking-[0.15em] text-[#c77700]">
-              {fra.status}
+                {fra.status}
             </span>
+
+            <Link
+                href={`/${profilePath}/my-fras/${fra.fraId}/update`}
+                className="rounded-2xl bg-[#FFB347] px-5 py-3 text-center text-sm font-bold text-white transition hover:bg-[#FFBE5C]"
+            >
+                Edit FRA
+            </Link>
+            </div>
           </div>
 
           <div className="mt-10">
