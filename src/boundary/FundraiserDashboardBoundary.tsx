@@ -20,7 +20,7 @@ export function FundraiserDashboardBoundary({
   ).length;
   const totalViews = fraList.reduce((total, fra) => total + fra.viewCount, 0);
 
-  const recentFRAs = fraList.slice(0, 2);
+  const recentFRAs = fraList.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-[#fffaf5] text-[#1d2520]">
