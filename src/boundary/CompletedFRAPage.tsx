@@ -1,0 +1,94 @@
+import Link from "next/link";
+import { Header } from "@/components/Header";
+import type { FRADTO } from "@/entity/FRA";
+import type { UserAccountDTO } from "@/entity/UserAccount";
+
+export function CompletedFRAPage({
+  account,
+  fraList,
+}: {
+  account: UserAccountDTO;
+  fraList: FRADTO[];
+}) {
+  const profilePath = account.profile.profile.toLowerCase().replace(" ", "-");
+
+  return (
+    <div className="min-h-screen bg-[#fffaf5] text-[#1d2520]">
+      <Header account={account} />
+
+      <main className="mx-auto max-w-7xl px-5 py-8 lg:px-8">
+        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#9b5d12]">
+          Fundraiser
+        </p>
+
+        <h1 className="mt-2 text-3xl font-bold">Completed FRAs</h1>
+
+        <p className="mt-2 text-[#6f6258]">
+          View your completed fundraising activities.
+        </p>
+
+        <section className="mt-8">
+          {fraList.length === 0 ? (
+            <div className="rounded-2xl border border-[#f0d8bd] bg-white p-6 shadow-sm">
+              <p className="text-[#6f6258]">No completed FRA found.</p>
+            </div>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {fraList.map((fra) => (
+                <div
+                  key={fra.fraId}
+                  className="rounded-2xl border border-[#f0d8bd] bg-white p-4 shadow-sm"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#c77700]">
+                        Education
+                      </p>
+
+                      <h2 className="mt-3 text-2xl font-bold">{fra.title}</h2>
+                    </div>
+
+                    <span className="rounded-xl bg-[#fff2df] px-3 py-1 text-xs font-bold uppercase tracking-[0.1em] text-[#c77700]">
+                      {fra.status}
+                    </span>
+                  </div>
+
+                  <p className="mt-4 line-clamp-2 text-sm text-[#6f6258]">
+                    {fra.description || "No description provided."}
+                  </p>
+
+                  <div className="mt-5 h-3 w-full overflow-hidden rounded-full bg-[#fff2df]">
+                    <div
+                      className="h-full rounded-full bg-[#FFB347]"
+                      style={{ width: `${fra.progressPercentage}%` }}
+                    />
+                  </div>
+
+                  <div className="mt-3 flex items-center justify-between text-sm font-semibold">
+                    <p>${fra.currentAmount.toFixed(2)} raised</p>
+                    <p>${fra.targetAmount.toFixed(2)} goal</p>
+                  </div>
+
+                  <p className="mt-3 text-sm font-semibold text-[#FFB347]">
+                    {fra.progressPercentage}% funded
+                  </p>
+
+                  <p className="mt-2 text-xs text-[#6f6258]">
+                    {fra.viewCount} views · {fra.favCount} shortlisted
+                  </p>
+
+                  <Link
+                    href={`/${profilePath}/my-fras/${fra.fraId}`}
+                    className="mt-4 flex w-full items-center justify-center rounded-xl bg-[#FFB347] py-2.5 text-sm font-bold text-white transition hover:bg-[#FFBE5C]"
+                  >
+                    View details
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      </main>
+    </div>
+  );
+}

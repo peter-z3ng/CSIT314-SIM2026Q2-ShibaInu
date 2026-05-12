@@ -9,6 +9,10 @@ import { profileToPath } from "@/entity/UserProfile";
 export function Header({ account }: { account: UserAccountDTO }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const profilePath = profileToPath(account.profile);
+  const profileName = account.profile.profile.toLowerCase();
+
+  const isFundraiser =
+    profileName === "fundraiser" || profileName === "fund raiser";
 
   return (
     <header className="border-b border-[#f0d8bd] bg-[#fffaf5]">
@@ -37,15 +41,23 @@ export function Header({ account }: { account: UserAccountDTO }) {
             onClick={() => setIsMenuOpen(false)}
             className="absolute inset-0 bg-black/30"
           />
+
           <aside className="absolute right-0 top-0 flex h-full w-full max-w-sm flex-col bg-[#fffaf5] p-5 shadow-2xl">
             <div className="flex items-start justify-between gap-4 border-b border-[#f0d8bd] pb-4">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#9b5d12]">
                   {account.profile.profile}
                 </p>
-                <h2 className="mt-1 text-2xl font-bold">{account.username}</h2>
-                <p className="mt-1 text-sm text-[#6f6258]">{account.email}</p>
+
+                <h2 className="mt-1 text-2xl font-bold">
+                  {account.username}
+                </h2>
+
+                <p className="mt-1 text-sm text-[#6f6258]">
+                  {account.email}
+                </p>
               </div>
+
               <button
                 type="button"
                 onClick={() => setIsMenuOpen(false)}
@@ -56,12 +68,40 @@ export function Header({ account }: { account: UserAccountDTO }) {
             </div>
 
             <nav className="mt-5 grid gap-3">
+              {isFundraiser ? (
+                <>
+                  <Link
+                    href={`/${profilePath}/dashboard`}
+                    onClick={() => setIsMenuOpen(false)}
+                    className="rounded-md px-3 py-2 text-sm font-semibold text-[#1d2520] transition hover:bg-[#fff2df]"
+                  >
+                    Dashboard
+                  </Link>
+
+                  <Link
+                    href={`/${profilePath}/my-fras`}
+                    onClick={() => setIsMenuOpen(false)}
+                    className="rounded-md px-3 py-2 text-sm font-semibold text-[#1d2520] transition hover:bg-[#fff2df]"
+                  >
+                    My FRAs
+                  </Link>
+
+                  <Link
+                    href={`/${profilePath}/completed-fras`}
+                    onClick={() => setIsMenuOpen(false)}
+                    className="rounded-md px-3 py-2 text-sm font-semibold text-[#1d2520] transition hover:bg-[#fff2df]"
+                  >
+                    Completed FRAs
+                  </Link>
+                </>
+              ) : null}
+
               <Link
                 href={`/${profilePath}/info`}
                 onClick={() => setIsMenuOpen(false)}
                 className="rounded-md px-3 py-2 text-sm font-semibold text-[#1d2520] transition hover:bg-[#fff2df]"
               >
-                Edit Info
+                My Profile
               </Link>
             </nav>
 

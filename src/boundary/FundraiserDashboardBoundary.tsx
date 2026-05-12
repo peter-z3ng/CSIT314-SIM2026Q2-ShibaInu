@@ -58,7 +58,6 @@ export function FundraiserDashboardBoundary({
             <h2 className="mt-2 text-3xl font-bold">{totalViews}</h2>
           </div>
         </section>
-
         <section className="mt-10">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold">Recent FRAs</h2>
