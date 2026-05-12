@@ -26,7 +26,38 @@ export function CompletedFRAPage({
         <p className="mt-2 text-[#6f6258]">
           View your completed fundraising activities.
         </p>
+        <form className="mt-8 grid gap-4 rounded-2xl border border-[#f0d8bd] bg-white p-5 shadow-sm md:grid-cols-4">
+            <input
+                name="keyword"
+                placeholder="Search by title"
+                className="rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
+            />
 
+            <input
+                name="categoryId"
+                placeholder="Category ID"
+                className="rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
+            />
+
+            <input
+                type="date"
+                name="startDate"
+                className="rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
+            />
+
+            <input
+                type="date"
+                name="endDate"
+                className="rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
+            />
+
+            <button
+                type="submit"
+                className="rounded-md bg-[#FFB347] px-5 py-3 font-semibold text-white transition hover:bg-[#FFBE5C] md:col-span-4"
+            >
+                Search Completed FRAs
+            </button>
+            </form>
         <section className="mt-8">
           {fraList.length === 0 ? (
             <div className="rounded-2xl border border-[#f0d8bd] bg-white p-6 shadow-sm">
