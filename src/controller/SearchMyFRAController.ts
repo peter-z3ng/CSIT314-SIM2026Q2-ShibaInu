@@ -18,18 +18,46 @@ type FRARow = {
   updated_at: string | null;
 };
 
+export type SearchMyFRAInput = {
+  userId: string;
+  keyword?: string;
+  categoryId?: string;
+  startDate?: string;
+  endDate?: string;
+};
+
 export class SearchMyFRAController {
-  async searchMyFRAs(userId: string): Promise<FRA[]> {
+  async searchMyFRAs(input: SearchMyFRAInput): Promise<FRA[]> {
     const supabase = createSupabaseAdminClient();
 
-    const { data, error } = await supabase
+    let query = supabase
       .from("fra")
       .select(
         "fra_id, user_id, category_id, title, description, target_amount, current_amount, start_date, status, view_count, fav_count, end_date, created_at, updated_at",
       )
-      .eq("user_id", userId)
-      .order("updated_at", { ascending: false, nullsFirst: false })
-      .overrideTypes<FRARow[], { merge: false }>();
+      .eq("user_id", input.userId)
+      .order("updated_at", { ascending: false, nullsFirst: false });
+
+    if (input.keyword) {
+      query = query.ilike("title", `%${input.keyword}%`);
+    }
+
+    if (input.categoryId) {
+      query = query.eq("category_id", input.categoryId);
+    }
+
+    if (input.startDate) {
+      query = query.gte("start_date", input.startDate);
+    }
+
+    if (input.endDate) {
+      query = query.lte("end_date", input.endDate);
+    }
+
+    const { data, error } = await query.overrideTypes<
+      FRARow[],
+      { merge: false }
+    >();
 
     if (error) {
       throw new Error(error.message);
