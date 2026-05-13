@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { Home } from "lucide-react";
 import { RouteController } from "@/controller/RouteController";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 import { profileToPath } from "@/entity/UserProfile";
@@ -16,7 +17,7 @@ export function Header({ account }: { account: UserAccountDTO }) {
 
   return (
     <header className="border-b border-[#f0d8bd] bg-[#fffaf5]">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 lg:px-8">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
         <Link
           href={RouteController.getDashboardPath(account.profile)}
           className="text-lg font-bold"
@@ -24,10 +25,37 @@ export function Header({ account }: { account: UserAccountDTO }) {
           Hope Spring
         </Link>
 
+        {isFundraiser ? (
+          <nav className="hidden flex-1 items-center justify-center gap-10 md:flex">
+            <Link
+              href={`/${profilePath}/dashboard`}
+              className="flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-semibold text-[#1d2520] transition hover:bg-[#fff2df] hover:text-[#FFB347]"
+            >
+              <Home size={17} />
+              Home
+            </Link>
+
+            <Link
+              href={`/${profilePath}/my-fras`}
+              className="rounded-2xl px-4 py-2 text-sm font-semibold text-[#1d2520] transition hover:bg-[#fff2df] hover:text-[#FFB347]"
+            >
+              My FRAs
+            </Link>
+
+            <Link
+              href={`/${profilePath}/completed-fras`}
+              className="whitespace-nowrap rounded-2xl px-4 py-2 text-sm font-semibold text-[#1d2520] transition hover:bg-[#fff2df] hover:text-[#FFB347]"            >
+              Completed FRAs
+            </Link>
+          </nav>
+        ) : (
+          <div />
+        )}
+
         <button
           type="button"
           onClick={() => setIsMenuOpen(true)}
-          className="ml-auto rounded-2xl px-3 py-1 text-xl font-semibold text-[#00401A] transition hover:bg-[#fff2df]"
+          className="justify-self-end rounded-2xl px-3 py-1 text-xl font-semibold text-[#00401A] transition hover:bg-[#fff2df]"
         >
           {account.username}
         </button>
@@ -68,34 +96,6 @@ export function Header({ account }: { account: UserAccountDTO }) {
             </div>
 
             <nav className="mt-5 grid gap-3">
-              {isFundraiser ? (
-                <>
-                  <Link
-                    href={`/${profilePath}/dashboard`}
-                    onClick={() => setIsMenuOpen(false)}
-                    className="rounded-md px-3 py-2 text-sm font-semibold text-[#1d2520] transition hover:bg-[#fff2df]"
-                  >
-                    Dashboard
-                  </Link>
-
-                  <Link
-                    href={`/${profilePath}/my-fras`}
-                    onClick={() => setIsMenuOpen(false)}
-                    className="rounded-md px-3 py-2 text-sm font-semibold text-[#1d2520] transition hover:bg-[#fff2df]"
-                  >
-                    My FRAs
-                  </Link>
-
-                  <Link
-                    href={`/${profilePath}/completed-fras`}
-                    onClick={() => setIsMenuOpen(false)}
-                    className="rounded-md px-3 py-2 text-sm font-semibold text-[#1d2520] transition hover:bg-[#fff2df]"
-                  >
-                    Completed FRAs
-                  </Link>
-                </>
-              ) : null}
-
               <Link
                 href={`/${profilePath}/info`}
                 onClick={() => setIsMenuOpen(false)}

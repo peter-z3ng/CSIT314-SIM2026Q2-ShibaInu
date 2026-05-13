@@ -5,7 +5,7 @@ import { Header } from "@/components/Header";
 import type { FRADTO } from "@/entity/FRA";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 import { deleteFRAAction } from "@/controller/deleteFRAActions";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -19,6 +19,9 @@ export function RetrieveFRAPage({
   const profilePath = account.profile.profile.toLowerCase().replace(" ", "-");
   const router = useRouter();
 
+  const searchParams = useSearchParams();
+  const isUpdated = searchParams.get("updated");
+
   const [timeLeft, setTimeLeft] = useState(getTimeLeft(fra.endDate));
 
   useEffect(() => {
@@ -29,9 +32,10 @@ export function RetrieveFRAPage({
     return () => clearInterval(timer);
   }, [fra.endDate]);
 
-  const displayStatus = timeLeft.isExpired && fra.status === "active"
-    ? "closed"
-    : fra.status;
+  const displayStatus =
+    timeLeft.isExpired && fra.status === "active"
+      ? "closed"
+      : fra.status;
 
   async function handleDelete() {
     const confirmed = window.confirm(
@@ -44,6 +48,7 @@ export function RetrieveFRAPage({
 
     try {
       await deleteFRAAction(fra.fraId, account.userId);
+
       router.push(`/${profilePath}/my-fras`);
     } catch (error) {
       alert(
@@ -60,11 +65,24 @@ export function RetrieveFRAPage({
 
       <main className="mx-auto max-w-6xl px-5 py-8 lg:px-8">
         <Link
-          href={`/${profilePath}/my-fras`}
+          href={
+            fra.status === "completed"
+              ? `/${profilePath}/completed-fras`
+              : `/${profilePath}/my-fras`
+          }
           className="text-sm font-semibold text-[#9b5d12] hover:underline"
         >
-          ← Back to My FRAs
+          ← Back to{" "}
+          {fra.status === "completed"
+            ? "Completed FRAs"
+            : "My FRAs"}
         </Link>
+
+        {isUpdated ? (
+          <div className="mt-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-700">
+            FRA updated successfully.
+          </div>
+        ) : null}
 
         <section className="mt-6 rounded-3xl border border-[#f0d8bd] bg-white p-8 shadow-sm">
           <div className="flex flex-wrap items-start justify-between gap-4">
@@ -128,12 +146,16 @@ export function RetrieveFRAPage({
           <div className="mt-10 grid gap-4 md:grid-cols-5">
             <div className="rounded-2xl border border-[#f0d8bd] p-5">
               <p className="text-sm text-[#6f6258]">Views</p>
-              <h2 className="mt-2 text-3xl font-bold">{fra.viewCount}</h2>
+              <h2 className="mt-2 text-3xl font-bold">
+                {fra.viewCount}
+              </h2>
             </div>
 
             <div className="rounded-2xl border border-[#f0d8bd] p-5">
               <p className="text-sm text-[#6f6258]">Shortlisted</p>
-              <h2 className="mt-2 text-3xl font-bold">{fra.favCount}</h2>
+              <h2 className="mt-2 text-3xl font-bold">
+                {fra.favCount}
+              </h2>
             </div>
 
             <div className="rounded-2xl border border-[#f0d8bd] p-5">
@@ -202,13 +224,14 @@ function getTimeLeft(endDate: string | null) {
   }
 
   const totalMinutes = Math.floor(difference / 1000 / 60);
+
   const days = Math.floor(totalMinutes / 1440);
   const hours = Math.floor((totalMinutes % 1440) / 60);
   const minutes = totalMinutes % 60;
 
   return {
     isExpired: false,
-    message: `${days} days ${hours} hours ${minutes} minutes remaining....`,
+    message: `${days} days ${hours} hours ${minutes} minutes remaining until deadline.`,
     shortMessage: `${days}d ${hours}h ${minutes}m`,
   };
 }

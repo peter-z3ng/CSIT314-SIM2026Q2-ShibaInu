@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
 import type { FRADTO } from "@/entity/FRA";
 import type { UserAccountDTO } from "@/entity/UserAccount";
@@ -47,8 +49,9 @@ function DateTimeInput({
           required
         />
 
-        <div className="flex gap-4">
-          <div>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-[#6f6258]">Hr</span>
 
             <select
               value={hour}
@@ -63,14 +66,15 @@ function DateTimeInput({
 
                 return (
                   <option key={value} value={value}>
-                    {value} h
+                    {value} hr
                   </option>
                 );
               })}
             </select>
           </div>
 
-          <div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-[#6f6258]">Min</span>
 
             <select
               value={minute}
@@ -104,6 +108,9 @@ export function UpdateFRAPage({
   account: UserAccountDTO;
   fra: FRADTO;
 }) {
+  const router = useRouter();
+  const profilePath = account.profile.profile.toLowerCase().replace(" ", "-");
+
   const [title, setTitle] = useState(fra.title);
   const [description, setDescription] = useState(fra.description || "");
   const [categoryId, setCategoryId] = useState(fra.categoryId);
@@ -119,6 +126,18 @@ export function UpdateFRAPage({
       return;
     }
 
+    if (new Date(endDate) <= new Date(fra.startDate)) {
+      setMessage("End date must be later than start date.");
+      return;
+    }
+
+    const updatedStatus =
+      status === "completed"
+        ? "completed"
+        : new Date(endDate) > new Date()
+          ? "active"
+          : "closed";
+
     try {
       await updateFRAAction({
         fraId: fra.fraId,
@@ -127,10 +146,11 @@ export function UpdateFRAPage({
         title,
         description,
         endDate,
-        status,
+        status: updatedStatus,
       });
 
-      setMessage("FRA updated successfully.");
+      router.push(`/${profilePath}/my-fras/${fra.fraId}?updated=true`);
+      router.refresh();
     } catch (error) {
       setMessage(
         error instanceof Error ? error.message : "Failed to update FRA.",
@@ -143,7 +163,14 @@ export function UpdateFRAPage({
       <Header account={account} />
 
       <main className="mx-auto max-w-3xl px-5 py-8">
-        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#9b5d12]">
+        <Link
+          href={`/${profilePath}/my-fras/${fra.fraId}`}
+          className="text-sm font-semibold text-[#9b5d12] hover:underline"
+        >
+          ← Back to FRA Details
+        </Link>
+
+        <p className="mt-6 text-sm font-semibold uppercase tracking-[0.16em] text-[#9b5d12]">
           Fundraiser
         </p>
 

@@ -89,7 +89,7 @@ export function MyFRAPage({
                       <h2 className="mt-3 text-2xl font-bold">{fra.title}</h2>
                     </div>
 
-                    <span className="rounded-2xl bg-[#fff2df] px-5 py-2 text-sm font-bold uppercase tracking-[0.15em] text-[#c77700]">
+                    <span className="flex h-8 w-30 items-center justify-center rounded-2xl bg-[#fff2df] px-4 text-xs font-bold uppercase tracking-[0.15em] text-[#c77700]">
                       {fra.status}
                     </span>
                   </div>
@@ -110,9 +110,6 @@ export function MyFRAPage({
                     {fra.progressPercentage}% funded
                   </p>
 
-                  <p className="mt-2 text-sm text-[#6f6258]">
-                    {fra.viewCount} views · {fra.favCount} shortlisted
-                  </p>
 
                   <Link
                     href={`/${profilePath}/my-fras/${fra.fraId}`}
