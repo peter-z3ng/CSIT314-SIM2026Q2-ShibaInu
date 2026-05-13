@@ -1,16 +1,26 @@
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import type { FRADTO } from "@/entity/FRA";
+import type { FRACategoryDTO } from "@/entity/FRACategory";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 
 export function MyFRAPage({
   account,
   fraList,
+  categoryList,
 }: {
   account: UserAccountDTO;
   fraList: FRADTO[];
+  categoryList: FRACategoryDTO[];
 }) {
   const profilePath = account.profile.profile.toLowerCase().replace(" ", "-");
+
+  function getCategoryName(categoryId: string) {
+    return (
+      categoryList.find((category) => category.categoryId === categoryId)
+        ?.categoryName ?? "Unknown Category"
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#fffaf5] text-[#1d2520]">
@@ -35,6 +45,7 @@ export function MyFRAPage({
             Create FRA
           </Link>
         </div>
+
         <form className="mt-8 grid gap-4 rounded-2xl border border-[#f0d8bd] bg-white p-5 shadow-sm md:grid-cols-4">
           <input
             name="keyword"
@@ -83,7 +94,7 @@ export function MyFRAPage({
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#c77700]">
-                        Education
+                        {getCategoryName(fra.categoryId)}
                       </p>
 
                       <h2 className="mt-3 text-2xl font-bold">{fra.title}</h2>
@@ -120,10 +131,10 @@ export function MyFRAPage({
                     {fra.progressPercentage}% funded
                   </p>
 
-
                   <Link
                     href={`/${profilePath}/my-fras/${fra.fraId}`}
-                        className="mt-4 flex w-full items-center justify-center rounded-xl bg-[#FFB347] py-2.5 text-sm font-bold text-white transition hover:bg-[#FFBE5C]"                  >
+                    className="mt-4 flex w-full items-center justify-center rounded-xl bg-[#FFB347] py-2.5 text-sm font-bold text-white transition hover:bg-[#FFBE5C]"
+                  >
                     View details
                   </Link>
                 </div>

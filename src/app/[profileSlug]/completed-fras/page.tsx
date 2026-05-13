@@ -1,6 +1,7 @@
 import { CompletedFRAPage } from "@/boundary/CompletedFRAPage";
 import { AuthController } from "@/controller/AuthController";
 import { CompletedFRAController } from "@/controller/CompletedFRAController";
+import { FRACategoryController } from "@/controller/FRACategoryController";
 
 export const dynamic = "force-dynamic";
 
@@ -20,9 +21,10 @@ export default async function CompletedFRARoutePage({
   const filters = await searchParams;
 
   const authController = new AuthController();
-  const account = await authController.requireProfilePath(profileSlug);
-
   const completedFRAController = new CompletedFRAController();
+  const categoryController = new FRACategoryController();
+
+  const account = await authController.requireProfilePath(profileSlug);
 
   const fraList = await completedFRAController.searchCompletedFRAs({
     userId: account.userId,
@@ -32,10 +34,13 @@ export default async function CompletedFRARoutePage({
     endDate: filters.endDate,
   });
 
+  const categoryList = await categoryController.listCategories();
+
   return (
     <CompletedFRAPage
       account={account.toDTO()}
       fraList={fraList.map((fra) => fra.toDTO())}
+      categoryList={categoryList}
     />
   );
 }

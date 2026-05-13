@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
 import type { FRADTO } from "@/entity/FRA";
+import type { FRACategoryDTO } from "@/entity/FRACategory";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 import { updateFRAAction } from "@/controller/updateFRAActions";
 import { toDateTimeInputValue } from "@/lib/datetime";
@@ -101,6 +102,88 @@ function DateTimeInput({
   );
 }
 
+function CategoryDropdown({
+  categoryId,
+  categoryList = [],
+  onChange,
+}: {
+  categoryId: string;
+  categoryList?: FRACategoryDTO[];
+  onChange: (categoryId: string) => void;
+}) {
+  const [categorySearch, setCategorySearch] = useState("");
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+
+  const selectedCategory = categoryList.find(
+    (category) => category.categoryId === categoryId,
+  );
+
+  const filteredCategories = useMemo(() => {
+    return categoryList.filter((category) =>
+      category.categoryName
+        .toLowerCase()
+        .includes(categorySearch.toLowerCase()),
+    );
+  }, [categoryList, categorySearch]);
+
+  return (
+    <div className="relative">
+      <label className="text-sm font-semibold">Category</label>
+
+      <button
+        type="button"
+        onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+        className="mt-2 flex w-full items-center justify-between rounded-md border border-[#f0d8bd] bg-white px-4 py-3 text-left outline-none transition hover:border-[#FFB347]"
+      >
+        <span>{selectedCategory?.categoryName ?? "Select category"}</span>
+        <span className="text-sm">▼</span>
+      </button>
+
+      {showCategoryDropdown ? (
+        <div className="absolute z-50 mt-2 w-full rounded-xl border border-[#f0d8bd] bg-white shadow-lg">
+          <div className="p-3">
+            <input
+              value={categorySearch}
+              onChange={(event) => setCategorySearch(event.target.value)}
+              placeholder="Search category..."
+              className="w-full rounded-md border border-[#f0d8bd] px-3 py-2 outline-none focus:border-[#FFB347]"
+            />
+          </div>
+
+          <div className="max-h-60 overflow-y-auto">
+            {filteredCategories.length === 0 ? (
+              <p className="px-4 py-3 text-sm text-[#6f6258]">
+                No category found.
+              </p>
+            ) : (
+              filteredCategories.map((category) => (
+                <button
+                  key={category.categoryId}
+                  type="button"
+                  onClick={() => {
+                    onChange(category.categoryId);
+                    setCategorySearch("");
+                    setShowCategoryDropdown(false);
+                  }}
+                  className="flex w-full items-center justify-between px-4 py-3 text-left transition hover:bg-[#fff4e8]"
+                >
+                  <span className="font-semibold">
+                    {category.categoryName}
+                  </span>
+
+                  <span className="text-xs text-[#6f6258]">
+                    {category.categoryId}
+                  </span>
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function getStatusClass(status: string) {
   if (status === "completed") {
     return "bg-green-100 text-green-700 border-green-200";
@@ -116,9 +199,11 @@ function getStatusClass(status: string) {
 export function UpdateFRAPage({
   account,
   fra,
+  categoryList = [],
 }: {
   account: UserAccountDTO;
   fra: FRADTO;
+  categoryList?: FRACategoryDTO[];
 }) {
   const router = useRouter();
   const profilePath = account.profile.profile.toLowerCase().replace(" ", "-");
@@ -150,6 +235,11 @@ export function UpdateFRAPage({
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+
+    if (!categoryId) {
+      setMessage("Please select a category.");
+      return;
+    }
 
     if (!endDate) {
       setMessage("End date is required.");
@@ -230,6 +320,7 @@ export function UpdateFRAPage({
           <div className="grid gap-5">
             <div>
               <label className="text-sm font-semibold">Title</label>
+
               <input
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
@@ -240,6 +331,7 @@ export function UpdateFRAPage({
 
             <div>
               <label className="text-sm font-semibold">Description</label>
+
               <textarea
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
@@ -248,15 +340,11 @@ export function UpdateFRAPage({
               />
             </div>
 
-            <div>
-              <label className="text-sm font-semibold">Category ID</label>
-              <input
-                value={categoryId}
-                onChange={(event) => setCategoryId(event.target.value)}
-                className="mt-2 w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
-                required
-              />
-            </div>
+            <CategoryDropdown
+              categoryId={categoryId}
+              categoryList={categoryList}
+              onChange={setCategoryId}
+            />
 
             <DateTimeInput
               label="End Date"

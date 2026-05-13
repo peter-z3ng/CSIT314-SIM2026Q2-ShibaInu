@@ -1,31 +1,36 @@
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import type { FRADTO } from "@/entity/FRA";
+import type { FRACategoryDTO } from "@/entity/FRACategory";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 
 export function FundraiserHomePage({
   account,
   fraList,
+  categoryList = [],
 }: {
   account: UserAccountDTO;
   fraList: FRADTO[];
+  categoryList?: FRACategoryDTO[];
 }) {
   const profilePath = account.profile.profile
     .toLowerCase()
     .replace(" ", "-");
+
+  function getCategoryName(categoryId: string) {
+    return (
+      categoryList.find((category) => category.categoryId === categoryId)
+        ?.categoryName ?? "Unknown Category"
+    );
+  }
 
   const totalViews = fraList.reduce(
     (total, fra) => total + fra.viewCount,
     0,
   );
 
-  const activeFRAs = fraList.filter(
-    (fra) => fra.status === "active",
-  );
-
-  const completedFRAs = fraList.filter(
-    (fra) => fra.status === "completed",
-  );
+  const activeFRAs = fraList.filter((fra) => fra.status === "active");
+  const completedFRAs = fraList.filter((fra) => fra.status === "completed");
 
   return (
     <div className="min-h-screen bg-[#fffaf5] text-[#1d2520]">
@@ -43,25 +48,10 @@ export function FundraiserHomePage({
         </p>
 
         <section className="mt-8 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <DashboardCard
-            title="Total FRAs"
-            value={String(fraList.length)}
-          />
-
-          <DashboardCard
-            title="Active FRAs"
-            value={String(activeFRAs.length)}
-          />
-
-          <DashboardCard
-            title="Completed FRAs"
-            value={String(completedFRAs.length)}
-          />
-
-          <DashboardCard
-            title="Total Views"
-            value={String(totalViews)}
-          />
+          <DashboardCard title="Total FRAs" value={String(fraList.length)} />
+          <DashboardCard title="Active FRAs" value={String(activeFRAs.length)} />
+          <DashboardCard title="Completed FRAs" value={String(completedFRAs.length)} />
+          <DashboardCard title="Total Views" value={String(totalViews)} />
         </section>
 
         <section className="mt-12">
@@ -85,7 +75,7 @@ export function FundraiserHomePage({
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#c77700]">
-                      Education
+                      {getCategoryName(fra.categoryId)}
                     </p>
 
                     <h2 className="mt-2 text-xl font-bold">
@@ -111,20 +101,13 @@ export function FundraiserHomePage({
                 <div className="mt-4 h-2.5 w-full overflow-hidden rounded-full bg-[#fff2df]">
                   <div
                     className="h-full rounded-full bg-[#FFB347]"
-                    style={{
-                      width: `${fra.progressPercentage}%`,
-                    }}
+                    style={{ width: `${fra.progressPercentage}%` }}
                   />
                 </div>
 
                 <div className="mt-3 flex items-center justify-between text-sm font-semibold">
-                  <p>
-                    ${fra.currentAmount.toFixed(2)} raised
-                  </p>
-
-                  <p>
-                    ${fra.targetAmount.toFixed(2)} goal
-                  </p>
+                  <p>${fra.currentAmount.toFixed(2)} raised</p>
+                  <p>${fra.targetAmount.toFixed(2)} goal</p>
                 </div>
 
                 <div className="mt-3 flex items-center justify-between">
@@ -154,13 +137,8 @@ function DashboardCard({
 }) {
   return (
     <div className="rounded-2xl border border-[#f0d8bd] bg-white px-6 py-5 shadow-sm">
-      <p className="text-base text-[#6f6258]">
-        {title}
-      </p>
-
-      <h2 className="mt-3 text-4xl font-bold">
-        {value}
-      </h2>
+      <p className="text-base text-[#6f6258]">{title}</p>
+      <h2 className="mt-3 text-4xl font-bold">{value}</h2>
     </div>
   );
 }
