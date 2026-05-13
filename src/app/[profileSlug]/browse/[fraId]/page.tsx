@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { FRADetailsPage } from "@/boundary/FRADetailsPage";
+import { FRADetailsPage } from "@/boundary/MyFRADetailsPage";
 import { AuthController } from "@/controller/AuthController";
 import { RouteController } from "@/controller/RouteController";
 import { SaveFavouriteController } from "@/controller/SaveFavouriteController";
