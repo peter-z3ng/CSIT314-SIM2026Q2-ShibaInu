@@ -4,7 +4,7 @@ import { DoneeDashboardBoundary } from "@/boundary/DoneeDashboardBoundary";
 import { AdminController } from "@/controller/AdminController";
 import { AuthController } from "@/controller/AuthController";
 import { DoneeController } from "@/controller/DoneeController";
-import { FundraiserDashboardBoundary } from "@/boundary/FundraiserDashboardBoundary";
+import { FundraiserHomePage } from "@/boundary/FundraiserHomePage";
 import { FundraiserController } from "@/controller/FundraiserController";
 
 export const dynamic = "force-dynamic";
@@ -43,7 +43,7 @@ export default async function ProfileDashboardPage({
     const fraList = await fundraiserController.listMyFRAs(account.userId);
 
     return (
-      <FundraiserDashboardBoundary
+      <FundraiserHomePage
         account={account.toDTO()}
         fraList={fraList.map((fra) => fra.toDTO())}
       />

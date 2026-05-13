@@ -3,7 +3,7 @@ import { Header } from "@/components/Header";
 import type { FRADTO } from "@/entity/FRA";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 
-export function FundraiserDashboardBoundary({
+export function FundraiserHomePage({
   account,
   fraList,
 }: {
