@@ -89,7 +89,17 @@ export function MyFRAPage({
                       <h2 className="mt-3 text-2xl font-bold">{fra.title}</h2>
                     </div>
 
-                    <span className="flex h-8 w-30 items-center justify-center rounded-2xl bg-[#fff2df] px-4 text-xs font-bold uppercase tracking-[0.15em] text-[#c77700]">
+                    <span
+                      className={`flex h-8 w-36 items-center justify-center rounded-2xl px-4 text-xs font-bold uppercase tracking-[0.15em]
+                        ${
+                          fra.status === "completed"
+                            ? "bg-green-100 text-green-700"
+                            : fra.status === "closed"
+                              ? "bg-red-100 text-red-600"
+                              : "bg-[#fff2df] text-[#c77700]"
+                        }
+                      `}
+                    >
                       {fra.status}
                     </span>
                   </div>

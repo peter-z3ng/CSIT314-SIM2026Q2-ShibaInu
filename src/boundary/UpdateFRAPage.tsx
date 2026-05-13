@@ -134,9 +134,11 @@ export function UpdateFRAPage({
     const updatedStatus =
       status === "completed"
         ? "completed"
-        : new Date(endDate) > new Date()
-          ? "active"
-          : "closed";
+        : status === "closed"
+          ? "closed"
+          : new Date(endDate) <= new Date()
+            ? "closed"
+            : "active";
 
     try {
       await updateFRAAction({
