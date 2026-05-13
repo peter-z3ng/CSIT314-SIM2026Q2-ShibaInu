@@ -151,8 +151,8 @@ export function ViewUserAccountPage({
           </p>
         </div>
 
-        <div className="mt-5 grid gap-3 xl:grid-cols-3">
-          <div className="xl:col-span-2">
+        <div className="mt-5 grid gap-3 xl:grid-cols-[4fr_1fr]">
+          <div>
             <input
               value={keyword}
               onChange={(event) => setKeyword(event.target.value)}
@@ -161,9 +161,9 @@ export function ViewUserAccountPage({
             />
           </div>
 
-          <div className="flex min-h-11 flex-wrap items-center gap-2 rounded-md px-3 py-1">
+          <div className="flex min-h-11 items-center rounded-md px-3 py-1 -translate-y-1">
             <label
-              className={`flex items-center gap-1 rounded-2xl border border-[#FFB347] px-2 py-1 text-sm font-medium transition ${
+              className={`flex w-full h-11 items-center gap-2 rounded-2xl border border-[#FFB347] px-3 py-1 text-sm font-medium transition ${
                 statusFilter === "all" ? "text-[#9f9082]" : "text-[#222a24]"
               }`}
             >
@@ -171,7 +171,7 @@ export function ViewUserAccountPage({
               <select
                 value={statusFilter}
                 onChange={(event) => setStatusFilter(event.target.value)}
-                className={`h-8 w-28 text-sm outline-none ${
+                className={`h-8 min-w-0 flex-1 text-sm outline-none ${
                   statusFilter === "all" ? "text-[#9f9082]" : "text-[#000000]"
                 }`}
               >
