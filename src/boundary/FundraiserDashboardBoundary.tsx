@@ -136,13 +136,6 @@ export function FundraiserDashboardBoundary({
                     {fra.viewCount} views
                   </p>
                 </div>
-
-                <Link
-                  href={`/${profilePath}/my-fras/${fra.fraId}`}
-                  className="mt-4 flex w-full items-center justify-center rounded-xl bg-[#FFB347] py-2.5 text-sm font-bold text-white transition hover:bg-[#FFBE5C]"
-                >
-                  View details
-                </Link>
               </div>
             ))}
           </div>
