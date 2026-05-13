@@ -2,9 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { createClient } from "@supabase/supabase-js";
+import { CreateUserAccountController } from "@/admin/CreateUserAccountController";
 import { AdminController } from "@/controller/AdminController";
 import { AuthController, type EmailLookupResult } from "@/controller/AuthController";
 import { CreateUserAccount } from "@/controller/CreateUserAccount";
+import { ViewUserAccountController } from "@/controller/ViewUserAccountController";
+import type { AccountStatus } from "@/entity/UserAccount";
 import type { UserProfileDTO } from "@/entity/UserProfile";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -66,6 +70,55 @@ export async function suspendUserAccount(formData: FormData) {
   revalidatePath("/admin/dashboard");
 }
 
+export async function suspendUserAccountWithPassword(input: {
+  userId: string;
+  password: string;
+}): Promise<ActionResult> {
+  const adminAccount = await new AuthController().requireAdmin();
+
+  try {
+    if (input.userId === adminAccount.userId) {
+      throw new Error("You cannot suspend your own account.");
+    }
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error("Supabase public environment variables are not configured.");
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    });
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: adminAccount.email,
+      password: input.password,
+    });
+
+    if (error) {
+      throw new Error("Admin password is incorrect.");
+    }
+
+    await new AdminController().suspendUserAccount(input.userId);
+    revalidatePath("/admin/account");
+
+    return {
+      ok: true,
+      message: "User account suspended.",
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      message: error instanceof Error ? error.message : "User account could not be suspended.",
+    };
+  }
+}
+
 export async function createProfile(formData: FormData) {
   await new AuthController().requireAdmin();
   await new AdminController().createProfile(String(formData.get("name") ?? ""));
@@ -75,7 +128,7 @@ export async function createProfile(formData: FormData) {
 
 export async function createUserAccount(formData: FormData) {
   await new AuthController().requireAdmin();
-  await new CreateUserAccount().createByAdmin({
+  await new CreateUserAccountController().createUserAccount({
     username: String(formData.get("username") ?? ""),
     email: String(formData.get("email") ?? ""),
     password: String(formData.get("password") ?? ""),
@@ -83,6 +136,30 @@ export async function createUserAccount(formData: FormData) {
   });
   revalidatePath("/admin/dashboard");
   revalidatePath("/admin/account");
+}
+
+export async function updateUserAccountDetails(input: {
+  userId: string;
+  username: string;
+  email: string;
+  status: AccountStatus;
+}): Promise<ActionResult> {
+  await new AuthController().requireAdmin();
+
+  try {
+    await new ViewUserAccountController().updateUserAccountDetails(input);
+    revalidatePath("/admin/account");
+
+    return {
+      ok: true,
+      message: "User account updated.",
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      message: error instanceof Error ? error.message : "User account could not be updated.",
+    };
+  }
 }
 
 export async function signOutAndRedirect() {

@@ -40,9 +40,10 @@ export function DoneeFRASectionBoundary({ fraList }: { fraList: FRADTO[] }) {
                   style={{ width: `${fra.progressPercentage}%` }}
                 />
               </div>
-              <p className="mt-2 text-sm font-semibold text-[#6f6258]">
-                ${fra.currentAmount.toFixed(2)} raised of ${fra.targetAmount.toFixed(2)}
-              </p>
+              <div className="mt-2 flex items-center justify-between gap-3 text-sm font-semibold text-[#6f6258]">
+                <p>${fra.currentAmount.toFixed(2)} raised</p>
+                <p>${fra.targetAmount.toFixed(2)} goal</p>
+              </div>
             </div>
           </article>
         ))}

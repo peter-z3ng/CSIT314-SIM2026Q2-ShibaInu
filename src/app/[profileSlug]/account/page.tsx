@@ -1,4 +1,4 @@
-import { AdminAccountBoundary } from "@/boundary/AdminAccountBoundary";
+import { ViewUserAccountPage } from "@/admin/ViewUserAccountPage";
 import { AdminController } from "@/controller/AdminController";
 import { AuthController } from "@/controller/AuthController";
 
@@ -13,14 +13,18 @@ export default async function AdminAccountPage({
   const account = await new AuthController().requireProfilePath(profileSlug);
   const adminAccount = await new AuthController().requireAdmin();
   const adminController = new AdminController();
-  const profiles = await adminController.listProfiles();
-  const pendingAccounts = await adminController.listPendingUserAccounts();
+  const [profiles, pendingAccounts, userAccounts] = await Promise.all([
+    adminController.listProfiles(),
+    adminController.listPendingUserAccounts(),
+    adminController.listUserAccounts(),
+  ]);
 
   return (
-    <AdminAccountBoundary
+    <ViewUserAccountPage
       account={(adminAccount ?? account).toDTO()}
       profiles={profiles.map((profile) => profile.toDTO())}
       pendingAccounts={pendingAccounts.map((pendingAccount) => pendingAccount.toDTO())}
+      userAccounts={userAccounts.map((userAccount) => userAccount.toDTO())}
     />
   );
 }

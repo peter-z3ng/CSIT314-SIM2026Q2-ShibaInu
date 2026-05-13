@@ -1,4 +1,4 @@
-import { LogoutBoundary } from "@/boundary/LogoutBoundary";
+import { LogOutPage } from "@/boundary/LogOutPage";
 import { AuthController } from "@/controller/AuthController";
 
 export const dynamic = "force-dynamic";
@@ -11,5 +11,5 @@ export default async function ProfileLogoutPage({
   const { profileSlug } = await params;
   const account = await new AuthController().requireProfilePath(profileSlug);
 
-  return <LogoutBoundary profile={account.profile} />;
+  return <LogOutPage profile={account.profile} />;
 }

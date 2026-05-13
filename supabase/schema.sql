@@ -45,6 +45,23 @@ create table if not exists public.fra (
   updated_at timestamptz
 );
 
+create table if not exists public.donation (
+  donation_id uuid primary key default gen_random_uuid(),
+  fra_id uuid not null references public.fra(fra_id),
+  user_id uuid not null references public.user_account(user_id),
+  amount numeric(12, 2) not null,
+  message text,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.favourite (
+  fav_id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.user_account(user_id) on delete cascade,
+  fra_id uuid not null references public.fra(fra_id) on delete cascade,
+  constraint favourite_user_fra_unique
+    unique (user_id, fra_id)
+);
+
 alter table public.fra
 add column if not exists category_id uuid references public.fra_category(category_id);
 
@@ -67,6 +84,8 @@ alter table public.user_profile enable row level security;
 alter table public.user_account enable row level security;
 alter table public.fra_category enable row level security;
 alter table public.fra enable row level security;
+alter table public.donation enable row level security;
+alter table public.favourite enable row level security;
 
 create policy "Authenticated users can read user profiles"
 on public.user_profile
@@ -90,3 +109,21 @@ on public.fra
 for select
 to authenticated
 using (true);
+
+create policy "Authenticated users can read donations"
+on public.donation
+for select
+to authenticated
+using (true);
+
+create policy "Users can read own favourites"
+on public.favourite
+for select
+to authenticated
+using (user_id = auth.uid());
+
+create policy "Users can save own favourites"
+on public.favourite
+for insert
+to authenticated
+with check (user_id = auth.uid());

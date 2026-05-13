@@ -1,3 +1,4 @@
+import { Donation } from "@/entity/Donation";
 import { FRA } from "@/entity/FRA";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { AutoCloseFRAController } from "@/controller/AutoCloseFRAController";
@@ -17,6 +18,22 @@ type FRARow = {
   end_date: string | null;
   created_at: string;
   updated_at: string | null;
+};
+
+type FundraiserRow = {
+  username: string;
+};
+
+type DonationRow = {
+  user_id: string;
+  amount: number;
+  message: string | null;
+  paydate: string;
+};
+
+type DonationUserRow = {
+  user_id: string;
+  username: string;
 };
 
 export class ViewFRADetailsController {
@@ -50,6 +67,73 @@ export class ViewFRADetailsController {
     }
 
     return mapFRARow(fra).viewFRADetails(fra_id);
+  }
+
+  async viewFundraiserUsername(user_id: string): Promise<string> {
+    if (!user_id.trim()) {
+      throw new Error("User id is required.");
+    }
+
+    const supabase = createSupabaseAdminClient();
+    const { data, error } = await supabase
+      .from("user_account")
+      .select("username")
+      .eq("user_id", user_id)
+      .limit(1)
+      .overrideTypes<FundraiserRow[], { merge: false }>();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data[0]?.username ?? "Unknown fundraiser";
+  }
+
+  async viewRecentDonations(fra_id: string): Promise<Donation[]> {
+    if (!fra_id.trim()) {
+      throw new Error("FRA id is required.");
+    }
+
+    const supabase = createSupabaseAdminClient();
+    const { data: donations, error } = await supabase
+      .from("donation")
+      .select("user_id, amount, message, paydate")
+      .eq("fra_id", fra_id)
+      .order("paydate", { ascending: false })
+      .limit(5)
+      .overrideTypes<DonationRow[], { merge: false }>();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    if (!donations.length) {
+      return [];
+    }
+
+    const userIds = Array.from(new Set(donations.map((donation) => donation.user_id)));
+    const { data: users, error: userError } = await supabase
+      .from("user_account")
+      .select("user_id, username")
+      .in("user_id", userIds)
+      .overrideTypes<DonationUserRow[], { merge: false }>();
+
+    if (userError) {
+      throw new Error(userError.message);
+    }
+
+    const usernameById = new Map(users.map((user) => [user.user_id, user.username]));
+
+    return donations.map(
+      (donation) =>
+        new Donation({
+          userId: donation.user_id,
+          username: usernameById.get(donation.user_id) ?? "Unknown donor",
+          amount: Number(donation.amount),
+          message: donation.message,
+          paydate: donation.paydate,
+        }),
+    );
   }
 }
 
