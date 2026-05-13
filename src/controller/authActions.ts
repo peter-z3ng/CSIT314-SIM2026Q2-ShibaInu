@@ -2,9 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { CreateUserAccountController } from "@/admin/CreateUserAccountController";
 import { AdminController } from "@/controller/AdminController";
 import { AuthController, type EmailLookupResult } from "@/controller/AuthController";
 import { CreateUserAccount } from "@/controller/CreateUserAccount";
+import { ViewUserAccountController } from "@/controller/ViewUserAccountController";
+import type { AccountStatus } from "@/entity/UserAccount";
 import type { UserProfileDTO } from "@/entity/UserProfile";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -75,7 +78,7 @@ export async function createProfile(formData: FormData) {
 
 export async function createUserAccount(formData: FormData) {
   await new AuthController().requireAdmin();
-  await new CreateUserAccount().createByAdmin({
+  await new CreateUserAccountController().createUserAccount({
     username: String(formData.get("username") ?? ""),
     email: String(formData.get("email") ?? ""),
     password: String(formData.get("password") ?? ""),
@@ -83,6 +86,30 @@ export async function createUserAccount(formData: FormData) {
   });
   revalidatePath("/admin/dashboard");
   revalidatePath("/admin/account");
+}
+
+export async function updateUserAccountDetails(input: {
+  userId: string;
+  username: string;
+  email: string;
+  status: AccountStatus;
+}): Promise<ActionResult> {
+  await new AuthController().requireAdmin();
+
+  try {
+    await new ViewUserAccountController().updateUserAccountDetails(input);
+    revalidatePath("/admin/account");
+
+    return {
+      ok: true,
+      message: "User account updated.",
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      message: error instanceof Error ? error.message : "User account could not be updated.",
+    };
+  }
 }
 
 export async function signOutAndRedirect() {

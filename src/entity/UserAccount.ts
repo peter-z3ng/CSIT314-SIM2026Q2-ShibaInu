@@ -47,6 +47,24 @@ export class UserAccount {
     }
   }
 
+  static createUserAccount(input: {
+    username: string;
+    email: string;
+    password: string;
+  }) {
+    const username = input.username.trim();
+    const email = UserAccount.normalizeEmail(input.email);
+
+    UserAccount.validateUsername(username);
+    UserAccount.validatePassword(input.password);
+
+    return {
+      username,
+      email,
+      password: input.password,
+    };
+  }
+
   static normalizeEmail(email: string) {
     const normalizedEmail = email.trim().toLowerCase();
 
@@ -67,6 +85,20 @@ export class UserAccount {
     }
 
     return this;
+  }
+
+  updateUserAccountDetails(input: {
+    username: string;
+    email: string;
+    status: AccountStatus;
+  }) {
+    return new UserAccount({
+      userId: this.userId,
+      username: input.username,
+      email: input.email,
+      status: input.status,
+      profile: this.profile,
+    });
   }
 
   toDTO(): UserAccountDTO {

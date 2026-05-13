@@ -1,29 +1,35 @@
 "use client";
 
 import { AdminLayoutBoundary } from "@/boundary/AdminLayoutBoundary";
-import { approveUserAccount, createUserAccount } from "@/controller/authActions";
-import Link from "next/link";
-import { useMemo, useState } from "react";
+import {
+  approveUserAccount,
+  createUserAccount,
+  updateUserAccountDetails,
+} from "@/controller/authActions";
+import { useRouter } from "next/navigation";
+import { useMemo, useState, useTransition } from "react";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 import type { UserProfileDTO } from "@/entity/UserProfile";
-import { profileToPath } from "@/entity/UserProfile";
 
 export function ViewUserAccountPage({
   account,
   profiles,
   pendingAccounts,
   userAccounts,
-  selectedAccount,
 }: {
   account: UserAccountDTO;
   profiles: UserProfileDTO[];
   pendingAccounts: UserAccountDTO[];
   userAccounts: UserAccountDTO[];
-  selectedAccount: UserAccountDTO | null;
 }) {
+  const router = useRouter();
   const [keyword, setKeyword] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const profilePath = profileToPath(account.profile);
+  const [selectedAccount, setSelectedAccount] = useState<UserAccountDTO | null>(null);
+  const [isEditingAccount, setIsEditingAccount] = useState(false);
+  const [editableAccount, setEditableAccount] = useState<UserAccountDTO | null>(null);
+  const [accountMessage, setAccountMessage] = useState("");
+  const [isSavingAccount, startSavingAccount] = useTransition();
 
   const filteredAccounts = useMemo(() => {
     const normalizedKeyword = keyword.trim().toLowerCase();
@@ -41,29 +47,169 @@ export function ViewUserAccountPage({
     });
   }, [keyword, statusFilter, userAccounts]);
 
-  const displayUserAccountDetails = (userAccount: UserAccountDTO | null) => {
+  const openUserDetails = (userAccount: UserAccountDTO) => {
+    setSelectedAccount(userAccount);
+    setEditableAccount(userAccount);
+    setIsEditingAccount(false);
+    setAccountMessage("");
+  };
+
+  const closeUserDetails = () => {
+    setSelectedAccount(null);
+    setEditableAccount(null);
+    setIsEditingAccount(false);
+    setAccountMessage("");
+  };
+
+  const updateEditableAccount = (updates: Partial<UserAccountDTO>) => {
+    setEditableAccount((currentAccount) =>
+      currentAccount ? { ...currentAccount, ...updates } : currentAccount,
+    );
+  };
+
+  const displayUserDetails = (userAccount: UserAccountDTO | null) => {
     if (!userAccount) {
       return null;
     }
 
-    return (
-      <section className="mt-8 rounded-lg border border-[#f0d8bd] bg-[#fffaf5] p-5 shadow-sm">
-        <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-          <div>
-            <h2 className="text-2xl font-bold">User Account Details</h2>
-          </div>
-          <span className="w-fit rounded-md bg-[#fff2df] px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.1em] text-[#9b5d12]">
-            {userAccount.status}
-          </span>
-        </div>
+    const displayedAccount = editableAccount ?? userAccount;
 
-        <div className="mt-5 grid gap-4 md:grid-cols-2">
-          <DetailItem label="Username" value={userAccount.username} />
-          <DetailItem label="Email" value={userAccount.email} />
-          <DetailItem label="Profile" value={userAccount.profile.profile} />
-          <DetailItem label="User ID" value={userAccount.userId} />
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center px-5">
+        <button
+          type="button"
+          aria-label="Close account details"
+          onClick={closeUserDetails}
+          className="absolute inset-0 bg-black/30"
+        />
+
+        <div className="relative w-full max-w-xl rounded-2xl border border-[#f0d8bd] bg-[#fffaf5] p-6 shadow-2xl">
+          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+            <div>
+              <h2 className="text-2xl font-bold">User Account Details</h2>
+              <p className="mt-1 text-sm text-[#6f6258]">{displayedAccount.userId}</p>
+            </div>
+            <span className="w-fit rounded-md bg-[#fff2df] px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.1em] text-[#9b5d12]">
+              {displayedAccount.status}
+            </span>
+          </div>
+
+          <div className="mt-6 grid gap-4">
+            <EditableField
+              label="Username"
+              value={displayedAccount.username}
+              isEditing={isEditingAccount}
+              onChange={(value) => updateEditableAccount({ username: value })}
+            />
+            <EditableField
+              label="Email"
+              value={displayedAccount.email}
+              type="email"
+              isEditing={isEditingAccount}
+              onChange={(value) => updateEditableAccount({ email: value })}
+            />
+            <label className="block rounded-lg border border-[#f0d8bd] bg-white p-4">
+              <span className="text-xs font-bold uppercase tracking-[0.16em] text-[#9b5d12]">
+                Profile
+              </span>
+              {isEditingAccount ? (
+                <input
+                  value={displayedAccount.profile.profile}
+                  disabled
+                  className="mt-2 h-10 w-full rounded-md border border-[#dfd4c7] bg-[#f7f1e8] px-3 text-sm font-semibold text-[#6f6258]"
+                />
+              ) : (
+                <p className="mt-2 break-words text-sm font-semibold text-[#1d2520]">
+                  {displayedAccount.profile.profile}
+                </p>
+              )}
+            </label>
+            <label className="block rounded-lg border border-[#f0d8bd] bg-white p-4">
+              <span className="text-xs font-bold uppercase tracking-[0.16em] text-[#9b5d12]">
+                Status
+              </span>
+              {isEditingAccount ? (
+                <select
+                  value={displayedAccount.status}
+                  onChange={(event) =>
+                    updateEditableAccount({
+                      status: event.target.value as UserAccountDTO["status"],
+                    })
+                  }
+                  className="mt-2 h-10 w-full rounded-md border border-[#cfc7b5] bg-white px-3 text-sm font-semibold outline-none transition focus:border-[#FFB347] focus:ring-2 focus:ring-[#FFB347]/30"
+                >
+                  <option value="active">Active</option>
+                  <option value="pending">Pending</option>
+                  <option value="suspended">Suspended</option>
+                </select>
+              ) : (
+                <p className="mt-2 break-words text-sm font-semibold text-[#1d2520]">
+                  {displayedAccount.status}
+                </p>
+              )}
+            </label>
+          </div>
+
+          {accountMessage ? (
+            <p
+              className={`mt-5 rounded-md px-4 py-3 text-sm font-semibold ${
+                accountMessage === "User account updated."
+                  ? "bg-[#f0f8ef] text-[#0b5b2d]"
+                  : "bg-[#fff2df] text-[#9b5d12]"
+              }`}
+            >
+              {accountMessage}
+            </p>
+          ) : null}
+
+          <div className="mt-6 flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={closeUserDetails}
+              className="h-10 rounded-md border border-[#f0d8bd] px-4 text-sm font-semibold text-[#9b5d12] transition hover:bg-[#fff2df]"
+            >
+              Close
+            </button>
+            {isEditingAccount ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setAccountMessage("");
+                  startSavingAccount(async () => {
+                    const result = await updateUserAccountDetails({
+                      userId: displayedAccount.userId,
+                      username: displayedAccount.username,
+                      email: displayedAccount.email,
+                      status: displayedAccount.status,
+                    });
+
+                    setAccountMessage(result.message);
+
+                    if (result.ok) {
+                      setSelectedAccount(displayedAccount);
+                      setEditableAccount(displayedAccount);
+                      setIsEditingAccount(false);
+                      router.refresh();
+                    }
+                  });
+                }}
+                disabled={isSavingAccount}
+                className="h-10 rounded-md bg-[#FFB347] px-4 text-sm font-semibold text-white transition hover:bg-[#FFBE5C] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isSavingAccount ? "Saving..." : "Save changes"}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsEditingAccount(true)}
+                className="h-10 rounded-md bg-[#FFB347] px-4 text-sm font-semibold text-white transition hover:bg-[#FFBE5C]"
+              >
+                Edit
+              </button>
+            )}
+          </div>
         </div>
-      </section>
+      </div>
     );
   };
 
@@ -205,12 +351,13 @@ export function ViewUserAccountPage({
                     </span>
                   </td>
                   <td className="py-4">
-                    <Link
-                      href={`/${profilePath}/account?userId=${userAccount.userId}`}
+                    <button
+                      type="button"
+                      onClick={() => openUserDetails(userAccount)}
                       className="inline-flex h-9 items-center rounded-md bg-[#FFB347] px-4 text-sm font-semibold text-white transition hover:bg-[#FFBE5C]"
                     >
                       View details
-                    </Link>
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -226,7 +373,7 @@ export function ViewUserAccountPage({
         </div>
       </section>
 
-      {displayUserAccountDetails(selectedAccount)}
+      {displayUserDetails(selectedAccount)}
     </AdminLayoutBoundary>
   );
 }
@@ -255,13 +402,34 @@ function Field({
   );
 }
 
-function DetailItem({ label, value }: { label: string; value: string }) {
+function EditableField({
+  label,
+  value,
+  onChange,
+  isEditing,
+  type = "text",
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  isEditing: boolean;
+  type?: string;
+}) {
   return (
-    <div className="rounded-lg border border-[#f0d8bd] bg-white p-4">
-      <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#9b5d12]">
+    <label className="block rounded-lg border border-[#f0d8bd] bg-white p-4">
+      <span className="text-xs font-bold uppercase tracking-[0.16em] text-[#9b5d12]">
         {label}
-      </p>
-      <p className="mt-2 break-words text-sm font-semibold text-[#1d2520]">{value}</p>
-    </div>
+      </span>
+      {isEditing ? (
+        <input
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          type={type}
+          className="mt-2 h-10 w-full rounded-md border border-[#cfc7b5] px-3 text-sm font-semibold outline-none transition focus:border-[#FFB347] focus:ring-2 focus:ring-[#FFB347]/30"
+        />
+      ) : (
+        <p className="mt-2 break-words text-sm font-semibold text-[#1d2520]">{value}</p>
+      )}
+    </label>
   );
 }
