@@ -11,7 +11,7 @@ export function AdminProfileBoundary({
   profiles: UserProfileDTO[];
 }) {
   return (
-    <AdminLayoutBoundary account={account} eyebrow="Admin Profile" title="Create User Profile">
+    <AdminLayoutBoundary account={account} title="Create Profiles">
       <div className="mt-8 grid gap-6 lg:grid-cols-[420px_1fr]">
         <form
           action={createProfile}

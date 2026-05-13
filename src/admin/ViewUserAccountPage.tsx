@@ -2,36 +2,28 @@
 
 import { AdminLayoutBoundary } from "@/boundary/AdminLayoutBoundary";
 import { approveUserAccount, createUserAccount } from "@/controller/authActions";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 import type { UserProfileDTO } from "@/entity/UserProfile";
+import { profileToPath } from "@/entity/UserProfile";
 
-export function AdminAccountBoundary({
+export function ViewUserAccountPage({
   account,
   profiles,
   pendingAccounts,
   userAccounts,
+  selectedAccount,
 }: {
   account: UserAccountDTO;
   profiles: UserProfileDTO[];
   pendingAccounts: UserAccountDTO[];
   userAccounts: UserAccountDTO[];
+  selectedAccount: UserAccountDTO | null;
 }) {
   const [keyword, setKeyword] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [profileFilter, setProfileFilter] = useState("all");
-
-  const profileOptions = useMemo(() => {
-    const profileMap = new Map<string, string>();
-
-    userAccounts.forEach((userAccount) => {
-      profileMap.set(userAccount.profile.profileId, userAccount.profile.profile);
-    });
-
-    return Array.from(profileMap.entries()).sort((firstProfile, secondProfile) =>
-      firstProfile[1].localeCompare(secondProfile[1]),
-    );
-  }, [userAccounts]);
+  const profilePath = profileToPath(account.profile);
 
   const filteredAccounts = useMemo(() => {
     const normalizedKeyword = keyword.trim().toLowerCase();
@@ -44,24 +36,39 @@ export function AdminAccountBoundary({
         userAccount.profile.profile.toLowerCase().includes(normalizedKeyword);
       const matchesStatus =
         statusFilter === "all" || userAccount.status === statusFilter;
-      const matchesProfile =
-        profileFilter === "all" || userAccount.profile.profileId === profileFilter;
 
-      return matchesKeyword && matchesStatus && matchesProfile;
+      return matchesKeyword && matchesStatus;
     });
-  }, [keyword, profileFilter, statusFilter, userAccounts]);
+  }, [keyword, statusFilter, userAccounts]);
 
-  const hasActiveFilters =
-    keyword.trim() !== "" || statusFilter !== "all" || profileFilter !== "all";
+  const displayUserAccountDetails = (userAccount: UserAccountDTO | null) => {
+    if (!userAccount) {
+      return null;
+    }
 
-  const clearFilters = () => {
-    setKeyword("");
-    setStatusFilter("all");
-    setProfileFilter("all");
+    return (
+      <section className="mt-8 rounded-lg border border-[#f0d8bd] bg-[#fffaf5] p-5 shadow-sm">
+        <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+          <div>
+            <h2 className="text-2xl font-bold">User Account Details</h2>
+          </div>
+          <span className="w-fit rounded-md bg-[#fff2df] px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.1em] text-[#9b5d12]">
+            {userAccount.status}
+          </span>
+        </div>
+
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
+          <DetailItem label="Username" value={userAccount.username} />
+          <DetailItem label="Email" value={userAccount.email} />
+          <DetailItem label="Profile" value={userAccount.profile.profile} />
+          <DetailItem label="User ID" value={userAccount.userId} />
+        </div>
+      </section>
+    );
   };
 
   return (
-    <AdminLayoutBoundary account={account} eyebrow="Admin Account" title="Manage Accounts">
+    <AdminLayoutBoundary account={account} title="Manage Accounts">
       <div className="mt-8 grid gap-5 xl:grid-cols-2">
         <form
           action={createUserAccount}
@@ -71,7 +78,7 @@ export function AdminAccountBoundary({
             <Field label="Username" name="username" placeholder="jane_admin" />
             <Field label="Email" name="email" type="email" placeholder="name@example.com" />
             <Field
-              label="Temporary Password"
+              label="Password"
               name="password"
               type="password"
               placeholder="Password"
@@ -174,35 +181,6 @@ export function AdminAccountBoundary({
                 <option value="suspended">Suspended</option>
               </select>
             </label>
-            <label
-              className={`flex min-w-0 flex-1 items-center gap-1 rounded-2xl border border-[#FFB347] px-2 py-1 text-sm font-medium transition ${
-                profileFilter === "all" ? "text-[#9f9082]" : "text-[#222a24]"
-              }`}
-            >
-              Profile:
-              <select
-                value={profileFilter}
-                onChange={(event) => setProfileFilter(event.target.value)}
-                className={`h-8 min-w-0 flex-1 rounded-md text-sm outline-none ${
-                  profileFilter === "all" ? "text-[#9f9082]" : "text-[#222a24]"
-                }`}
-              >
-                <option value="all">All</option>
-                {profileOptions.map(([profileId, profile]) => (
-                  <option key={profileId} value={profileId}>
-                    {profile}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <button
-              type="button"
-              onClick={clearFilters}
-              disabled={!hasActiveFilters}
-              className="h-8 text-sm font-semibold text-[#9b5d12] transition hover:border-[#FFB347] hover:text-[#FFB347] disabled:cursor-not-allowed disabled:text-[#c8ad8c]"
-            >
-              Clear
-            </button>
           </div>
         </div>
 
@@ -227,12 +205,12 @@ export function AdminAccountBoundary({
                     </span>
                   </td>
                   <td className="py-4">
-                    <button
-                      type="button"
-                      className="h-9 rounded-md bg-[#FFB347] px-4 text-sm font-semibold text-white transition hover:bg-[#FFBE5C]"
+                    <Link
+                      href={`/${profilePath}/account?userId=${userAccount.userId}`}
+                      className="inline-flex h-9 items-center rounded-md bg-[#FFB347] px-4 text-sm font-semibold text-white transition hover:bg-[#FFBE5C]"
                     >
                       View details
-                    </button>
+                    </Link>
                   </td>
                 </tr>
               ))}
@@ -247,6 +225,8 @@ export function AdminAccountBoundary({
           </table>
         </div>
       </section>
+
+      {displayUserAccountDetails(selectedAccount)}
     </AdminLayoutBoundary>
   );
 }
@@ -272,5 +252,16 @@ function Field({
         placeholder={placeholder}
       />
     </label>
+  );
+}
+
+function DetailItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-[#f0d8bd] bg-white p-4">
+      <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#9b5d12]">
+        {label}
+      </p>
+      <p className="mt-2 break-words text-sm font-semibold text-[#1d2520]">{value}</p>
+    </div>
   );
 }

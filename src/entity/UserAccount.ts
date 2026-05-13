@@ -61,6 +61,14 @@ export class UserAccount {
     return this.status === "active";
   }
 
+  viewUserAccount(userId: string) {
+    if (this.userId !== userId) {
+      throw new Error("User account details do not match the requested id.");
+    }
+
+    return this;
+  }
+
   toDTO(): UserAccountDTO {
     return {
       userId: this.userId,
