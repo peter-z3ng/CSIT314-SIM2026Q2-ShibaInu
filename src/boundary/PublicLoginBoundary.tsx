@@ -37,7 +37,7 @@ export function PublicLoginBoundary({ profiles }: { profiles: UserProfileDTO[] }
           result.status === "pending"
             ? "Your account is waiting for admin approval."
             : result.status === "suspended"
-              ? "This account is suspended. Contact an administrator."
+              ? "Your account has been suspended."
             : "",
         );
       } catch (error) {

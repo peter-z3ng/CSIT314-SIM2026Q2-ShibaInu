@@ -4,6 +4,7 @@ import { Header } from "@/components/Header";
 import {
   approveUserAccount,
   createUserAccount,
+  suspendUserAccountWithPassword,
   updateUserAccountDetails,
 } from "@/controller/authActions";
 import { useRouter } from "next/navigation";
@@ -30,6 +31,9 @@ export function ViewUserAccountPage({
   const [editableAccount, setEditableAccount] = useState<UserAccountDTO | null>(null);
   const [accountMessage, setAccountMessage] = useState("");
   const [isSavingAccount, startSavingAccount] = useTransition();
+  const [suspendStep, setSuspendStep] = useState<"idle" | "confirm" | "password">("idle");
+  const [suspendPassword, setSuspendPassword] = useState("");
+  const [isSuspendingAccount, startSuspendingAccount] = useTransition();
 
   const filteredAccounts = useMemo(() => {
     const normalizedKeyword = keyword.trim().toLowerCase();
@@ -52,6 +56,8 @@ export function ViewUserAccountPage({
     setEditableAccount(userAccount);
     setIsEditingAccount(false);
     setAccountMessage("");
+    setSuspendStep("idle");
+    setSuspendPassword("");
   };
 
   const closeUserDetails = () => {
@@ -59,6 +65,8 @@ export function ViewUserAccountPage({
     setEditableAccount(null);
     setIsEditingAccount(false);
     setAccountMessage("");
+    setSuspendStep("idle");
+    setSuspendPassword("");
   };
 
   const updateEditableAccount = (updates: Partial<UserAccountDTO>) => {
@@ -87,7 +95,6 @@ export function ViewUserAccountPage({
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
             <div>
               <h2 className="text-2xl font-bold">User Account Details</h2>
-              <p className="mt-1 text-sm text-[#6f6258]">{displayedAccount.userId}</p>
             </div>
             <span className="w-fit rounded-md bg-[#fff2df] px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.1em] text-[#9b5d12]">
               {displayedAccount.status}
@@ -124,36 +131,115 @@ export function ViewUserAccountPage({
                 </p>
               )}
             </label>
-            <label className="block rounded-lg border border-[#f0d8bd] bg-white p-4">
-              <span className="text-xs font-bold uppercase tracking-[0.16em] text-[#9b5d12]">
-                Status
-              </span>
-              {isEditingAccount ? (
-                <select
-                  value={displayedAccount.status}
-                  onChange={(event) =>
-                    updateEditableAccount({
-                      status: event.target.value as UserAccountDTO["status"],
-                    })
-                  }
-                  className="mt-2 h-10 w-full rounded-md border border-[#cfc7b5] bg-white px-3 text-sm font-semibold outline-none transition focus:border-[#FFB347] focus:ring-2 focus:ring-[#FFB347]/30"
-                >
-                  <option value="active">Active</option>
-                  <option value="pending">Pending</option>
-                  <option value="suspended">Suspended</option>
-                </select>
-              ) : (
-                <p className="mt-2 break-words text-sm font-semibold text-[#1d2520]">
-                  {displayedAccount.status}
-                </p>
-              )}
-            </label>
           </div>
+
+          {displayedAccount.status !== "suspended" ? (
+            <div className="mt-5 rounded-lg border border-[#f6c7c7] bg-[#fff7f7] p-4">
+              {suspendStep === "idle" ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAccountMessage("");
+                    setSuspendStep("confirm");
+                  }}
+                  className="h-11 w-full rounded-md bg-[#c83232] px-4 text-sm font-semibold text-white transition hover:bg-[#b42626]"
+                >
+                  Suspend Account
+                </button>
+              ) : null}
+
+              {suspendStep === "confirm" ? (
+                <div className="grid gap-4">
+                  <p className="text-sm font-semibold text-[#7a1f1f]">
+                    Are you sure you want to suspend {displayedAccount.username}?
+                  </p>
+                  <div className="flex justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setSuspendStep("idle")}
+                      className="h-10 rounded-md border border-[#e8b4b4] px-4 text-sm font-semibold text-[#7a1f1f] transition hover:bg-[#ffecec]"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSuspendStep("password")}
+                      className="h-10 rounded-md bg-[#c83232] px-4 text-sm font-semibold text-white transition hover:bg-[#b42626]"
+                    >
+                      Confirm
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+
+              {suspendStep === "password" ? (
+                <form
+                  className="grid gap-4"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    setAccountMessage("");
+                    startSuspendingAccount(async () => {
+                      const result = await suspendUserAccountWithPassword({
+                        userId: displayedAccount.userId,
+                        password: suspendPassword,
+                      });
+
+                      setAccountMessage(result.message);
+
+                      if (result.ok) {
+                        const suspendedAccount: UserAccountDTO = {
+                          ...displayedAccount,
+                          status: "suspended",
+                        };
+
+                        setSelectedAccount(suspendedAccount);
+                        setEditableAccount(suspendedAccount);
+                        setIsEditingAccount(false);
+                        setSuspendStep("idle");
+                        setSuspendPassword("");
+                        router.refresh();
+                      }
+                    });
+                  }}
+                >
+                  <label className="block text-sm font-medium text-[#7a1f1f]">
+                    Enter your admin password to suspend this account
+                    <input
+                      value={suspendPassword}
+                      onChange={(event) => setSuspendPassword(event.target.value)}
+                      type="password"
+                      className="mt-2 h-10 w-full rounded-md border border-[#e8b4b4] bg-white px-3 text-sm text-[#1d2520] outline-none transition focus:border-[#c83232] focus:ring-2 focus:ring-[#c83232]/20"
+                      placeholder="Admin password"
+                    />
+                  </label>
+                  <div className="flex justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSuspendStep("confirm");
+                        setSuspendPassword("");
+                      }}
+                      className="h-10 rounded-md border border-[#e8b4b4] px-4 text-sm font-semibold text-[#7a1f1f] transition hover:bg-[#ffecec]"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      disabled={isSuspendingAccount || !suspendPassword}
+                      className="h-10 rounded-md bg-[#c83232] px-4 text-sm font-semibold text-white transition hover:bg-[#b42626] disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {isSuspendingAccount ? "Suspending..." : "Suspend Account"}
+                    </button>
+                  </div>
+                </form>
+              ) : null}
+            </div>
+          ) : null}
 
           {accountMessage ? (
             <p
               className={`mt-5 rounded-md px-4 py-3 text-sm font-semibold ${
-                accountMessage === "User account updated."
+                accountMessage === "User account updated." ||
+                accountMessage === "User account suspended."
                   ? "bg-[#f0f8ef] text-[#0b5b2d]"
                   : "bg-[#fff2df] text-[#9b5d12]"
               }`}
