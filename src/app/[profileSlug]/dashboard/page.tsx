@@ -1,7 +1,6 @@
-import { AdminDashboardBoundary } from "@/boundary/AdminDashboardBoundary";
+import { redirect } from "next/navigation";
 import { DashboardBoundary } from "@/boundary/DashboardBoundary";
 import { DoneeDashboardBoundary } from "@/boundary/DoneeDashboardBoundary";
-import { AdminController } from "@/controller/AdminController";
 import { AuthController } from "@/controller/AuthController";
 import { DoneeController } from "@/controller/DoneeController";
 import { FundraiserHomePage } from "@/boundary/FundraiserHomePage";
@@ -54,11 +53,7 @@ export default async function ProfileDashboardPage({
     return <DashboardBoundary account={account} />;
   }
 
-  const adminController = new AdminController();
-  const userAccounts = await adminController.listUserAccounts();
-
-  return <AdminDashboardBoundary
-    account={account.toDTO()}
-    userAccounts={userAccounts.map((userAccount) => userAccount.toDTO())}
-  />;
+  if (account.profile.profile.toLowerCase() === "admin") {
+    redirect(`/${profileSlug}/account`);
+  }
 }

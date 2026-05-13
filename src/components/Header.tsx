@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { RouteController } from "@/controller/RouteController";
 import type { UserAccountDTO } from "@/entity/UserAccount";
@@ -8,6 +9,7 @@ import { profileToPath } from "@/entity/UserProfile";
 
 export function Header({ account }: { account: UserAccountDTO }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
   const profilePath = profileToPath(account.profile);
   const profileName = account.profile.profile.toLowerCase();
 
@@ -16,7 +18,9 @@ export function Header({ account }: { account: UserAccountDTO }) {
   const isAdmin = profileName === "admin";
   const isDonee = profileName === "donee";
   const navLinks = [
-    { label: "Home", href: `/${profilePath}/dashboard`, showHomeIcon: true },
+    ...(!isAdmin
+      ? [{ label: "Home", href: `/${profilePath}/dashboard`, showHomeIcon: true }]
+      : []),
     ...(isAdmin
       ? [
           { label: "Manage Accounts", href: `/${profilePath}/account` },
@@ -50,16 +54,44 @@ export function Header({ account }: { account: UserAccountDTO }) {
 
         <div className="flex items-center gap-3 justify-self-end">
           <nav className="hidden items-center gap-2 md:flex">
-            {navLinks.map((navLink) => (
-              <Link
-                key={navLink.href}
-                href={navLink.href}
-                className="flex items-center gap-2 whitespace-nowrap rounded-2xl px-3 py-2 text-md font-semibold text-[#1d2520] transition hover:bg-[#fff2df] hover:text-[#FFB347]"
-              >
-                {navLink.showHomeIcon ? <HomeIcon /> : null}
-                {navLink.label}
-              </Link>
-            ))}
+            {isAdmin ? (
+              <div className="flex items-center gap-3">
+                <span className="text-md font-semibold text-[#1d2520]">Manage</span>
+                <div className="flex rounded-2xl border border-[#f0d8bd] bg-white p-1">
+                  {[
+                    { label: "Accounts", href: `/${profilePath}/account` },
+                    { label: "Profiles", href: `/${profilePath}/profile` },
+                  ].map((navLink) => {
+                    const isActive = pathname === navLink.href;
+
+                    return (
+                      <Link
+                        key={navLink.href}
+                        href={navLink.href}
+                        className={`whitespace-nowrap rounded-xl px-3 py-1.5 text-md font-semibold transition ${
+                          isActive
+                            ? "bg-[#fff2df] text-[#9b5d12]"
+                            : "text-[#1d2520] hover:bg-[#fff2df] hover:text-[#FFB347]"
+                        }`}
+                      >
+                        {navLink.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              navLinks.map((navLink) => (
+                <Link
+                  key={navLink.href}
+                  href={navLink.href}
+                  className="flex items-center gap-2 whitespace-nowrap rounded-2xl px-3 py-2 text-md font-semibold text-[#1d2520] transition hover:bg-[#fff2df] hover:text-[#FFB347]"
+                >
+                  {navLink.showHomeIcon ? <HomeIcon /> : null}
+                  {navLink.label}
+                </Link>
+              ))
+            )}
           </nav>
 
           <button
