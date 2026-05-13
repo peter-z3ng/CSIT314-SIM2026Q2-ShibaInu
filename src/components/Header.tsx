@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { Home } from "lucide-react";
 import { RouteController } from "@/controller/RouteController";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 import { profileToPath } from "@/entity/UserProfile";
@@ -9,10 +10,14 @@ import { profileToPath } from "@/entity/UserProfile";
 export function Header({ account }: { account: UserAccountDTO }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const profilePath = profileToPath(account.profile);
+  const profileName = account.profile.profile.toLowerCase();
+
+  const isFundraiser =
+    profileName === "fundraiser" || profileName === "fund raiser";
 
   return (
     <header className="border-b border-[#f0d8bd] bg-[#fffaf5]">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 lg:px-8">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
         <Link
           href={RouteController.getDashboardPath(account.profile)}
           className="text-lg font-bold"
@@ -20,10 +25,37 @@ export function Header({ account }: { account: UserAccountDTO }) {
           Hope Spring
         </Link>
 
+        {isFundraiser ? (
+          <nav className="hidden flex-1 items-center justify-center gap-10 md:flex">
+            <Link
+              href={`/${profilePath}/dashboard`}
+              className="flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-semibold text-[#1d2520] transition hover:bg-[#fff2df] hover:text-[#FFB347]"
+            >
+              <Home size={17} />
+              Home
+            </Link>
+
+            <Link
+              href={`/${profilePath}/my-fras`}
+              className="rounded-2xl px-4 py-2 text-sm font-semibold text-[#1d2520] transition hover:bg-[#fff2df] hover:text-[#FFB347]"
+            >
+              My FRAs
+            </Link>
+
+            <Link
+              href={`/${profilePath}/completed-fras`}
+              className="whitespace-nowrap rounded-2xl px-4 py-2 text-sm font-semibold text-[#1d2520] transition hover:bg-[#fff2df] hover:text-[#FFB347]"            >
+              Completed FRAs
+            </Link>
+          </nav>
+        ) : (
+          <div />
+        )}
+
         <button
           type="button"
           onClick={() => setIsMenuOpen(true)}
-          className="ml-auto rounded-2xl px-3 py-1 text-xl font-semibold text-[#00401A] transition hover:bg-[#fff2df]"
+          className="justify-self-end rounded-2xl px-3 py-1 text-xl font-semibold text-[#00401A] transition hover:bg-[#fff2df]"
         >
           {account.username}
         </button>
@@ -37,15 +69,23 @@ export function Header({ account }: { account: UserAccountDTO }) {
             onClick={() => setIsMenuOpen(false)}
             className="absolute inset-0 bg-black/30"
           />
+
           <aside className="absolute right-0 top-0 flex h-full w-full max-w-sm flex-col bg-[#fffaf5] p-5 shadow-2xl">
             <div className="flex items-start justify-between gap-4 border-b border-[#f0d8bd] pb-4">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#9b5d12]">
                   {account.profile.profile}
                 </p>
-                <h2 className="mt-1 text-2xl font-bold">{account.username}</h2>
-                <p className="mt-1 text-sm text-[#6f6258]">{account.email}</p>
+
+                <h2 className="mt-1 text-2xl font-bold">
+                  {account.username}
+                </h2>
+
+                <p className="mt-1 text-sm text-[#6f6258]">
+                  {account.email}
+                </p>
               </div>
+
               <button
                 type="button"
                 onClick={() => setIsMenuOpen(false)}
@@ -61,7 +101,7 @@ export function Header({ account }: { account: UserAccountDTO }) {
                 onClick={() => setIsMenuOpen(false)}
                 className="rounded-md px-3 py-2 text-sm font-semibold text-[#1d2520] transition hover:bg-[#fff2df]"
               >
-                Edit Info
+                My Profile
               </Link>
             </nav>
 

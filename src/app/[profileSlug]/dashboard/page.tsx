@@ -4,6 +4,8 @@ import { DoneeDashboardBoundary } from "@/boundary/DoneeDashboardBoundary";
 import { AdminController } from "@/controller/AdminController";
 import { AuthController } from "@/controller/AuthController";
 import { DoneeController } from "@/controller/DoneeController";
+import { FundraiserDashboardBoundary } from "@/boundary/FundraiserDashboardBoundary";
+import { FundraiserController } from "@/controller/FundraiserController";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +29,22 @@ export default async function ProfileDashboardPage({
       <DoneeDashboardBoundary
         account={account.toDTO()}
         totalDonated={totalDonated}
+        fraList={fraList.map((fra) => fra.toDTO())}
+      />
+    );
+  }
+
+  if (
+    account.profile.profile.toLowerCase() === "fundraiser" ||
+    account.profile.profile.toLowerCase() === "fund raiser"
+  ) {
+    const fundraiserController = new FundraiserController();
+
+    const fraList = await fundraiserController.listMyFRAs(account.userId);
+
+    return (
+      <FundraiserDashboardBoundary
+        account={account.toDTO()}
         fraList={fraList.map((fra) => fra.toDTO())}
       />
     );

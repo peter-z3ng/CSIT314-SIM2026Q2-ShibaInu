@@ -26,6 +26,16 @@ export function FRADetailsPage({
   isFavourite: boolean;
 }) {
   const profilePath = profileToPath(account.profile);
+  function formatDateTime(value: string) {
+  return new Date(value).toLocaleString("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
 
   const displayFRADetails = (selectedFRA: FRADTO) => (
     <section className="mx-auto w-full px-6 py-10 lg:w-[60vw] lg:px-0">
