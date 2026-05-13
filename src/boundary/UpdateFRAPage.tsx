@@ -5,6 +5,97 @@ import { Header } from "@/components/Header";
 import type { FRADTO } from "@/entity/FRA";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 import { updateFRAAction } from "@/controller/updateFRAActions";
+import { toDateTimeInputValue } from "@/lib/datetime";
+
+function DateTimeInput({
+  label,
+  value,
+  onChange,
+  minDate,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  minDate?: string;
+}) {
+  const date = value ? value.slice(0, 10) : "";
+  const hour = value ? value.slice(11, 13) : "00";
+  const minute = value ? value.slice(14, 16) : "00";
+
+  function updateDateTime(newDate: string, newHour: string, newMinute: string) {
+    if (!newDate) {
+      onChange("");
+      return;
+    }
+
+    onChange(`${newDate}T${newHour}:${newMinute}`);
+  }
+
+  return (
+    <div>
+      <label className="text-sm font-semibold">{label}</label>
+
+      <div className="mt-2 flex flex-col gap-3">
+        <input
+          type="date"
+          value={date}
+          min={minDate}
+          onChange={(event) =>
+            updateDateTime(event.target.value, hour, minute)
+          }
+          className="w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
+          required
+        />
+
+        <div className="flex gap-4">
+          <div>
+
+            <select
+              value={hour}
+              onChange={(event) =>
+                updateDateTime(date, event.target.value, minute)
+              }
+              className="h-14 w-32 rounded-md border border-[#f0d8bd] bg-white px-3 py-2 text-sm font-semibold outline-none focus:border-[#FFB347]"
+              required
+            >
+              {Array.from({ length: 24 }, (_, index) => {
+                const value = String(index).padStart(2, "0");
+
+                return (
+                  <option key={value} value={value}>
+                    {value} h
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+
+          <div>
+
+            <select
+              value={minute}
+              onChange={(event) =>
+                updateDateTime(date, hour, event.target.value)
+              }
+              className="h-14 w-32 rounded-md border border-[#f0d8bd] bg-white px-3 py-2 text-sm font-semibold outline-none focus:border-[#FFB347]"
+              required
+            >
+              {Array.from({ length: 60 }, (_, index) => {
+                const value = String(index).padStart(2, "0");
+
+                return (
+                  <option key={value} value={value}>
+                    {value} min
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function UpdateFRAPage({
   account,
@@ -13,23 +104,20 @@ export function UpdateFRAPage({
   account: UserAccountDTO;
   fra: FRADTO;
 }) {
-  const toDateInputValue = (date: string | null) => {
-    if (!date) {
-      return "";
-    }
-
-    return date.slice(0, 10);
-  };
-
   const [title, setTitle] = useState(fra.title);
   const [description, setDescription] = useState(fra.description || "");
   const [categoryId, setCategoryId] = useState(fra.categoryId);
-  const [endDate, setEndDate] = useState(toDateInputValue(fra.endDate));
+  const [endDate, setEndDate] = useState(toDateTimeInputValue(fra.endDate));
   const [status, setStatus] = useState(fra.status);
   const [message, setMessage] = useState("");
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+
+    if (!endDate) {
+      setMessage("End date is required.");
+      return;
+    }
 
     try {
       await updateFRAAction({
@@ -100,16 +188,12 @@ export function UpdateFRAPage({
               />
             </div>
 
-            <div>
-              <label className="text-sm font-semibold">End Date</label>
-              <input
-                type="date"
-                value={endDate}
-                onChange={(event) => setEndDate(event.target.value)}
-                className="mt-2 w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
-                required
-              />
-            </div>
+            <DateTimeInput
+              label="End Date"
+              value={endDate}
+              minDate={getCurrentDate()}
+              onChange={setEndDate}
+            />
 
             <div>
               <label className="text-sm font-semibold">Status</label>
@@ -141,4 +225,8 @@ export function UpdateFRAPage({
       </main>
     </div>
   );
+}
+
+function getCurrentDate() {
+  return new Date().toISOString().slice(0, 10);
 }

@@ -1,5 +1,6 @@
 import { FRA } from "@/entity/FRA";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { AutoCloseFRAController } from "@/controller/AutoCloseFRAController";
 
 type FRARow = {
   fra_id: string;
@@ -24,7 +25,11 @@ export class ViewFRADetailsController {
       throw new Error("FRA id is required.");
     }
 
+    const autoCloseController = new AutoCloseFRAController();
+    await autoCloseController.autoCloseExpiredFRAs();
+
     const supabase = createSupabaseAdminClient();
+
     const { data, error } = await supabase
       .from("fra")
       .select(

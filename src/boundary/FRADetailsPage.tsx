@@ -12,6 +12,16 @@ export function FRADetailsPage({
   fra: FRADTO;
 }) {
   const profilePath = profileToPath(account.profile);
+  function formatDateTime(value: string) {
+  return new Date(value).toLocaleString("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
 
   const displayFRADetails = (selectedFRA: FRADTO) => (
     <section className="mx-auto max-w-5xl px-6 py-10 lg:px-8">
@@ -55,11 +65,26 @@ export function FRADetailsPage({
         </div>
 
         <div className="mt-8 grid gap-4 md:grid-cols-2">
-          <DetailItem label="Start Date" value={selectedFRA.startDate} />
-          <DetailItem label="End Date" value={selectedFRA.endDate ?? "No end date"} />
+          <DetailItem label="Start Date" value={formatDateTime(selectedFRA.startDate)} />
+          <DetailItem
+            label="End Date"
+            value={
+              selectedFRA.endDate
+                ? formatDateTime(selectedFRA.endDate)
+                : "No end date"
+            }
+          />
           <DetailItem label="Views" value={String(selectedFRA.viewCount)} />
           <DetailItem label="Favorites" value={String(selectedFRA.favCount)} />
-          <DetailItem label="Created At" value={selectedFRA.createdAt} />
+          <DetailItem label="Created At" value={formatDateTime(selectedFRA.createdAt)} />
+          <DetailItem
+            label="Updated At"
+            value={
+              selectedFRA.updatedAt
+                ? formatDateTime(selectedFRA.updatedAt)
+                : "Not updated"
+            }
+          />
           <DetailItem label="Updated At" value={selectedFRA.updatedAt ?? "Not updated"} />
         </div>
       </article>

@@ -5,11 +5,91 @@ import { Header } from "@/components/Header";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 import { createFRAAction } from "@/controller/CreateFRAActions";
 
-export function CreateFRAPage({
-  account,
+function DateTimeInput({
+  label,
+  value,
+  onChange,
+  minDate,
 }: {
-  account: UserAccountDTO;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  minDate?: string;
 }) {
+  const date = value ? value.slice(0, 10) : "";
+  const hour = value ? value.slice(11, 13) : "00";
+  const minute = value ? value.slice(14, 16) : "00";
+
+  function updateDateTime(newDate: string, newHour: string, newMinute: string) {
+    if (!newDate) {
+      onChange("");
+      return;
+    }
+
+    onChange(`${newDate}T${newHour}:${newMinute}`);
+  }
+
+  return (
+    <div>
+      <label className="text-sm font-semibold">{label}</label>
+
+      <div className="mt-2 flex flex-col gap-4">
+        <input
+          type="date"
+          value={date}
+          min={minDate}
+          onChange={(e) => updateDateTime(e.target.value, hour, minute)}
+          className="w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
+          required
+        />
+
+        <div className="flex gap-4">
+          <div className="flex flex-col">
+
+            <select
+              value={hour}
+              onChange={(e) => updateDateTime(date, e.target.value, minute)}
+              className="h-11 w-30 rounded-xl border border-[#f0d8bd] bg-white px-3 py-2 text-center text-lg font-semibold outline-none focus:border-[#FFB347]"
+              required
+            >
+              {Array.from({ length: 24 }, (_, i) => {
+                const value = String(i).padStart(2, "0");
+
+                return (
+                  <option key={value} value={value}>
+                    {value} h
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+
+          <div className="flex flex-col">
+
+            <select
+              value={minute}
+              onChange={(e) => updateDateTime(date, hour, e.target.value)}
+              className="h-11 w-30 rounded-xl border border-[#f0d8bd] bg-white px-3 py-2 text-center text-lg font-semibold outline-none focus:border-[#FFB347]"
+              required
+            >
+              {Array.from({ length: 60 }, (_, i) => {
+                const value = String(i).padStart(2, "0");
+
+                return (
+                  <option key={value} value={value}>
+                    {value} min
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function CreateFRAPage({ account }: { account: UserAccountDTO }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState("");
@@ -18,8 +98,20 @@ export function CreateFRAPage({
   const [endDate, setEndDate] = useState("");
   const [message, setMessage] = useState("");
 
+  const minDate = getCurrentDate();
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
+    if (!startDate || !endDate) {
+      setMessage("Start date and end date are required.");
+      return;
+    }
+
+    if (endDate <= startDate) {
+      setMessage("End date must be later than start date.");
+      return;
+    }
 
     try {
       await createFRAAction({
@@ -108,28 +200,26 @@ export function CreateFRAPage({
               />
             </div>
 
-            <div className="grid gap-5 md:grid-cols-2">
-              <div>
-                <label className="text-sm font-semibold">Start Date</label>
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="mt-2 w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
-                  required
-                />
-              </div>
+            <div className="grid gap-8 md:grid-cols-2">
+              <DateTimeInput
+                label="Start Date"
+                value={startDate}
+                minDate={minDate}
+                onChange={(value) => {
+                  setStartDate(value);
 
-              <div>
-                <label className="text-sm font-semibold">End Date</label>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="mt-2 w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
-                  required
-                />
-              </div>
+                  if (endDate && endDate <= value) {
+                    setEndDate("");
+                  }
+                }}
+              />
+
+              <DateTimeInput
+                label="End Date"
+                value={endDate}
+                minDate={(startDate || minDate).slice(0, 10)}
+                onChange={setEndDate}
+              />
             </div>
 
             {message ? (
@@ -149,4 +239,8 @@ export function CreateFRAPage({
       </main>
     </div>
   );
+}
+
+function getCurrentDate() {
+  return new Date().toISOString().slice(0, 10);
 }
