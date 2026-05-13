@@ -1,5 +1,6 @@
 import { FRA } from "@/entity/FRA";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { AutoCloseFRAController } from "@/controller/AutoCloseFRAController";
 
 type FRARow = {
   fra_id: string;
@@ -28,6 +29,9 @@ export type SearchMyFRAInput = {
 
 export class SearchMyFRAController {
   async searchMyFRAs(input: SearchMyFRAInput): Promise<FRA[]> {
+    const autoCloseController = new AutoCloseFRAController();
+    await autoCloseController.autoCloseExpiredFRAs();
+
     const supabase = createSupabaseAdminClient();
 
     let query = supabase

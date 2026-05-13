@@ -101,6 +101,18 @@ function DateTimeInput({
   );
 }
 
+function getStatusClass(status: string) {
+  if (status === "completed") {
+    return "bg-green-100 text-green-700 border-green-200";
+  }
+
+  if (status === "closed") {
+    return "bg-red-100 text-red-600 border-red-200";
+  }
+
+  return "bg-[#fff2df] text-[#c77700] border-[#f0d8bd]";
+}
+
 export function UpdateFRAPage({
   account,
   fra,
@@ -116,7 +128,25 @@ export function UpdateFRAPage({
   const [categoryId, setCategoryId] = useState(fra.categoryId);
   const [endDate, setEndDate] = useState(toDateTimeInputValue(fra.endDate));
   const [status, setStatus] = useState(fra.status);
+  const [statusTouched, setStatusTouched] = useState(false);
   const [message, setMessage] = useState("");
+
+  function handleStatusChange(newStatus: string) {
+    if (newStatus === status) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Are you sure you want to change the FRA status to "${newStatus}"?`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setStatus(newStatus);
+    setStatusTouched(true);
+  }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -131,14 +161,11 @@ export function UpdateFRAPage({
       return;
     }
 
-    const updatedStatus =
-      status === "completed"
-        ? "completed"
-        : status === "closed"
-          ? "closed"
-          : new Date(endDate) <= new Date()
-            ? "closed"
-            : "active";
+    const updatedStatus = statusTouched
+      ? status
+      : new Date(endDate) <= new Date()
+        ? "closed"
+        : "active";
 
     try {
       await updateFRAAction({
@@ -176,7 +203,21 @@ export function UpdateFRAPage({
           Fundraiser
         </p>
 
-        <h1 className="mt-2 text-3xl font-bold">Update FRA</h1>
+        <div className="mt-2 flex items-center justify-between gap-4">
+          <h1 className="text-3xl font-bold">Update FRA</h1>
+
+          <select
+            value={status}
+            onChange={(event) => handleStatusChange(event.target.value)}
+            className={`h-10 w-40 rounded-2xl border px-4 text-center text-xs font-bold uppercase tracking-[0.15em] outline-none ${getStatusClass(
+              status,
+            )}`}
+          >
+            <option value="active">active</option>
+            <option value="closed">closed</option>
+            <option value="completed">completed</option>
+          </select>
+        </div>
 
         <p className="mt-2 text-[#6f6258]">
           Update your fundraising activity details.
@@ -223,19 +264,6 @@ export function UpdateFRAPage({
               minDate={getCurrentDate()}
               onChange={setEndDate}
             />
-
-            <div>
-              <label className="text-sm font-semibold">Status</label>
-              <select
-                value={status}
-                onChange={(event) => setStatus(event.target.value)}
-                className="mt-2 w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
-              >
-                <option value="active">active</option>
-                <option value="completed">completed</option>
-                <option value="closed">closed</option>
-              </select>
-            </div>
 
             {message ? (
               <p className="text-sm font-semibold text-[#9b5d12]">

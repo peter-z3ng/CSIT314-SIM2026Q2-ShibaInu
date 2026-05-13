@@ -1,5 +1,6 @@
 import { FRA } from "@/entity/FRA";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { AutoCloseFRAController } from "@/controller/AutoCloseFRAController";
 
 type FRARow = {
   fra_id: string;
@@ -20,6 +21,9 @@ type FRARow = {
 
 export class FundraiserController {
   async listMyFRAs(userId: string): Promise<FRA[]> {
+    const autoCloseController = new AutoCloseFRAController();
+    await autoCloseController.autoCloseExpiredFRAs();
+
     const supabase = createSupabaseAdminClient();
 
     const { data, error } = await supabase

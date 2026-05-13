@@ -1,14 +1,20 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export class AutoCloseFRAController {
-  async autoCloseExpiredFRAs() {
+  async autoCloseExpiredFRAs(): Promise<boolean> {
     const supabase = createSupabaseAdminClient();
+
+    const now = new Date().toISOString();
 
     const { error } = await supabase
       .from("fra")
-      .update({ status: "closed" })
+      .update({
+        status: "closed",
+        updated_at: now,
+      })
       .eq("status", "active")
-      .lt("end_date", new Date().toISOString());
+      .not("end_date", "is", null)
+      .lt("end_date", now);
 
     if (error) {
       throw new Error(error.message);

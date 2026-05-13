@@ -1,5 +1,6 @@
 import { FRA } from "@/entity/FRA";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { AutoCloseFRAController } from "@/controller/AutoCloseFRAController";
 
 type FRARow = {
   fra_id: string;
@@ -20,6 +21,17 @@ type FRARow = {
 
 export class RetrieveFRAController {
   async retrieveFRA(fraId: string, userId: string): Promise<FRA> {
+    if (!fraId.trim()) {
+      throw new Error("FRA id is required.");
+    }
+
+    if (!userId.trim()) {
+      throw new Error("User id is required.");
+    }
+
+    const autoCloseController = new AutoCloseFRAController();
+    await autoCloseController.autoCloseExpiredFRAs();
+
     const supabase = createSupabaseAdminClient();
 
     const { data, error } = await supabase
