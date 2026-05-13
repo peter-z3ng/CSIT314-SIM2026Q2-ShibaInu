@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Header } from "@/components/Header";
 import type { FRADTO } from "@/entity/FRA";
 import type { UserAccountDTO } from "@/entity/UserAccount";
@@ -9,18 +10,22 @@ export function FundraiserDashboardBoundary({
   account: UserAccountDTO;
   fraList: FRADTO[];
 }) {
-  const profilePath = account.profile.profile.toLowerCase().replace(" ", "-");
+  const profilePath = account.profile.profile
+    .toLowerCase()
+    .replace(" ", "-");
 
-  const totalFRAs = fraList.length;
+  const totalViews = fraList.reduce(
+    (total, fra) => total + fra.viewCount,
+    0,
+  );
+
   const activeFRAs = fraList.filter(
-    (fra) => fra.status.toLowerCase() === "active",
-  ).length;
-  const completedFRAs = fraList.filter(
-    (fra) => fra.status.toLowerCase() === "completed",
-  ).length;
-  const totalViews = fraList.reduce((total, fra) => total + fra.viewCount, 0);
+    (fra) => fra.status === "active",
+  );
 
-  const recentFRAs = fraList.slice(0, 3);
+  const completedFRAs = fraList.filter(
+    (fra) => fra.status === "completed",
+  );
 
   return (
     <div className="min-h-screen bg-[#fffaf5] text-[#1d2520]">
@@ -37,91 +42,132 @@ export function FundraiserDashboardBoundary({
           Welcome back. Here is an overview of your fundraising activities.
         </p>
 
-        <section className="mt-8 grid gap-4 md:grid-cols-4">
-          <div className="rounded-2xl border border-[#f0d8bd] bg-white p-5 shadow-sm">
-            <p className="text-sm text-[#6f6258]">Total FRAs</p>
-            <h2 className="mt-2 text-3xl font-bold">{totalFRAs}</h2>
-          </div>
+        <section className="mt-8 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <DashboardCard
+            title="Total FRAs"
+            value={String(fraList.length)}
+          />
 
-          <div className="rounded-2xl border border-[#f0d8bd] bg-white p-5 shadow-sm">
-            <p className="text-sm text-[#6f6258]">Active FRAs</p>
-            <h2 className="mt-2 text-3xl font-bold">{activeFRAs}</h2>
-          </div>
+          <DashboardCard
+            title="Active FRAs"
+            value={String(activeFRAs.length)}
+          />
 
-          <div className="rounded-2xl border border-[#f0d8bd] bg-white p-5 shadow-sm">
-            <p className="text-sm text-[#6f6258]">Completed FRAs</p>
-            <h2 className="mt-2 text-3xl font-bold">{completedFRAs}</h2>
-          </div>
+          <DashboardCard
+            title="Completed FRAs"
+            value={String(completedFRAs.length)}
+          />
 
-          <div className="rounded-2xl border border-[#f0d8bd] bg-white p-5 shadow-sm">
-            <p className="text-sm text-[#6f6258]">Total Views</p>
-            <h2 className="mt-2 text-3xl font-bold">{totalViews}</h2>
-          </div>
+          <DashboardCard
+            title="Total Views"
+            value={String(totalViews)}
+          />
         </section>
-        <section className="mt-10">
+
+        <section className="mt-12">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold">Recent FRAs</h2>
 
-            <a
+            <Link
               href={`/${profilePath}/my-fras`}
               className="text-sm font-semibold text-[#c77700] hover:underline"
             >
               View all
-            </a>
+            </Link>
           </div>
 
-          {recentFRAs.length === 0 ? (
-            <div className="mt-5 rounded-2xl border border-[#f0d8bd] bg-white p-5 shadow-sm">
-              <p className="text-[#6f6258]">No recent FRA found.</p>
-            </div>
-          ) : (
-            <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {recentFRAs.map((fra) => (
-                <div
-                  key={fra.fraId}
-                  className="rounded-2xl border border-[#f0d8bd] bg-white p-4 shadow-sm"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#c77700]">
-                        Education
-                      </p>
-
-                      <h3 className="mt-2 text-xl font-bold">{fra.title}</h3>
-                    </div>
-
-                    <span className="rounded-xl bg-[#fff2df] px-3 py-1 text-xs font-bold uppercase tracking-[0.1em] text-[#c77700]">
-                      {fra.status}
-                    </span>
-                  </div>
-
-                  <div className="mt-5 h-3 w-full overflow-hidden rounded-full bg-[#fff2df]">
-                    <div
-                      className="h-full rounded-full bg-[#FFB347]"
-                      style={{ width: `${fra.progressPercentage}%` }}
-                    />
-                  </div>
-
-                  <div className="mt-3 flex items-center justify-between text-sm font-semibold">
-                    <p>${fra.currentAmount.toFixed(2)} raised</p>
-                    <p>${fra.targetAmount.toFixed(2)} goal</p>
-                  </div>
-
-                  <div className="mt-4 flex items-center justify-between">
-                    <p className="text-sm font-semibold text-[#FFB347]">
-                      {fra.progressPercentage}% funded
+          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {fraList.slice(0, 3).map((fra) => (
+              <div
+                key={fra.fraId}
+                className="rounded-2xl border border-[#f0d8bd] bg-white p-3 shadow-sm"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#c77700]">
+                      Education
                     </p>
 
-                    <p className="text-xs text-[#6f6258]">
-                      {fra.viewCount} views
-                    </p>
+                    <h2 className="mt-2 text-xl font-bold">
+                      {fra.title}
+                    </h2>
                   </div>
+
+                  <span
+                    className={`flex h-7 w-32 items-center justify-center rounded-2xl px-4 text-xs font-bold uppercase tracking-[0.15em]
+                      ${
+                        fra.status === "completed"
+                          ? "bg-green-100 text-green-700"
+                          : fra.status === "closed"
+                            ? "bg-red-100 text-red-600"
+                            : "bg-[#fff2df] text-[#c77700]"
+                      }
+                    `}
+                  >
+                    {fra.status}
+                  </span>
                 </div>
-              ))}
-            </div>
-          )}
+
+                <div className="mt-4 h-2.5 w-full overflow-hidden rounded-full bg-[#fff2df]">
+                  <div
+                    className="h-full rounded-full bg-[#FFB347]"
+                    style={{
+                      width: `${fra.progressPercentage}%`,
+                    }}
+                  />
+                </div>
+
+                <div className="mt-3 flex items-center justify-between text-sm font-semibold">
+                  <p>
+                    ${fra.currentAmount.toFixed(2)} raised
+                  </p>
+
+                  <p>
+                    ${fra.targetAmount.toFixed(2)} goal
+                  </p>
+                </div>
+
+                <div className="mt-3 flex items-center justify-between">
+                  <p className="text-sm font-semibold text-[#FFB347]">
+                    {fra.progressPercentage}% funded
+                  </p>
+
+                  <p className="text-sm text-[#6f6258]">
+                    {fra.viewCount} views
+                  </p>
+                </div>
+
+                <Link
+                  href={`/${profilePath}/my-fras/${fra.fraId}`}
+                  className="mt-4 flex w-full items-center justify-center rounded-xl bg-[#FFB347] py-2.5 text-sm font-bold text-white transition hover:bg-[#FFBE5C]"
+                >
+                  View details
+                </Link>
+              </div>
+            ))}
+          </div>
         </section>
       </main>
+    </div>
+  );
+}
+
+function DashboardCard({
+  title,
+  value,
+}: {
+  title: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-[#f0d8bd] bg-white px-6 py-5 shadow-sm">
+      <p className="text-base text-[#6f6258]">
+        {title}
+      </p>
+
+      <h2 className="mt-3 text-4xl font-bold">
+        {value}
+      </h2>
     </div>
   );
 }

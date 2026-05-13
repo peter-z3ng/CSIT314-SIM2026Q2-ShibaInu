@@ -37,6 +37,8 @@ export function RetrieveFRAPage({
       ? "closed"
       : fra.status;
 
+  const isCompleted = displayStatus === "completed";
+
   async function handleDelete() {
     const confirmed = window.confirm(
       "Are you sure you want to delete this FRA?",
@@ -48,7 +50,6 @@ export function RetrieveFRAPage({
 
     try {
       await deleteFRAAction(fra.fraId, account.userId);
-
       router.push(`/${profilePath}/my-fras`);
     } catch (error) {
       alert(
@@ -66,16 +67,13 @@ export function RetrieveFRAPage({
       <main className="mx-auto max-w-6xl px-5 py-8 lg:px-8">
         <Link
           href={
-            fra.status === "completed"
+            isCompleted
               ? `/${profilePath}/completed-fras`
               : `/${profilePath}/my-fras`
           }
           className="text-sm font-semibold text-[#9b5d12] hover:underline"
         >
-          ← Back to{" "}
-          {fra.status === "completed"
-            ? "Completed FRAs"
-            : "My FRAs"}
+          ← Back to {isCompleted ? "Completed FRAs" : "My FRAs"}
         </Link>
 
         {isUpdated ? (
@@ -92,7 +90,17 @@ export function RetrieveFRAPage({
                   Education
                 </p>
 
-                <span className="rounded-2xl bg-[#fff2df] px-4 py-1 text-xs font-bold uppercase tracking-[0.15em] text-[#c77700]">
+                <span
+                  className={`flex h-10 w-36 items-center justify-center rounded-2xl px-4 text-xs font-bold uppercase tracking-[0.15em]
+                    ${
+                      displayStatus === "completed"
+                        ? "bg-green-100 text-green-700"
+                        : displayStatus === "closed"
+                          ? "bg-red-100 text-red-600"
+                          : "bg-[#fff2df] text-[#c77700]"
+                    }
+                  `}
+                >
                   {displayStatus}
                 </span>
               </div>
@@ -103,18 +111,22 @@ export function RetrieveFRAPage({
                 {fra.description || "No description provided."}
               </p>
 
-              <p className="mt-4 text-lg font-bold text-[#c77700]">
-                {timeLeft.message}
-              </p>
+              {!isCompleted ? (
+                <p className="mt-4 text-lg font-bold text-[#c77700]">
+                  {timeLeft.message}
+                </p>
+              ) : null}
             </div>
 
             <div className="flex flex-col gap-3">
-              <Link
-                href={`/${profilePath}/my-fras/${fra.fraId}/update`}
-                className="rounded-2xl bg-[#FFB347] px-5 py-3 text-center text-sm font-bold text-white transition hover:bg-[#FFBE5C]"
-              >
-                Edit FRA
-              </Link>
+              {!isCompleted ? (
+                <Link
+                  href={`/${profilePath}/my-fras/${fra.fraId}/update`}
+                  className="rounded-2xl bg-[#FFB347] px-5 py-3 text-center text-sm font-bold text-white transition hover:bg-[#FFBE5C]"
+                >
+                  Edit FRA
+                </Link>
+              ) : null}
 
               <button
                 onClick={handleDelete}
@@ -146,16 +158,12 @@ export function RetrieveFRAPage({
           <div className="mt-10 grid gap-4 md:grid-cols-5">
             <div className="rounded-2xl border border-[#f0d8bd] p-5">
               <p className="text-sm text-[#6f6258]">Views</p>
-              <h2 className="mt-2 text-3xl font-bold">
-                {fra.viewCount}
-              </h2>
+              <h2 className="mt-2 text-3xl font-bold">{fra.viewCount}</h2>
             </div>
 
             <div className="rounded-2xl border border-[#f0d8bd] p-5">
               <p className="text-sm text-[#6f6258]">Shortlisted</p>
-              <h2 className="mt-2 text-3xl font-bold">
-                {fra.favCount}
-              </h2>
+              <h2 className="mt-2 text-3xl font-bold">{fra.favCount}</h2>
             </div>
 
             <div className="rounded-2xl border border-[#f0d8bd] p-5">
@@ -175,7 +183,7 @@ export function RetrieveFRAPage({
             <div className="rounded-2xl border border-[#f0d8bd] p-5">
               <p className="text-sm text-[#6f6258]">Time Left</p>
               <h2 className="mt-2 text-lg font-bold">
-                {timeLeft.shortMessage}
+                {isCompleted ? "Completed" : timeLeft.shortMessage}
               </h2>
             </div>
           </div>
@@ -224,7 +232,6 @@ function getTimeLeft(endDate: string | null) {
   }
 
   const totalMinutes = Math.floor(difference / 1000 / 60);
-
   const days = Math.floor(totalMinutes / 1440);
   const hours = Math.floor((totalMinutes % 1440) / 60);
   const minutes = totalMinutes % 60;
