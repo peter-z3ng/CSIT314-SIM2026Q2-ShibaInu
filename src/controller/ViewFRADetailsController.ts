@@ -101,7 +101,9 @@ export class ViewFRADetailsController {
       .eq("fra_id", fra_id)
       .order("paydate", { ascending: false })
       .limit(5)
-      .overrideTypes<DonationRow[], { merge: false }>();
+    console.log("FRA ID:", fra_id);
+    console.log("DONATIONS:", donations);
+    console.log("ERROR:", error);  
 
     if (error) {
       throw new Error(error.message);
