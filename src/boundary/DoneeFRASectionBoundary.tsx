@@ -21,7 +21,7 @@ export function DoneeFRASectionBoundary({ fraList }: { fraList: FRADTO[] }) {
   }, [fraList, rotationKey]);
 
   return (
-    <section className="relative z-0 -mt-40 min-h-[60vh] rounded-[2rem] bg-white/40 px-8 pb-10 pt-44">
+    <section className="relative z-0 -mt-40 min-h-[60vh] rounded-[2rem] bg-[#FFF4EC] px-8 pb-10 pt-44">
       <h2 className="text-3xl font-black text-[#1d2520]">Highlighted Campaigns</h2>
       <div className="mt-6 grid gap-5 md:grid-cols-3">
         {visibleFRA.map((fra) => (
