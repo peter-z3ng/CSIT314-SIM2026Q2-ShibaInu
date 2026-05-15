@@ -13,6 +13,7 @@ import { RouteController } from "./RouteController";
 type UserAccountRow = {
   user_id: string;
   username: string;
+  full_name: string | null;
   email: string;
   status: UserAccount["status"];
   gender: string | null;
@@ -176,6 +177,7 @@ export class AuthController {
     const { error: accountError } = await supabase.from("user_account").insert({
       user_id: createdUser.user.id,
       username,
+      full_name: null,
       email,
       profile_id: input.requestedProfileId,
       status: "pending",
@@ -216,6 +218,7 @@ export class AuthController {
         `
         user_id,
         username,
+        full_name,
         email,
         status,
         gender,
@@ -279,6 +282,7 @@ function mapUserAccountRow(row: UserAccountRow): UserAccount {
   return new UserAccount({
     userId: row.user_id,
     username: row.username,
+    fullName: row.full_name,
     email: row.email,
     status: row.status,
     profile: new UserProfile(row.profile.profile_id, row.profile.profile),

@@ -5,6 +5,7 @@ export type AccountStatus = "active" | "pending" | "suspended";
 export class UserAccount {
   readonly userId: string;
   readonly username: string;
+  readonly fullName: string | null;
   readonly email: string;
   readonly status: AccountStatus;
   readonly profile: UserProfile;
@@ -16,6 +17,7 @@ export class UserAccount {
   constructor(input: {
     userId: string;
     username: string;
+    fullName?: string | null;
     email: string;
     status: AccountStatus;
     profile: UserProfile;
@@ -32,6 +34,7 @@ export class UserAccount {
 
     this.userId = input.userId;
     this.username = input.username.trim();
+    this.fullName = input.fullName ?? null;
     this.email = UserAccount.normalizeEmail(input.email);
     this.status = input.status;
     this.profile = input.profile;
@@ -101,6 +104,7 @@ export class UserAccount {
 
   updateUserAccountDetails(input: {
     username: string;
+    fullName?: string | null;
     email: string;
     status: AccountStatus;
 
@@ -111,6 +115,7 @@ export class UserAccount {
     return new UserAccount({
       userId: this.userId,
       username: input.username,
+      fullName: input.fullName,
       email: input.email,
       status: input.status,
       profile: this.profile,
@@ -125,6 +130,7 @@ export class UserAccount {
     return {
       userId: this.userId,
       username: this.username,
+      fullName: this.fullName,
       email: this.email,
       status: this.status,
       profile: this.profile.toDTO(),
@@ -139,6 +145,7 @@ export class UserAccount {
 export type UserAccountDTO = {
   userId: string;
   username: string;
+  fullName: string | null;
   email: string;
   status: AccountStatus;
   profile: UserProfileDTO;
