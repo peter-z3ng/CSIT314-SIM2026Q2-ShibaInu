@@ -170,6 +170,21 @@ export function RetrieveFRAPage({
               {fra.progressPercentage}% funded
             </p>
           </div>
+          <div className="mt-10 grid gap-4 md:grid-cols-4">
+            <DetailCard label="Views" value={String(fra.viewCount)} />
+
+            <DetailCard label="Shortlisted" value={String(fra.favCount)} />
+
+            <DetailCard
+              label="Start Date"
+              value={formatDateTime(fra.startDate)}
+            />
+
+            <DetailCard
+              label="End Date"
+              value={formatDateTime(fra.endDate)}
+            />
+          </div>
         </section>
       </main>
     </div>
@@ -211,4 +226,36 @@ function getTimeLeft(endDate: string | null) {
     message: `${hours} hours ${minutes} minutes left`,
     isExpired: false,
   };
+}
+
+function DetailCard({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-[#f0d8bd] bg-white p-5">
+      <p className="text-sm text-[#6f6258]">{label}</p>
+      <h2 className="mt-2 text-xl font-bold">{value}</h2>
+    </div>
+  );
+}
+
+function formatDateTime(date: string | null) {
+  if (!date) {
+    return "No date";
+  }
+
+  return new Date(date)
+    .toLocaleString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    })
+    .replaceAll("/", "-");
 }

@@ -97,7 +97,9 @@ export function MyFRAPage({
                         {getCategoryName(fra.categoryId)}
                       </p>
 
-                      <h2 className="mt-3 text-2xl font-bold">{fra.title}</h2>
+                      <h2 className="mt-3 min-h-[64px] text-2xl font-bold leading-8">
+                        {fra.title}
+                      </h2>
                     </div>
 
                     <span

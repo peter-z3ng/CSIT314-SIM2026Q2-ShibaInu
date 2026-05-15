@@ -78,7 +78,7 @@ export function FundraiserHomePage({
                       {getCategoryName(fra.categoryId)}
                     </p>
 
-                    <h2 className="mt-2 text-xl font-bold">
+                    <h2 className="mt-3 min-h-[64px] line-clamp-2 text-2xl font-bold leading-8">
                       {fra.title}
                     </h2>
                   </div>
