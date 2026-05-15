@@ -1,6 +1,11 @@
 import { redirect } from "next/navigation";
 import { UserAccount } from "@/entity/UserAccount";
-import { UserProfile, isAdminProfile, profileToPath, type Profile } from "@/entity/UserProfile";
+import {
+  UserProfile,
+  isAdminProfile,
+  profileToPath,
+  type Profile,
+} from "@/entity/UserProfile";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { RouteController } from "./RouteController";
@@ -8,8 +13,12 @@ import { RouteController } from "./RouteController";
 type UserAccountRow = {
   user_id: string;
   username: string;
+  full_name: string | null;
   email: string;
   status: UserAccount["status"];
+  gender: string | null;
+  dob: string | null;
+  bio: string | null;
   profile: {
     profile_id: string;
     profile: string;
@@ -41,6 +50,7 @@ type AccountLookupRow = {
 export class AuthController {
   async listPublicProfiles(): Promise<Profile[]> {
     const supabase = createSupabaseAdminClient();
+
     const { data, error } = await supabase
       .from("user_profile")
       .select("profile_id, profile")
@@ -103,7 +113,8 @@ export class AuthController {
     } catch (error) {
       return {
         ok: false,
-        message: error instanceof Error ? error.message : "Invalid account details.",
+        message:
+          error instanceof Error ? error.message : "Invalid account details.",
       };
     }
 
@@ -124,6 +135,7 @@ export class AuthController {
     }
 
     const supabase = createSupabaseAdminClient();
+
     const { data: profile, error: profileError } = await supabase
       .from("user_profile")
       .select("profile_id, profile")
@@ -131,45 +143,67 @@ export class AuthController {
       .single<ProfileRow>();
 
     if (profileError || !profile) {
-      return { ok: false, message: profileError?.message ?? "Selected profile was not found." };
+      return {
+        ok: false,
+        message: profileError?.message ?? "Selected profile was not found.",
+      };
     }
 
     if (new UserProfile(profile.profile_id, profile.profile).isAdmin) {
-      return { ok: false, message: "Admin accounts cannot be requested publicly." };
+      return {
+        ok: false,
+        message: "Admin accounts cannot be requested publicly.",
+      };
     }
 
-    const { data: createdUser, error: createError } = await supabase.auth.admin.createUser({
-      email,
-      password: input.password,
-      email_confirm: true,
-      user_metadata: {
-        username,
-        profile_id: input.requestedProfileId,
-      },
-    });
+    const { data: createdUser, error: createError } =
+      await supabase.auth.admin.createUser({
+        email,
+        password: input.password,
+        email_confirm: true,
+        user_metadata: {
+          username,
+          profile_id: input.requestedProfileId,
+        },
+      });
 
     if (createError || !createdUser.user) {
-      return { ok: false, message: createError?.message ?? "Unable to create account." };
+      return {
+        ok: false,
+        message: createError?.message ?? "Unable to create account.",
+      };
     }
 
     const { error: accountError } = await supabase.from("user_account").insert({
       user_id: createdUser.user.id,
       username,
+      full_name: null,
       email,
       profile_id: input.requestedProfileId,
       status: "pending",
+      gender: null,
+      dob: null,
+      bio: null,
     });
 
     if (accountError) {
       await supabase.auth.admin.deleteUser(createdUser.user.id);
-      return { ok: false, message: accountError.message };
+
+      return {
+        ok: false,
+        message: accountError.message,
+      };
     }
 
-    return { ok: true, message: "Account created and waiting for admin approval." };
+    return {
+      ok: true,
+      message: "Account created and waiting for admin approval.",
+    };
   }
 
   async getCurrentAccount(): Promise<UserAccount | null> {
     const supabase = await createSupabaseServerClient();
+
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -180,7 +214,19 @@ export class AuthController {
 
     const { data: account, error } = await supabase
       .from("user_account")
-      .select("user_id, username, email, status, profile:user_profile(profile_id, profile)")
+      .select(
+        `
+        user_id,
+        username,
+        full_name,
+        email,
+        status,
+        gender,
+        dob,
+        bio,
+        profile:user_profile(profile_id, profile)
+      `,
+      )
       .eq("user_id", user.id)
       .single<UserAccountRow>();
 
@@ -236,8 +282,12 @@ function mapUserAccountRow(row: UserAccountRow): UserAccount {
   return new UserAccount({
     userId: row.user_id,
     username: row.username,
+    fullName: row.full_name,
     email: row.email,
     status: row.status,
     profile: new UserProfile(row.profile.profile_id, row.profile.profile),
+    gender: row.gender,
+    dateOfBirth: row.dob,
+    bio: row.bio,
   });
 }
