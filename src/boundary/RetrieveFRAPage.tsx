@@ -28,6 +28,8 @@ export function RetrieveFRAPage({
   const isUpdated = searchParams.get("updated");
 
   const [timeLeft, setTimeLeft] = useState(getTimeLeft(fra.endDate));
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteMessage, setDeleteMessage] = useState("");
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -47,17 +49,13 @@ export function RetrieveFRAPage({
       ?.categoryName ?? "Unknown Category";
 
   async function handleDelete() {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this FRA?",
-    );
-
-    if (!confirmed) return;
-
     try {
       await deleteFRAAction(fra.fraId, account.userId);
       router.push(`/${profilePath}/my-fras`);
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Failed to delete FRA.");
+      setDeleteMessage(
+        error instanceof Error ? error.message : "Failed to delete FRA.",
+      );
     }
   }
 
@@ -144,7 +142,10 @@ export function RetrieveFRAPage({
 
               <button
                 type="button"
-                onClick={handleDelete}
+                onClick={() => {
+                  setShowDeleteModal(true);
+                  setDeleteMessage("");
+                }}
                 className="flex h-12 w-12 items-center justify-center rounded-full border border-red-200 bg-red-50 text-red-600 transition hover:bg-red-100"
               >
                 <Trash2 className="h-5 w-5" />
@@ -181,7 +182,7 @@ export function RetrieveFRAPage({
                 </p>
               ) : (
                 <div className="mt-4 grid gap-4">
-                  {recentDonations.map((donation, index) => (
+                  {recentDonations.slice(0, 3).map((donation, index) => (
                     <div
                       key={`${donation.userId}-${donation.paydate}-${index}`}
                       className="rounded-2xl bg-[#fffaf5] p-4"
@@ -209,6 +210,47 @@ export function RetrieveFRAPage({
           </aside>
         </section>
       </main>
+
+      {showDeleteModal ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-3xl bg-white p-7 shadow-2xl">
+            <h2 className="text-2xl font-bold text-[#1d2520]">Delete FRA</h2>
+
+            {deleteMessage ? (
+              <p className="mt-4 text-sm font-semibold text-red-600">
+                {deleteMessage}
+              </p>
+            ) : (
+              <p className="mt-4 text-[#6f6258]">
+                Are you sure you want to delete "{fra.title}"?
+              </p>
+            )}
+
+            <div className="mt-8 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeleteMessage("");
+                }}
+                className="rounded-xl border border-[#f0d8bd] bg-white px-5 py-3 text-sm font-bold text-[#9b5d12] transition hover:bg-[#fff2df]"
+              >
+                Cancel
+              </button>
+
+              {!deleteMessage ? (
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  className="rounded-xl bg-red-500 px-5 py-3 text-sm font-bold text-white transition hover:bg-red-600"
+                >
+                  Delete
+                </button>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -1,278 +1,83 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Header } from "@/components/Header";
 import type { FRADTO } from "@/entity/FRA";
 import type { FRACategoryDTO } from "@/entity/FRACategory";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 import { updateFRAAction } from "@/controller/updateFRAActions";
-import { toDateTimeInputValue } from "@/lib/datetime";
-
-function DateTimeInput({
-  label,
-  value,
-  onChange,
-  minDate,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  minDate?: string;
-}) {
-  const date = value ? value.slice(0, 10) : "";
-  const hour = value ? value.slice(11, 13) : "00";
-  const minute = value ? value.slice(14, 16) : "00";
-
-  function updateDateTime(newDate: string, newHour: string, newMinute: string) {
-    if (!newDate) {
-      onChange("");
-      return;
-    }
-
-    onChange(`${newDate}T${newHour}:${newMinute}`);
-  }
-
-  return (
-    <div>
-      <label className="text-sm font-semibold">{label}</label>
-
-      <div className="mt-2 flex flex-col gap-3">
-        <input
-          type="date"
-          value={date}
-          min={minDate}
-          onChange={(event) =>
-            updateDateTime(event.target.value, hour, minute)
-          }
-          className="w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
-          required
-        />
-
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-[#6f6258]">Hr</span>
-
-            <select
-              value={hour}
-              onChange={(event) =>
-                updateDateTime(date, event.target.value, minute)
-              }
-              className="h-14 w-32 rounded-md border border-[#f0d8bd] bg-white px-3 py-2 text-sm font-semibold outline-none focus:border-[#FFB347]"
-              required
-            >
-              {Array.from({ length: 24 }, (_, index) => {
-                const value = String(index).padStart(2, "0");
-
-                return (
-                  <option key={value} value={value}>
-                    {value} hr
-                  </option>
-                );
-              })}
-            </select>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-[#6f6258]">Min</span>
-
-            <select
-              value={minute}
-              onChange={(event) =>
-                updateDateTime(date, hour, event.target.value)
-              }
-              className="h-14 w-32 rounded-md border border-[#f0d8bd] bg-white px-3 py-2 text-sm font-semibold outline-none focus:border-[#FFB347]"
-              required
-            >
-              {Array.from({ length: 60 }, (_, index) => {
-                const value = String(index).padStart(2, "0");
-
-                return (
-                  <option key={value} value={value}>
-                    {value} min
-                  </option>
-                );
-              })}
-            </select>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function CategoryDropdown({
-  categoryId,
-  categoryList = [],
-  onChange,
-}: {
-  categoryId: string;
-  categoryList?: FRACategoryDTO[];
-  onChange: (categoryId: string) => void;
-}) {
-  const [categorySearch, setCategorySearch] = useState("");
-  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
-
-  const selectedCategory = categoryList.find(
-    (category) => category.categoryId === categoryId,
-  );
-
-  const filteredCategories = useMemo(() => {
-    return categoryList.filter((category) =>
-      category.categoryName
-        .toLowerCase()
-        .includes(categorySearch.toLowerCase()),
-    );
-  }, [categoryList, categorySearch]);
-
-  return (
-    <div className="relative">
-      <label className="text-sm font-semibold">Category</label>
-
-      <button
-        type="button"
-        onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-        className="mt-2 flex w-full items-center justify-between rounded-md border border-[#f0d8bd] bg-white px-4 py-3 text-left outline-none transition hover:border-[#FFB347]"
-      >
-        <span>{selectedCategory?.categoryName ?? "Select category"}</span>
-        <span className="text-sm">▼</span>
-      </button>
-
-      {showCategoryDropdown ? (
-        <div className="absolute z-50 mt-2 w-full rounded-xl border border-[#f0d8bd] bg-white shadow-lg">
-          <div className="p-3">
-            <input
-              value={categorySearch}
-              onChange={(event) => setCategorySearch(event.target.value)}
-              placeholder="Search category..."
-              className="w-full rounded-md border border-[#f0d8bd] px-3 py-2 outline-none focus:border-[#FFB347]"
-            />
-          </div>
-
-          <div className="max-h-60 overflow-y-auto">
-            {filteredCategories.length === 0 ? (
-              <p className="px-4 py-3 text-sm text-[#6f6258]">
-                No category found.
-              </p>
-            ) : (
-              filteredCategories.map((category) => (
-                <button
-                  key={category.categoryId}
-                  type="button"
-                  onClick={() => {
-                    onChange(category.categoryId);
-                    setCategorySearch("");
-                    setShowCategoryDropdown(false);
-                  }}
-                  className="flex w-full items-center justify-between px-4 py-3 text-left transition hover:bg-[#fff4e8]"
-                >
-                  <span className="font-semibold">
-                    {category.categoryName}
-                  </span>
-
-                  <span className="text-xs text-[#6f6258]">
-                    {category.categoryId}
-                  </span>
-                </button>
-              ))
-            )}
-          </div>
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
-function getStatusClass(status: string) {
-  if (status === "completed") {
-    return "bg-green-100 text-green-700 border-green-200";
-  }
-
-  if (status === "closed") {
-    return "bg-red-100 text-red-600 border-red-200";
-  }
-
-  return "bg-[#fff2df] text-[#c77700] border-[#f0d8bd]";
-}
 
 export function UpdateFRAPage({
   account,
   fra,
-  categoryList = [],
+  categoryList,
 }: {
   account: UserAccountDTO;
   fra: FRADTO;
-  categoryList?: FRACategoryDTO[];
+  categoryList: FRACategoryDTO[];
 }) {
   const router = useRouter();
-  const profilePath = account.profile.profile.toLowerCase().replace(" ", "-");
+
+  const profilePath = account.profile.profile
+    .toLowerCase()
+    .replace(" ", "-");
 
   const [title, setTitle] = useState(fra.title);
-  const [description, setDescription] = useState(fra.description || "");
+  const [description, setDescription] = useState(fra.description ?? "");
   const [categoryId, setCategoryId] = useState(fra.categoryId);
-  const [endDate, setEndDate] = useState(toDateTimeInputValue(fra.endDate));
+
+  const initialDate = fra.endDate
+    ? new Date(fra.endDate)
+    : new Date();
+
+  const [endDate, setEndDate] = useState(
+    initialDate.toISOString().split("T")[0],
+  );
+
+  const [hour, setHour] = useState(
+    String(initialDate.getHours()).padStart(2, "0"),
+  );
+
+  const [minute, setMinute] = useState(
+    String(initialDate.getMinutes()).padStart(2, "0"),
+  );
+
   const [status, setStatus] = useState(fra.status);
-  const [statusTouched, setStatusTouched] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState(fra.status);
+
   const [message, setMessage] = useState("");
+  const [showStatusModal, setShowStatusModal] = useState(false);
 
-  function handleStatusChange(newStatus: string) {
-    if (newStatus === status) {
-      return;
-    }
-
-    const confirmed = window.confirm(
-      `Are you sure you want to change the FRA status to "${newStatus}"?`,
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    setStatus(newStatus);
-    setStatusTouched(true);
-  }
-
-  async function handleSubmit(event: React.FormEvent) {
+  async function handleSubmit(
+    event: React.FormEvent<HTMLFormElement>,
+  ) {
     event.preventDefault();
 
-    if (!categoryId) {
-      setMessage("Please select a category.");
-      return;
-    }
-
-    if (!endDate) {
-      setMessage("End date is required.");
-      return;
-    }
-
-    if (new Date(endDate) <= new Date(fra.startDate)) {
-      setMessage("End date must be later than start date.");
-      return;
-    }
-
-    const updatedStatus = statusTouched
-      ? status
-      : new Date(endDate) <= new Date()
-        ? "closed"
-        : "active";
-
     try {
+      const fullEndDate = new Date(
+        `${endDate}T${hour}:${minute}:00`,
+      ).toISOString();
+
       await updateFRAAction({
         fraId: fra.fraId,
         userId: account.userId,
-        categoryId,
         title,
         description,
-        endDate,
-        status: updatedStatus,
+        categoryId,
+        endDate: fullEndDate,
+        status,
       });
 
-      router.push(`/${profilePath}/my-fras/${fra.fraId}?updated=true`);
-      router.refresh();
+      router.push(
+        `/${profilePath}/my-fras/${fra.fraId}?updated=true`,
+      );
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Failed to update FRA.",
+        error instanceof Error
+          ? error.message
+          : "Failed to update FRA.",
       );
     }
   }
@@ -289,89 +94,247 @@ export function UpdateFRAPage({
           ← Back to FRA Details
         </Link>
 
-        <p className="mt-6 text-sm font-semibold uppercase tracking-[0.16em] text-[#9b5d12]">
-          Fundraiser
-        </p>
+        <div className="mt-8 flex items-start justify-between gap-6">
+          <div>
+            <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#9b5d12]">
+              Fundraiser
+            </p>
 
-        <div className="mt-2 flex items-center justify-between gap-4">
-          <h1 className="text-3xl font-bold">Update FRA</h1>
+            <h1 className="mt-2 text-3xl font-bold">
+              Update FRA
+            </h1>
 
-          <select
-            value={status}
-            onChange={(event) => handleStatusChange(event.target.value)}
-            className={`h-10 w-40 rounded-2xl border px-4 text-center text-xs font-bold uppercase tracking-[0.15em] outline-none ${getStatusClass(
-              status,
-            )}`}
-          >
-            <option value="active">active</option>
-            <option value="closed">closed</option>
-            <option value="completed">completed</option>
-          </select>
+            <p className="mt-2 text-[#6f6258]">
+              Update your fundraising activity details.
+            </p>
+          </div>
+
+          <div className="w-48">
+            <select
+              value={status}
+              onChange={(event) => {
+                setPendingStatus(event.target.value);
+                setShowStatusModal(true);
+              }}
+              className={`w-full rounded-full border px-4 py-3 text-center text-sm font-bold uppercase tracking-[0.12em] outline-none
+                ${
+                  status === "completed"
+                    ? "border-green-200 bg-green-100 text-green-700"
+                    : status === "closed"
+                      ? "border-red-200 bg-red-100 text-red-600"
+                      : "border-[#f0d8bd] bg-[#fff2df] text-[#c77700]"
+                }
+              `}
+            >
+              <option value="active">Active</option>
+              <option value="closed">Closed</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
         </div>
-
-        <p className="mt-2 text-[#6f6258]">
-          Update your fundraising activity details.
-        </p>
 
         <form
           onSubmit={handleSubmit}
           className="mt-8 rounded-2xl border border-[#f0d8bd] bg-white p-6 shadow-sm"
         >
-          <div className="grid gap-5">
+          <div className="space-y-6">
             <div>
-              <label className="text-sm font-semibold">Title</label>
+              <label className="text-sm font-semibold">
+                Title
+              </label>
 
               <input
+                type="text"
                 value={title}
-                onChange={(event) => setTitle(event.target.value)}
+                onChange={(event) =>
+                  setTitle(event.target.value)
+                }
                 className="mt-2 w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
                 required
               />
             </div>
 
             <div>
-              <label className="text-sm font-semibold">Description</label>
+              <label className="text-sm font-semibold">
+                Description
+              </label>
 
               <textarea
                 value={description}
-                onChange={(event) => setDescription(event.target.value)}
-                className="mt-2 min-h-[120px] w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
+                onChange={(event) =>
+                  setDescription(event.target.value)
+                }
+                className="mt-2 min-h-[180px] w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
                 required
               />
             </div>
 
-            <CategoryDropdown
-              categoryId={categoryId}
-              categoryList={categoryList}
-              onChange={setCategoryId}
-            />
+            <div>
+              <label className="text-sm font-semibold">
+                Category
+              </label>
 
-            <DateTimeInput
-              label="End Date"
-              value={endDate}
-              minDate={getCurrentDate()}
-              onChange={setEndDate}
-            />
+              <select
+                value={categoryId}
+                onChange={(event) =>
+                  setCategoryId(event.target.value)
+                }
+                className="mt-2 w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
+                required
+              >
+                {categoryList.map((category) => (
+                  <option
+                    key={category.categoryId}
+                    value={category.categoryId}
+                  >
+                    {category.categoryName}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="text-sm font-semibold">
+                End Date
+              </label>
+
+              <input
+                type="date"
+                value={endDate}
+                onChange={(event) =>
+                  setEndDate(event.target.value)
+                }
+                className="mt-2 w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
+                required
+              />
+
+              <div className="mt-4 flex gap-4">
+                <div>
+                  <label className="text-sm font-semibold">
+                    Hr
+                  </label>
+
+                  <select
+                    value={hour}
+                    onChange={(event) =>
+                      setHour(event.target.value)
+                    }
+                    className="mt-2 rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
+                  >
+                    {Array.from(
+                      { length: 24 },
+                      (_, index) => {
+                        const value = String(index).padStart(
+                          2,
+                          "0",
+                        );
+
+                        return (
+                          <option
+                            key={value}
+                            value={value}
+                          >
+                            {value} hr
+                          </option>
+                        );
+                      },
+                    )}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-sm font-semibold">
+                    Min
+                  </label>
+
+                  <select
+                    value={minute}
+                    onChange={(event) =>
+                      setMinute(event.target.value)
+                    }
+                    className="mt-2 rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
+                  >
+                    {Array.from(
+                      { length: 60 },
+                      (_, index) => {
+                        const value = String(index).padStart(
+                          2,
+                          "0",
+                        );
+
+                        return (
+                          <option
+                            key={value}
+                            value={value}
+                          >
+                            {value} min
+                          </option>
+                        );
+                      },
+                    )}
+                  </select>
+                </div>
+              </div>
+            </div>
 
             {message ? (
-              <p className="text-sm font-semibold text-[#9b5d12]">
+              <p className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">
                 {message}
               </p>
             ) : null}
 
             <button
               type="submit"
-              className="rounded-md bg-[#FFB347] px-5 py-3 font-semibold text-white transition hover:bg-[#FFBE5C]"
+              className="rounded-md bg-[#FFB347] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#FFBE5C]"
             >
               Update FRA
             </button>
           </div>
         </form>
       </main>
+
+      {showStatusModal ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-3xl bg-white p-7 shadow-2xl">
+            <h2 className="text-2xl font-bold text-[#1d2520]">
+              Change FRA Status
+            </h2>
+
+            <p className="mt-4 text-[#6f6258]">
+              Are you sure you want to change the FRA
+              status to "
+              <span className="font-bold">
+                {pendingStatus}
+              </span>
+              "?
+            </p>
+
+            <div className="mt-8 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setPendingStatus(status);
+                  setShowStatusModal(false);
+                }}
+                className="rounded-xl border border-[#f0d8bd] bg-white px-5 py-3 text-sm font-bold text-[#9b5d12] transition hover:bg-[#fff2df]"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setStatus(pendingStatus);
+                  setShowStatusModal(false);
+                }}
+                className="rounded-xl bg-[#FFB347] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#FFBE5C]"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
-}
-
-function getCurrentDate() {
-  return new Date().toISOString().slice(0, 10);
 }
