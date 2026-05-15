@@ -9,12 +9,20 @@ export class UserAccount {
   readonly status: AccountStatus;
   readonly profile: UserProfile;
 
+  readonly gender: string | null;
+  readonly dateOfBirth: string | null;
+  readonly bio: string | null;
+
   constructor(input: {
     userId: string;
     username: string;
     email: string;
     status: AccountStatus;
     profile: UserProfile;
+
+    gender?: string | null;
+    dateOfBirth?: string | null;
+    bio?: string | null;
   }) {
     if (!input.userId.trim()) {
       throw new Error("User id is required.");
@@ -27,6 +35,10 @@ export class UserAccount {
     this.email = UserAccount.normalizeEmail(input.email);
     this.status = input.status;
     this.profile = input.profile;
+
+    this.gender = input.gender ?? null;
+    this.dateOfBirth = input.dateOfBirth ?? null;
+    this.bio = input.bio ?? null;
   }
 
   static validateUsername(username: string) {
@@ -91,6 +103,10 @@ export class UserAccount {
     username: string;
     email: string;
     status: AccountStatus;
+
+    gender?: string | null;
+    dateOfBirth?: string | null;
+    bio?: string | null;
   }) {
     return new UserAccount({
       userId: this.userId,
@@ -98,6 +114,10 @@ export class UserAccount {
       email: input.email,
       status: input.status,
       profile: this.profile,
+
+      gender: input.gender,
+      dateOfBirth: input.dateOfBirth,
+      bio: input.bio,
     });
   }
 
@@ -108,6 +128,10 @@ export class UserAccount {
       email: this.email,
       status: this.status,
       profile: this.profile.toDTO(),
+
+      gender: this.gender,
+      dateOfBirth: this.dateOfBirth,
+      bio: this.bio,
     };
   }
 }
@@ -118,4 +142,8 @@ export type UserAccountDTO = {
   email: string;
   status: AccountStatus;
   profile: UserProfileDTO;
+
+  gender: string | null;
+  dateOfBirth: string | null;
+  bio: string | null;
 };

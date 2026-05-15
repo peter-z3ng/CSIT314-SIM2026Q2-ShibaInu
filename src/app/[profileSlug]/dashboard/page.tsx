@@ -27,6 +27,7 @@ export default async function DashboardRoutePage({
 
   if (profileName === "donee") {
     const doneeController = new DoneeController();
+
     const [totalDonated, fraList] = await Promise.all([
       doneeController.getTotalDonated(account.userId),
       doneeController.listFRA(),
@@ -51,14 +52,18 @@ export default async function DashboardRoutePage({
   const fundraiserController = new FundraiserController();
   const categoryController = new FRACategoryController();
 
-  const fraList = await fundraiserController.listMyFRAs(account.userId);
-  const categoryList = await categoryController.listCategories();
+  const [fraList, categoryList, recentDonations] = await Promise.all([
+    fundraiserController.listMyFRAs(account.userId),
+    categoryController.listCategories(),
+    fundraiserController.listRecentDonations(account.userId),
+  ]);
 
   return (
     <FundraiserHomePage
       account={account.toDTO()}
       fraList={fraList.map((fra) => fra.toDTO())}
       categoryList={categoryList}
+      recentDonations={recentDonations}
     />
   );
 }
