@@ -1,10 +1,12 @@
 import { DashboardBoundary } from "@/boundary/DashboardBoundary";
 import { DoneeDashboardBoundary } from "@/boundary/DoneeDashboardBoundary";
 import { FundraiserHomePage } from "@/boundary/FundraiserHomePage";
+import { PlatformManagementHomePage } from "@/boundary/PlatformManagementHomePage";
 import { AuthController } from "@/controller/AuthController";
 import { DoneeController } from "@/controller/DoneeController";
 import { FundraiserController } from "@/controller/FundraiserController";
 import { FRACategoryController } from "@/controller/FRACategoryController";
+import { PlatformManagementController } from "@/controller/PlatformManagementController";
 import { isAdminProfile, profileToPath } from "@/entity/UserProfile";
 import { redirect } from "next/navigation";
 
@@ -47,25 +49,42 @@ export default async function DashboardRoutePage({
   const isFundraiser =
     profileName === "fundraiser" || profileName === "fund raiser";
 
-  if (!isFundraiser) {
-    return <DashboardBoundary account={account} />;
+  if (profileName === "platform management") {
+    const platformManagementController = new PlatformManagementController();
+
+    const [categories, totalUsers] = await Promise.all([
+      platformManagementController.listCategories(),
+      platformManagementController.getTotalUsers(),
+    ]);
+
+    return (
+      <PlatformManagementHomePage
+        account={account.toDTO()}
+        categories={categories}
+        totalUsers={totalUsers}
+      />
+    );
   }
 
-  const fundraiserController = new FundraiserController();
-  const categoryController = new FRACategoryController();
+  if (isFundraiser) {
+    const fundraiserController = new FundraiserController();
+    const categoryController = new FRACategoryController();
 
-  const [fraList, categoryList, recentDonations] = await Promise.all([
-    fundraiserController.listMyFRAs(account.userId),
-    categoryController.listCategories(),
-    fundraiserController.listRecentDonations(account.userId),
-  ]);
+    const [fraList, categoryList, recentDonations] = await Promise.all([
+      fundraiserController.listMyFRAs(account.userId),
+      categoryController.listCategories(),
+      fundraiserController.listRecentDonations(account.userId),
+    ]);
 
-  return (
-    <FundraiserHomePage
-      account={account.toDTO()}
-      fraList={fraList.map((fra) => fra.toDTO())}
-      categoryList={categoryList}
-      recentDonations={recentDonations}
-    />
-  );
+    return (
+      <FundraiserHomePage
+        account={account.toDTO()}
+        fraList={fraList.map((fra) => fra.toDTO())}
+        categoryList={categoryList}
+        recentDonations={recentDonations}
+      />
+    );
+  }
+
+  return <DashboardBoundary account={account} />;
 }
