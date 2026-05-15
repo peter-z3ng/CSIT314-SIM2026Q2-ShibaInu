@@ -65,6 +65,8 @@ export class SaveFavouriteController {
       throw new Error("Unable to save favourite.");
     }
 
+    await this.syncFavouriteCount(fra_id);
+
     return favourite.fav_id;
   }
 
@@ -88,7 +90,33 @@ export class SaveFavouriteController {
       throw new Error(error.message);
     }
 
+    await this.syncFavouriteCount(fra_id);
+
     return true;
+  }
+
+  private async syncFavouriteCount(fra_id: string): Promise<number> {
+    const supabase = createSupabaseAdminClient();
+    const { count, error: countError } = await supabase
+      .from("favourite")
+      .select("fav_id", { count: "exact", head: true })
+      .eq("fra_id", fra_id);
+
+    if (countError) {
+      throw new Error(countError.message);
+    }
+
+    const favCount = count ?? 0;
+    const { error: updateError } = await supabase
+      .from("fra")
+      .update({ fav_count: favCount })
+      .eq("fra_id", fra_id);
+
+    if (updateError) {
+      throw new Error(updateError.message);
+    }
+
+    return favCount;
   }
 
   private async getExistingFavourite(user_id: string, fra_id: string) {

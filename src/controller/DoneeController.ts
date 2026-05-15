@@ -45,6 +45,7 @@ export class DoneeController {
       .select(
         "fra_id, user_id, category_id, title, description, target_amount, current_amount, start_date, status, view_count, fav_count, end_date, created_at, updated_at",
       )
+      .eq("status", "active")
       .order("updated_at", { ascending: false, nullsFirst: false })
       .overrideTypes<FRARow[], { merge: false }>();
 

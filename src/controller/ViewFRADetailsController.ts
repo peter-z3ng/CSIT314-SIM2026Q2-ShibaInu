@@ -20,6 +20,10 @@ type FRARow = {
   updated_at: string | null;
 };
 
+type FRAViewCountRow = {
+  view_count: number;
+};
+
 type FundraiserRow = {
   username: string;
 };
@@ -28,6 +32,7 @@ type DonationRow = {
   user_id: string;
   amount: number;
   message: string | null;
+  payment_method: string | null;
   paydate: string;
 };
 
@@ -69,6 +74,37 @@ export class ViewFRADetailsController {
       return mapFRARow(fra).viewFRADetails(fra_id);
   }
 
+  async incrementFRAViewCount(fra_id: string): Promise<number> {
+    if (!fra_id.trim()) {
+      throw new Error("FRA id is required.");
+    }
+
+    const supabase = createSupabaseAdminClient();
+    const { data, error } = await supabase
+      .from("fra")
+      .select("view_count")
+      .eq("fra_id", fra_id)
+      .limit(1)
+      .overrideTypes<FRAViewCountRow[], { merge: false }>();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    const currentViewCount = Number(data[0]?.view_count ?? 0);
+    const nextViewCount = currentViewCount + 1;
+    const { error: updateError } = await supabase
+      .from("fra")
+      .update({ view_count: nextViewCount })
+      .eq("fra_id", fra_id);
+
+    if (updateError) {
+      throw new Error(updateError.message);
+    }
+
+    return nextViewCount;
+  }
+
   async viewFundraiserUsername(user_id: string): Promise<string> {
     if (!user_id.trim()) {
       throw new Error("User id is required.");
@@ -97,7 +133,7 @@ export class ViewFRADetailsController {
     const supabase = createSupabaseAdminClient();
     const { data: donations, error } = await supabase
       .from("donation")
-      .select("user_id, amount, message, paydate")
+      .select("user_id, amount, message, payment_method, paydate")
       .eq("fra_id", fra_id)
       .order("paydate", { ascending: false })
       .limit(5)
@@ -133,6 +169,7 @@ export class ViewFRADetailsController {
           username: usernameById.get(donation.user_id) ?? "Unknown donor",
           amount: Number(donation.amount),
           message: donation.message,
+          paymentMethod: donation.payment_method,
           paydate: donation.paydate,
         }),
     );

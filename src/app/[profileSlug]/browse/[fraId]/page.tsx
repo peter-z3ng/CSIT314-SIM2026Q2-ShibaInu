@@ -23,6 +23,8 @@ export default async function DoneeFRADetailsRoute({
   const searchFRAController = new SearchFRAController();
   const saveFavouriteController = new SaveFavouriteController();
   const viewFRADetailsController = new ViewFRADetailsController();
+  await viewFRADetailsController.incrementFRAViewCount(fraId);
+
   const [fra, categories, fraList, recentDonations, isFavourite] = await Promise.all([
     viewFRADetailsController.viewFRADetails(fraId),
     searchFRAController.listCategories(),

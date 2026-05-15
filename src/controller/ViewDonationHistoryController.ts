@@ -8,6 +8,7 @@ type DonationHistoryRow = {
   fra_id: string;
   amount: number;
   message: string | null;
+  payment_method: string | null;
   paydate: string;
   fra: FRARow | null;
 };
@@ -39,7 +40,7 @@ export class ViewDonationHistoryController {
     const { data, error } = await supabase
       .from("donation")
       .select(
-        "donation_id, user_id, fra_id, amount, message, paydate, fra:fra_id(fra_id, user_id, category_id, title, description, target_amount, current_amount, start_date, status, view_count, fav_count, end_date, created_at, updated_at)",
+        "donation_id, user_id, fra_id, amount, message, payment_method, paydate, fra:fra_id(fra_id, user_id, category_id, title, description, target_amount, current_amount, start_date, status, view_count, fav_count, end_date, created_at, updated_at)",
       )
       .eq("user_id", user_id)
       .order("paydate", { ascending: false })
@@ -63,6 +64,7 @@ function mapDonationHistoryRow(row: DonationHistoryRow) {
     username: "",
     amount: Number(row.amount),
     message: row.message,
+    paymentMethod: row.payment_method,
     paydate: row.paydate,
     fra: row.fra ? mapFRARow(row.fra).toDTO() : null,
   });

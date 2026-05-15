@@ -27,9 +27,11 @@ export default async function DashboardRoutePage({
 
   if (profileName === "donee") {
     const doneeController = new DoneeController();
-    const [totalDonated, fraList] = await Promise.all([
+    const categoryController = new FRACategoryController();
+    const [totalDonated, fraList, categoryList] = await Promise.all([
       doneeController.getTotalDonated(account.userId),
       doneeController.listFRA(),
+      categoryController.listCategories(),
     ]);
 
     return (
@@ -37,6 +39,7 @@ export default async function DashboardRoutePage({
         account={account.toDTO()}
         totalDonated={totalDonated}
         fraList={fraList.map((fra) => fra.toDTO())}
+        categoryList={categoryList}
       />
     );
   }

@@ -51,7 +51,8 @@ create table if not exists public.donation (
   user_id uuid not null references public.user_account(user_id),
   amount numeric(12, 2) not null,
   message text,
-  created_at timestamptz not null default now()
+  payment_method text not null,
+  paydate timestamptz not null default now()
 );
 
 create table if not exists public.favourite (

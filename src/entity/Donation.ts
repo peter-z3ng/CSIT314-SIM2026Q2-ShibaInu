@@ -7,6 +7,7 @@ export type DonationDTO = {
   username: string;
   amount: number;
   message: string | null;
+  paymentMethod: string | null;
   paydate: string;
   fra: FRADTO | null;
 };
@@ -18,6 +19,7 @@ export class Donation {
   readonly username: string;
   readonly amount: number;
   readonly message: string | null;
+  readonly paymentMethod: string | null;
   readonly paydate: string;
   readonly fra: FRADTO | null;
 
@@ -28,6 +30,7 @@ export class Donation {
     username: string;
     amount: number;
     message: string | null;
+    paymentMethod?: string | null;
     paydate: string;
     fra?: FRADTO | null;
   }) {
@@ -37,6 +40,7 @@ export class Donation {
     this.username = input.username;
     this.amount = input.amount;
     this.message = input.message;
+    this.paymentMethod = input.paymentMethod ?? null;
     this.paydate = input.paydate;
     this.fra = input.fra ?? null;
   }
@@ -53,6 +57,7 @@ export class Donation {
       username: this.username,
       amount: this.amount,
       message: this.message,
+      paymentMethod: this.paymentMethod,
       paydate: this.paydate,
       fra: this.fra,
     };

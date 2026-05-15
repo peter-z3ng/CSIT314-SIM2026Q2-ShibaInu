@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Header } from "@/components/Header";
+import { DonatePage } from "@/boundary/DonatePage";
 import { SaveFavouritePage } from "@/boundary/SaveFavouritePage";
 import type { DonationDTO } from "@/entity/Donation";
 import type { FRADTO } from "@/entity/FRA";
@@ -26,6 +27,7 @@ export function FRADetailsPage({
   isFavourite: boolean;
 }) {
   const profilePath = profileToPath(account.profile);
+  const isDonee = account.profile.profile.toLowerCase() === "donee";
   function formatDateTime(value: string) {
   return new Date(value).toLocaleString("en-GB", {
     day: "2-digit",
@@ -174,12 +176,13 @@ export function FRADetailsPage({
               value={selectedFRA.endDate ? formatDisplayDate(selectedFRA.endDate) : "_ _ _"}
             />
             <DetailItem label="Fundraiser" value={fundraiserUsername} />
-            <button
-              type="button"
-              className="h-12 rounded-md bg-[#FFB347] px-4 text-sm font-bold text-white transition hover:bg-[#FFBE5C]"
-            >
-              Donate
-            </button>
+            {isDonee ? (
+              <DonatePage
+                profilePath={profilePath}
+                fra_id={selectedFRA.fraId}
+                fraTitle={selectedFRA.title}
+              />
+            ) : null}
           </div>
         </article>
 

@@ -5,16 +5,19 @@ import { DoneeFRASectionBoundary } from "@/boundary/DoneeFRASectionBoundary";
 import { DoneeGlowSectionBoundary } from "@/boundary/DoneeGlowSectionBoundary";
 import { Header } from "@/components/Header";
 import type { FRADTO } from "@/entity/FRA";
+import type { FRACategoryDTO } from "@/entity/FRACategory";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 
 export function DoneeDashboardBoundary({
   account,
   totalDonated,
   fraList,
+  categoryList,
 }: {
   account: UserAccountDTO;
   totalDonated: number;
   fraList: FRADTO[];
+  categoryList: FRACategoryDTO[];
 }) {
   return (
     <main className="min-h-screen bg-[#FFF4EC] text-[#111111]">
@@ -33,7 +36,7 @@ export function DoneeDashboardBoundary({
 
         <DoneeGlowSectionBoundary totalDonated={totalDonated} />
 
-        <DoneeFRASectionBoundary fraList={fraList} />
+        <DoneeFRASectionBoundary fraList={fraList} categoryList={categoryList} />
       </div>
     </main>
   );
