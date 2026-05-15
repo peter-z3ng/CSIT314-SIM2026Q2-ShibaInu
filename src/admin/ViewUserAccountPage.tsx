@@ -96,7 +96,11 @@ export function ViewUserAccountPage({
             <div>
               <h2 className="text-2xl font-bold">User Account Details</h2>
             </div>
-            <span className="w-fit rounded-md bg-[#fff2df] px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.1em] text-[#9b5d12]">
+            <span
+              className={`w-fit rounded-md px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.1em] ${getAccountStatusClass(
+                displayedAccount.status,
+              )}`}
+            >
               {displayedAccount.status}
             </span>
           </div>
@@ -437,7 +441,11 @@ export function ViewUserAccountPage({
                     <td className="py-4 pr-4 font-semibold">{userAccount.username}</td>
                     <td className="py-4 pr-4">{userAccount.profile.profile}</td>
                     <td className="py-4 pr-4">
-                      <span className="rounded-md bg-[#fff2df] px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.1em] text-[#9b5d12]">
+                      <span
+                        className={`rounded-md px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.1em] ${getAccountStatusClass(
+                          userAccount.status,
+                        )}`}
+                      >
                         {userAccount.status}
                       </span>
                     </td>
@@ -492,6 +500,18 @@ function Field({
       />
     </label>
   );
+}
+
+function getAccountStatusClass(status: UserAccountDTO["status"]) {
+  if (status === "active") {
+    return "bg-green-100 text-green-700";
+  }
+
+  if (status === "suspended") {
+    return "bg-red-100 text-red-600";
+  }
+
+  return "bg-[#fff2df] text-[#c77700]";
 }
 
 function EditableField({

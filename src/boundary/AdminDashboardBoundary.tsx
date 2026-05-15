@@ -153,7 +153,11 @@ export function AdminDashboardBoundary({
                     <td className="py-4 pr-4 text-[#6f6258]">{userAccount.email}</td>
                     <td className="py-4 pr-4">{userAccount.profile.profile}</td>
                     <td className="py-4">
-                      <span className="rounded-md bg-[#fff2df] px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.1em] text-[#9b5d12]">
+                      <span
+                        className={`rounded-md px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.1em] ${getAccountStatusClass(
+                          userAccount.status,
+                        )}`}
+                      >
                         {userAccount.status}
                       </span>
                     </td>
@@ -173,4 +177,16 @@ export function AdminDashboardBoundary({
       </section>
     </main>
   );
+}
+
+function getAccountStatusClass(status: UserAccountDTO["status"]) {
+  if (status === "active") {
+    return "bg-[#eaf7ef] text-[#0b6b35]";
+  }
+
+  if (status === "suspended") {
+    return "bg-[#fdecec] text-[#b42318]";
+  }
+
+  return "bg-[#fff2df] text-[#9b5d12]";
 }

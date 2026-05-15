@@ -1,7 +1,12 @@
+import { DashboardBoundary } from "@/boundary/DashboardBoundary";
+import { DoneeDashboardBoundary } from "@/boundary/DoneeDashboardBoundary";
 import { FundraiserHomePage } from "@/boundary/FundraiserHomePage";
 import { AuthController } from "@/controller/AuthController";
+import { DoneeController } from "@/controller/DoneeController";
 import { FundraiserController } from "@/controller/FundraiserController";
 import { FRACategoryController } from "@/controller/FRACategoryController";
+import { isAdminProfile, profileToPath } from "@/entity/UserProfile";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -13,10 +18,38 @@ export default async function DashboardRoutePage({
   const { profileSlug } = await params;
 
   const authController = new AuthController();
+  const account = await authController.requireProfilePath(profileSlug);
+  const profileName = account.profile.profile.toLowerCase();
+
+  if (isAdminProfile(account.profile)) {
+    redirect(`/${profileToPath(account.profile)}/account`);
+  }
+
+  if (profileName === "donee") {
+    const doneeController = new DoneeController();
+    const [totalDonated, fraList] = await Promise.all([
+      doneeController.getTotalDonated(account.userId),
+      doneeController.listFRA(),
+    ]);
+
+    return (
+      <DoneeDashboardBoundary
+        account={account.toDTO()}
+        totalDonated={totalDonated}
+        fraList={fraList.map((fra) => fra.toDTO())}
+      />
+    );
+  }
+
+  const isFundraiser =
+    profileName === "fundraiser" || profileName === "fund raiser";
+
+  if (!isFundraiser) {
+    return <DashboardBoundary account={account} />;
+  }
+
   const fundraiserController = new FundraiserController();
   const categoryController = new FRACategoryController();
-
-  const account = await authController.requireProfilePath(profileSlug);
 
   const fraList = await fundraiserController.listMyFRAs(account.userId);
   const categoryList = await categoryController.listCategories();
