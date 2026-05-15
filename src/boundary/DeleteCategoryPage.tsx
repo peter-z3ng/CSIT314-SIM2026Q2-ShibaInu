@@ -26,15 +26,14 @@ export function DeleteCategoryPage({
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
         <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
           <h2 className="text-xl font-bold text-[#0b1f2a]">
-            Cannot Delete
+            Failed to Delete
           </h2>
 
           <p className="mt-4 text-sm text-[#5f5148]">
-            Cannot delete{" "}
             <span className="font-bold">
               "{categoryName}"
             </span>{" "}
-            because it is being used by FRAs.
+            is being used by FRAs.
           </p>
 
           <div className="mt-8 flex justify-end">
