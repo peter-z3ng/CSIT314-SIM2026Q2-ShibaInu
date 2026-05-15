@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Header } from "@/components/Header";
+import { DeleteCategoryPage } from "@/boundary/DeleteCategoryPage";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 import type { CategoryDTO } from "@/controller/ViewCategoryController";
 import { profileToPath } from "@/entity/UserProfile";
@@ -11,15 +12,21 @@ import { profileToPath } from "@/entity/UserProfile";
 export function ViewCategoryPage({
   account,
   categories,
+  deleteCategoryAction,
 }: {
   account: UserAccountDTO;
   categories: CategoryDTO[];
+  deleteCategoryAction: (
+    formData: FormData,
+  ) => Promise<{ success: boolean }>;
 }) {
   const profilePath = profileToPath(account.profile);
-
   const searchParams = useSearchParams();
 
   const [successMessage, setSuccessMessage] = useState("");
+  const [cannotDeleteMessage, setCannotDeleteMessage] = useState("");
+  const [selectedCategory, setSelectedCategory] =
+    useState<CategoryDTO | null>(null);
 
   useEffect(() => {
     const success = searchParams.get("success");
@@ -32,12 +39,20 @@ export function ViewCategoryPage({
       setSuccessMessage("Category created successfully.");
     }
 
+    if (success === "deleted") {
+      setSuccessMessage("Category deleted successfully.");
+    }
+
     const timer = setTimeout(() => {
       setSuccessMessage("");
     }, 7000);
 
     return () => clearTimeout(timer);
   }, [searchParams]);
+
+  function handleDeleteClick(category: CategoryDTO) {
+    setSelectedCategory(category);
+    }
 
   return (
     <main className="min-h-screen bg-[#fffaf5] text-[#0b1f2a]">
@@ -50,9 +65,7 @@ export function ViewCategoryPage({
               PLATFORM MANAGEMENT
             </p>
 
-            <h1 className="mt-3 text-4xl font-bold">
-              Category Management
-            </h1>
+            <h1 className="mt-3 text-4xl font-bold">Category Management</h1>
 
             <p className="mt-2 text-base text-[#6f6258]">
               View and manage FRA categories.
@@ -68,8 +81,14 @@ export function ViewCategoryPage({
         </div>
 
         {successMessage && (
-          <div className="mt-5 rounded-2xl border border-green-300 bg-green-50 px-5 py-4 text-sm font-bold text-green-700">
+          <div className="mt-6 w-full rounded-2xl border border-green-300 bg-green-50 px-5 py-4 text-sm font-bold text-green-700">
             {successMessage}
+          </div>
+        )}
+
+        {cannotDeleteMessage && (
+          <div className="mt-6 w-full rounded-2xl border border-red-300 bg-red-50 px-5 py-6 text-sm font-bold text-red-700">
+            {cannotDeleteMessage}
           </div>
         )}
 
@@ -102,9 +121,7 @@ export function ViewCategoryPage({
               key={category.categoryId}
               className="grid grid-cols-[1.1fr_2fr_1fr_1fr_1.3fr] items-center border-b border-[#ead8c4] py-5"
             >
-              <p className="text-sm font-bold">
-                {category.categoryName}
-              </p>
+              <p className="text-sm font-bold">{category.categoryName}</p>
 
               <p className="pr-6 text-sm text-[#5f5148]">
                 {category.description || "No description provided."}
@@ -128,7 +145,11 @@ export function ViewCategoryPage({
                   Edit
                 </Link>
 
-                <button className="rounded-lg bg-red-100 px-4 py-2 text-xs font-bold text-red-600">
+                <button
+                  type="button"
+                  onClick={() => handleDeleteClick(category)}
+                  className="rounded-lg bg-red-100 px-4 py-2 text-xs font-bold text-red-600"
+                >
                   Delete
                 </button>
               </div>
@@ -142,6 +163,15 @@ export function ViewCategoryPage({
           )}
         </section>
       </section>
+
+      <DeleteCategoryPage
+        categoryId={selectedCategory?.categoryId || ""}
+        categoryName={selectedCategory?.categoryName || ""}
+        isUsed={selectedCategory?.isUsed || false}
+        isOpen={selectedCategory !== null}
+        onClose={() => setSelectedCategory(null)}
+        deleteCategoryAction={deleteCategoryAction}
+        />
     </main>
   );
 }
