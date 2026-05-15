@@ -70,7 +70,7 @@ export function FundraiserHomePage({
             {fraList.slice(0, 3).map((fra) => (
               <div
                 key={fra.fraId}
-                className="rounded-2xl border border-[#f0d8bd] bg-white p-3 shadow-sm"
+                className="rounded-2xl border border-[#f0d8bd] bg-white/40 p-3 shadow-sm"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -136,7 +136,7 @@ function DashboardCard({
   value: string;
 }) {
   return (
-    <div className="rounded-2xl border border-[#f0d8bd] bg-white px-6 py-5 shadow-sm">
+    <div className="rounded-2xl border border-[#f0d8bd] bg-white/40 px-6 py-5 shadow-sm">
       <p className="text-base text-[#6f6258]">{title}</p>
       <h2 className="mt-3 text-4xl font-bold">{value}</h2>
     </div>

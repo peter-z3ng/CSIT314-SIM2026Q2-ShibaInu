@@ -13,6 +13,7 @@ export default async function MyFRARoutePage({
   searchParams: Promise<{
     keyword?: string;
     categoryId?: string;
+    status?: string;
     startDate?: string;
     endDate?: string;
   }>;
@@ -30,6 +31,7 @@ export default async function MyFRARoutePage({
     userId: account.userId,
     keyword: filters.keyword,
     categoryId: filters.categoryId,
+    status: filters.status,
     startDate: filters.startDate,
     endDate: filters.endDate,
   });

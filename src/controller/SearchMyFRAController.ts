@@ -23,6 +23,7 @@ export type SearchMyFRAInput = {
   userId: string;
   keyword?: string;
   categoryId?: string;
+  status?: string;
   startDate?: string;
   endDate?: string;
 };
@@ -47,8 +48,18 @@ export class SearchMyFRAController {
       query = query.ilike("title", `%${input.keyword}%`);
     }
 
-    if (input.categoryId) {
-      query = query.eq("category_id", input.categoryId);
+    const categoryIds = splitFilterValues(input.categoryId);
+
+    if (categoryIds.length) {
+      query = query.in("category_id", categoryIds);
+    }
+
+    const statuses = splitFilterValues(input.status).filter((status) =>
+      ["active", "closed"].includes(status),
+    );
+
+    if (statuses.length) {
+      query = query.in("status", statuses);
     }
 
     if (input.startDate) {
@@ -88,4 +99,11 @@ export class SearchMyFRAController {
         }),
     );
   }
+}
+
+function splitFilterValues(value?: string) {
+  return (value ?? "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
 }

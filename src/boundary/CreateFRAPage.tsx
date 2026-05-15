@@ -174,9 +174,6 @@ export function CreateFRAPage({
                           {category.categoryName}
                         </span>
 
-                        <span className="text-xs text-[#6f6258]">
-                          {category.categoryId}
-                        </span>
                       </button>
                     ))}
                   </div>

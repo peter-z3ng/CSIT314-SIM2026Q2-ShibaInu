@@ -21,11 +21,11 @@ export function DoneeFRASectionBoundary({ fraList }: { fraList: FRADTO[] }) {
   }, [fraList, rotationKey]);
 
   return (
-    <section className="relative z-0 -mt-40 min-h-[60vh] rounded-[2rem] bg-[#FFF4EC] px-8 pb-10 pt-44">
+    <section className="relative z-0 -mt-40 min-h-[60vh] rounded-[2rem] bg-white/40 px-8 pb-10 pt-44">
       <h2 className="text-3xl font-black text-[#1d2520]">Highlighted Campaigns</h2>
       <div className="mt-6 grid gap-5 md:grid-cols-3">
         {visibleFRA.map((fra) => (
-          <article key={fra.fraId} className="rounded-2xl bg-white p-5 shadow-sm">
+          <article key={fra.fraId} className="rounded-2xl bg-white/40 p-5 shadow-sm">
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#9b5d12]">
               {fra.status}
             </p>
@@ -49,7 +49,7 @@ export function DoneeFRASectionBoundary({ fraList }: { fraList: FRADTO[] }) {
         ))}
 
         {!visibleFRA.length ? (
-          <p className="rounded-2xl bg-white p-5 text-sm text-[#6f6258] md:col-span-3">
+          <p className="rounded-2xl bg-white/40 p-5 text-sm text-[#6f6258] md:col-span-3">
             No fundraisers available yet.
           </p>
         ) : null}

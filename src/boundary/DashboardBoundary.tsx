@@ -53,7 +53,7 @@ export function DashboardBoundary({
 
 function DashboardCard({ title, text }: { title: string; text: string }) {
   return (
-    <article className="rounded-lg border border-[#dfdacd] bg-[#fffdf8] p-5 shadow-sm">
+    <article className="rounded-lg border border-[#dfdacd] bg-white/40 p-5 shadow-sm">
       <h2 className="text-xl font-semibold">{title}</h2>
       <p className="mt-3 text-sm leading-6 text-[#586158]">{text}</p>
     </article>

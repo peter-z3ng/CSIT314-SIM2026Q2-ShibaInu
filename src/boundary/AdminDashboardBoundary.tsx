@@ -64,7 +64,7 @@ export function AdminDashboardBoundary({
       <section className="mx-auto max-w-7xl px-5 py-8 lg:px-8">
         <h1 className="text-4xl font-bold">User Accounts</h1>
 
-        <section className="mt-8 rounded-lg border border-[#f0d8bd] bg-[#fffaf5] p-5 shadow-sm">
+        <section className="mt-8 rounded-lg border border-[#f0d8bd] bg-white/40 p-5 shadow-sm">
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
             <div>
               <h2 className="text-2xl font-bold">All User Account</h2>
@@ -80,7 +80,7 @@ export function AdminDashboardBoundary({
                 value={keyword}
                 onChange={(event) => setKeyword(event.target.value)}
                 placeholder="Search username, email, or profile"
-                className="h-11 w-full rounded-md border border-[#cfc7b5] bg-white px-3 text-sm outline-none transition focus:border-[#FFB347] focus:ring-2 focus:ring-[#FFB347]/30"
+                className="h-11 w-full rounded-md border border-[#cfc7b5] bg-white/40 px-3 text-sm outline-none transition focus:border-[#FFB347] focus:ring-2 focus:ring-[#FFB347]/30"
               />
             </div>
 

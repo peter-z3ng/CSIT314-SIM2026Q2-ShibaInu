@@ -47,8 +47,10 @@ export class CompletedFRAController {
       query = query.ilike("title", `%${input.keyword}%`);
     }
 
-    if (input.categoryId) {
-      query = query.eq("category_id", input.categoryId);
+    const categoryIds = splitFilterValues(input.categoryId);
+
+    if (categoryIds.length) {
+      query = query.in("category_id", categoryIds);
     }
 
     if (input.startDate) {
@@ -88,4 +90,11 @@ export class CompletedFRAController {
         }),
     );
   }
+}
+
+function splitFilterValues(value?: string) {
+  return (value ?? "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
 }
