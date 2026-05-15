@@ -1,10 +1,12 @@
 import { redirect } from "next/navigation";
 import { DashboardBoundary } from "@/boundary/DashboardBoundary";
 import { DoneeDashboardBoundary } from "@/boundary/DoneeDashboardBoundary";
+import { PlatformManagementHomePage } from "@/boundary/PlatformManagementHomePage";
 import { AuthController } from "@/controller/AuthController";
 import { DoneeController } from "@/controller/DoneeController";
 import { FundraiserHomePage } from "@/boundary/FundraiserHomePage";
 import { FundraiserController } from "@/controller/FundraiserController";
+import { PlatformManagementController } from "@/controller/PlatformManagementController";
 
 export const dynamic = "force-dynamic";
 
@@ -49,6 +51,23 @@ export default async function ProfileDashboardPage({
     );
   }
 
+    if (account.profile.profile.toLowerCase() === "platform management") {
+    const platformManagementController = new PlatformManagementController();
+
+    const [categories, totalUsers] = await Promise.all([
+      platformManagementController.listCategories(),
+      platformManagementController.getTotalUsers(),
+    ]);
+
+    return (
+      <PlatformManagementHomePage
+        account={account.toDTO()}
+        categories={categories}
+        totalUsers={totalUsers}
+      />
+    );
+  }
+
   if (account.profile.profile.toLowerCase() !== "admin") {
     return <DashboardBoundary account={account} />;
   }
@@ -56,4 +75,6 @@ export default async function ProfileDashboardPage({
   if (account.profile.profile.toLowerCase() === "admin") {
     redirect(`/${profileSlug}/account`);
   }
+
+
 }
