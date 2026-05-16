@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
-import { CreateUserAccountController } from "@/admin/CreateUserAccountController";
+import { CreateUserAccountController } from "@/admin/controller/CreateUserAccountController";
 import { AdminController } from "@/controller/AdminController";
 import { AuthController, type EmailLookupResult } from "@/controller/AuthController";
 import { CreateUserAccount } from "@/controller/CreateUserAccount";
@@ -16,6 +16,8 @@ type ActionResult = {
   ok: boolean;
   message: string;
 };
+
+export type CreateUserAccountState = ActionResult;
 
 export type EmailLookupDTO =
   | { status: "existing"; email: string; profile: UserProfileDTO }
@@ -126,16 +128,34 @@ export async function createProfile(formData: FormData) {
   revalidatePath("/login");
 }
 
-export async function createUserAccount(formData: FormData) {
-  await new AuthController().requireAdmin();
-  await new CreateUserAccountController().createUserAccount({
-    username: String(formData.get("username") ?? ""),
-    email: String(formData.get("email") ?? ""),
-    password: String(formData.get("password") ?? ""),
-    profileId: String(formData.get("profileId") ?? ""),
-  });
-  revalidatePath("/admin/dashboard");
-  revalidatePath("/admin/account");
+export async function createUserAccount(
+  previousState: CreateUserAccountState,
+  formData: FormData,
+): Promise<CreateUserAccountState> {
+  try {
+    await new AuthController().requireAdmin();
+    await new CreateUserAccountController().createUserAccount(
+      String(formData.get("username") ?? ""),
+      String(formData.get("email") ?? ""),
+      String(formData.get("password") ?? ""),
+      String(formData.get("profileId") ?? ""),
+    );
+    revalidatePath("/admin/dashboard");
+    revalidatePath("/admin/account");
+
+    return {
+      ok: true,
+      message: "User account created successfully.",
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : previousState.message || "Unable to create user account.",
+    };
+  }
 }
 
 export async function updateUserAccountDetails(input: {

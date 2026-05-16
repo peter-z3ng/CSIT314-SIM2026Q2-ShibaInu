@@ -68,10 +68,7 @@ export class UserAccount {
     password: string;
   }) {
     const username = input.username.trim();
-    const email = UserAccount.normalizeEmail(input.email);
-
-    UserAccount.validateUsername(username);
-    UserAccount.validatePassword(input.password);
+    const email = input.email.trim().toLowerCase();
 
     return {
       username,
