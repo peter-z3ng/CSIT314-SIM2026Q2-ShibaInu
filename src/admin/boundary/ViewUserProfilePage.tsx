@@ -1,4 +1,4 @@
-import { UpdateUserProfilePage } from "@/admin/boundary/UpdateUserProfilePage";
+import { SearchUserProfilePage } from "@/admin/boundary/SearchUserProfilePage";
 import { Header } from "@/components/Header";
 import { createProfile } from "@/controller/authActions";
 import type { UserAccountDTO } from "@/entity/UserAccount";
@@ -16,25 +16,7 @@ export function ViewUserProfilePage({
 }) {
   // displayUserProfileInfo()
   const displayUserProfileInfo = () => (
-    <section className="mt-8">
-      <h2 className="text-2xl font-bold">Profiles</h2>
-
-      {profiles.length ? (
-        <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-          {profiles.map((profile) => (
-            <UpdateUserProfilePage
-              key={profile.profileId}
-              profile={profile}
-              accountCount={profileAccountCounts[profile.profileId] ?? 0}
-            />
-          ))}
-        </div>
-      ) : (
-        <p className="mt-5 rounded-2xl border border-[#FFB347] bg-white/40 p-8 text-center text-sm font-semibold text-[#6f6258] shadow-lg">
-          No profiles have been created.
-        </p>
-      )}
-    </section>
+    <SearchUserProfilePage profiles={profiles} profileAccountCounts={profileAccountCounts} />
   );
 
   return (

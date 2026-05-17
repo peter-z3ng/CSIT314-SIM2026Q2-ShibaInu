@@ -52,14 +52,14 @@ export function UpdateUserProfilePage({
 
   // displaySuccess()
   const displaySuccess = () => (
-    <p className="mt-3 rounded-2xl bg-[#f0f8ef] px-4 py-3 text-sm font-semibold text-[#0b5b2d]">
+    <p className="mt-3 rounded-2xl bg-[#f0f8ef] px-4 py-3 text-xs font-semibold text-[#0b5b2d]">
       {message}
     </p>
   );
 
   // displayError()
   const displayError = () => (
-    <p className="mt-3 rounded-2xl bg-[#fff2df] px-4 py-3 text-sm font-semibold text-[#c83232]">
+    <p className="mt-3 rounded-2xl bg-[#fff2df] px-4 py-3 text-xs font-semibold text-[#c83232]">
       {message}
     </p>
   );

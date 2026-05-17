@@ -71,6 +71,15 @@ export class UserProfile {
     return this.profileId === profile_id;
   }
 
+  searchUserProfile(keyword: string, profileStatus: string[]) {
+    const normalizedKeyword = keyword.trim().toLowerCase();
+    const matchesKeyword =
+      normalizedKeyword.length === 0 || this.profile.toLowerCase().includes(normalizedKeyword);
+    const matchesStatus = profileStatus.length === 0 || profileStatus.includes(this.status);
+
+    return matchesKeyword && matchesStatus;
+  }
+
   toDTO(): UserProfileDTO {
     return {
       profileId: this.profileId,
