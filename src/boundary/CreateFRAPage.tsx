@@ -203,10 +203,11 @@ export function CreateFRAPage({
 
                 <input
                   type="datetime-local"
+                  lang="en-GB"
                   value={startDate}
                   min={new Date().toISOString().slice(0, 16)}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="mt-2 w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
+                  onChange={(event) => setStartDate(event.target.value)}
+                  className="create-fra-datetime mt-2 w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
                   required
                 />
               </div>
@@ -218,12 +219,13 @@ export function CreateFRAPage({
 
                 <input
                   type="datetime-local"
+                  lang="en-GB"
                   value={endDate}
                   min={
                     startDate || new Date().toISOString().slice(0, 16)
                   }
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="mt-2 w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
+                  onChange={(event) => setEndDate(event.target.value)}
+                  className="create-fra-datetime mt-2 w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
                   required
                 />
               </div>

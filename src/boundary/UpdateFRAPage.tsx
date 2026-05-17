@@ -33,15 +33,7 @@ export function UpdateFRAPage({
     : new Date();
 
   const [endDate, setEndDate] = useState(
-    initialDate.toISOString().split("T")[0],
-  );
-
-  const [hour, setHour] = useState(
-    String(initialDate.getHours()).padStart(2, "0"),
-  );
-
-  const [minute, setMinute] = useState(
-    String(initialDate.getMinutes()).padStart(2, "0"),
+    formatDateTimeLocal(initialDate),
   );
 
   const [status, setStatus] = useState(fra.status);
@@ -56,17 +48,13 @@ export function UpdateFRAPage({
     event.preventDefault();
 
     try {
-      const fullEndDate = new Date(
-        `${endDate}T${hour}:${minute}:00`,
-      ).toISOString();
-
       await updateFRAAction({
         fraId: fra.fraId,
         userId: account.userId,
         title,
         description,
         categoryId,
-        endDate: fullEndDate,
+        endDate,
         status,
       });
 
@@ -199,82 +187,15 @@ export function UpdateFRAPage({
               </label>
 
               <input
-                type="date"
+                type="datetime-local"
+                lang="en-GB"
                 value={endDate}
                 onChange={(event) =>
                   setEndDate(event.target.value)
                 }
-                className="mt-2 w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
+                className="create-fra-datetime mt-2 w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
                 required
               />
-
-              <div className="mt-4 flex gap-4">
-                <div>
-                  <label className="text-sm font-semibold">
-                    Hr
-                  </label>
-
-                  <select
-                    value={hour}
-                    onChange={(event) =>
-                      setHour(event.target.value)
-                    }
-                    className="mt-2 rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
-                  >
-                    {Array.from(
-                      { length: 24 },
-                      (_, index) => {
-                        const value = String(index).padStart(
-                          2,
-                          "0",
-                        );
-
-                        return (
-                          <option
-                            key={value}
-                            value={value}
-                          >
-                            {value} hr
-                          </option>
-                        );
-                      },
-                    )}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-semibold">
-                    Min
-                  </label>
-
-                  <select
-                    value={minute}
-                    onChange={(event) =>
-                      setMinute(event.target.value)
-                    }
-                    className="mt-2 rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
-                  >
-                    {Array.from(
-                      { length: 60 },
-                      (_, index) => {
-                        const value = String(index).padStart(
-                          2,
-                          "0",
-                        );
-
-                        return (
-                          <option
-                            key={value}
-                            value={value}
-                          >
-                            {value} min
-                          </option>
-                        );
-                      },
-                    )}
-                  </select>
-                </div>
-              </div>
             </div>
 
             {message ? (
@@ -302,11 +223,11 @@ export function UpdateFRAPage({
 
             <p className="mt-4 text-[#6f6258]">
               Are you sure you want to change the FRA
-              status to "
+              status to &quot;
               <span className="font-bold">
                 {pendingStatus}
               </span>
-              "?
+              &quot;?
             </p>
 
             <div className="mt-8 flex justify-end gap-3">
@@ -337,4 +258,14 @@ export function UpdateFRAPage({
       ) : null}
     </div>
   );
+}
+
+function formatDateTimeLocal(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hour = String(date.getHours()).padStart(2, "0");
+  const minute = String(date.getMinutes()).padStart(2, "0");
+
+  return `${year}-${month}-${day}T${hour}:${minute}`;
 }
