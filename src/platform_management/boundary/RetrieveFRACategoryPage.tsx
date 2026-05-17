@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { DeleteCategoryPage } from "@/boundary/DeleteCategoryPage";
-import { SearchFRACategoryPage } from "@/boundary/SearchFRACategoryPage";
+import { SearchFRACategoryPage } from "@/platform_management/boundary/SearchFRACategoryPage";
 import type { RetrievedFRACategoryDTO } from "@/platform_management/controller/RetrieveFRACategoryController";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 import { profileToPath } from "@/entity/UserProfile";
@@ -80,7 +80,7 @@ export function RetrieveFRACategoryPage({
 
           <Link
             href={`/${profilePath}/create-categories`}
-            className="rounded-2xl bg-[#FFB347] px-6 py-3 text-sm font-bold text-white shadow-sm"
+            className="rounded-full bg-[#FFB347] px-6 py-3 text-sm font-bold text-white shadow-sm"
           >
             Create Category
           </Link>

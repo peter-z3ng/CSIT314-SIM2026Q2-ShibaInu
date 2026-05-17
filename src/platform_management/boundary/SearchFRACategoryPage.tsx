@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { SearchFRACategoryController } from "@/controller/SearchFRACategoryController";
+import { SearchFRACategoryController } from "@/platform_management/controller/SearchFRACategoryController";
 import type { RetrievedFRACategoryDTO } from "@/platform_management/controller/RetrieveFRACategoryController";
 
 // SearchFRACategoryPage
@@ -26,7 +26,7 @@ export function SearchFRACategoryPage({
     return categories.filter((category) => matchedCategoryIds.has(category.categoryId));
   }, [categories, keyword]);
 
-  // displaySearchResults(array[FRACategory])
+  // displaySearchResults(...)
   const displaySearchResults = (searchResults: RetrievedFRACategoryDTO[]) => (
     <div className="overflow-x-auto rounded-2xl border border-[#FFB347] bg-white/40 p-5 shadow-lg">
       <table className="w-full min-w-[900px] border-collapse text-left text-sm">
@@ -56,7 +56,7 @@ export function SearchFRACategoryPage({
                 <div className="flex gap-2">
                   <Link
                     href={`/${profilePath}/categories/${category.categoryId}/edit`}
-                    className="inline-flex h-9 items-center rounded-3xl bg-[#FFB347] px-4 text-sm font-semibold text-white transition hover:bg-[#FFBE5C]"
+                    className="inline-flex h-11 items-center rounded-3xl bg-[#FFB347] px-6 text-md font-semibold text-white transition hover:bg-[#FFBE5C]"
                   >
                     Edit
                   </Link>
@@ -64,7 +64,7 @@ export function SearchFRACategoryPage({
                   <button
                     type="button"
                     onClick={() => onDeleteCategory(category)}
-                    className="inline-flex h-9 items-center rounded-3xl bg-red-100 px-4 text-sm font-semibold text-red-600 transition hover:bg-red-200"
+                    className="inline-flex h-11 items-center rounded-3xl bg-red-100 px-4 text-sm font-semibold text-red-600 transition hover:bg-red-200"
                   >
                     Delete
                   </button>
