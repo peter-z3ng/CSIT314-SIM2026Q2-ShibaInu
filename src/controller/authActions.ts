@@ -4,8 +4,12 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import { ActivateUserAccountController } from "@/admin/controller/ActivateUserAccountController";
+import { ActivateUserProfileController } from "@/admin/controller/ActivateUserProfileController";
 import { CreateUserAccountController } from "@/admin/controller/CreateUserAccountController";
+import { DeleteUserProfileController } from "@/admin/controller/DeleteUserProfileController";
 import { SuspendUserAccountController } from "@/admin/controller/SuspendUserAccountController";
+import { SuspendUserProfileController } from "@/admin/controller/SuspendUserProfileController";
+import { UpdateUserProfileController } from "@/admin/controller/UpdateUserProfileController";
 import { AdminController } from "@/controller/AdminController";
 import { AuthController, type EmailLookupResult } from "@/controller/AuthController";
 import { CreateUserAccount } from "@/controller/CreateUserAccount";
@@ -243,6 +247,122 @@ export async function updateUserAccountDetails(input: {
     return {
       ok: false,
       message: error instanceof Error ? error.message : "User account could not be updated.",
+    };
+  }
+}
+
+export async function updateUserProfile(input: {
+  profileId: string;
+  profile: string;
+}): Promise<ActionResult> {
+  await new AuthController().requireAdmin();
+
+  try {
+    await new UpdateUserProfileController().updateUserProfile(input.profileId, input.profile);
+    revalidatePath("/admin/profile");
+    revalidatePath("/admin/account");
+    revalidatePath("/login");
+
+    return {
+      ok: true,
+      message: "Profile updated.",
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      message: error instanceof Error ? error.message : "Profile could not be updated.",
+    };
+  }
+}
+
+async function verifyAdminPassword(password: string) {
+  const adminAccount = await new AuthController().requireAdmin();
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error("Supabase public environment variables are not configured.");
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email: adminAccount.email,
+    password,
+  });
+
+  if (error) {
+    throw new Error("Admin password is incorrect.");
+  }
+}
+
+export async function suspendUserProfileWithPassword(input: {
+  profileId: string;
+  password: string;
+}): Promise<ActionResult> {
+  try {
+    await verifyAdminPassword(input.password);
+    await new SuspendUserProfileController().suspendUserProfile(input.profileId);
+    revalidatePath("/admin/profile");
+    revalidatePath("/login");
+
+    return {
+      ok: true,
+      message: "Profile suspended.",
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      message: error instanceof Error ? error.message : "Profile could not be suspended.",
+    };
+  }
+}
+
+export async function activateUserProfileWithPassword(input: {
+  profileId: string;
+  password: string;
+}): Promise<ActionResult> {
+  try {
+    await verifyAdminPassword(input.password);
+    await new ActivateUserProfileController().activateUserProfile(input.profileId);
+    revalidatePath("/admin/profile");
+    revalidatePath("/login");
+
+    return {
+      ok: true,
+      message: "Profile activated.",
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      message: error instanceof Error ? error.message : "Profile could not be activated.",
+    };
+  }
+}
+
+export async function deleteUserProfileWithPassword(input: {
+  profileId: string;
+  password: string;
+}): Promise<ActionResult> {
+  try {
+    await verifyAdminPassword(input.password);
+    await new DeleteUserProfileController().deleteUserProfile(input.profileId);
+    revalidatePath("/admin/profile");
+    revalidatePath("/login");
+
+    return {
+      ok: true,
+      message: "Profile deleted.",
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      message: error instanceof Error ? error.message : "Profile could not be deleted.",
     };
   }
 }

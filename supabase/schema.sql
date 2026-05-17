@@ -1,6 +1,9 @@
 create table public.user_profile (
   profile_id uuid primary key default gen_random_uuid(),
-  profile varchar(255) not null unique
+  profile varchar(255) not null unique,
+  status varchar(50) not null default 'active',
+  constraint user_profile_status
+    check (status in ('active', 'suspended'))
 );
 
 create table public.user_account (

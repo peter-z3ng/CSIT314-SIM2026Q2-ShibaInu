@@ -1,8 +1,11 @@
+export type UserProfileStatus = "active" | "suspended";
+
 export class UserProfile {
   readonly profileId: string;
   readonly profile: string;
+  readonly status: UserProfileStatus;
 
-  constructor(profileId: string, profile: string) {
+  constructor(profileId: string, profile: string, status: UserProfileStatus = "active") {
     if (!profileId.trim()) {
       throw new Error("Profile id is required.");
     }
@@ -13,6 +16,7 @@ export class UserProfile {
 
     this.profileId = profileId;
     this.profile = profile.trim();
+    this.status = status;
   }
 
   static createNew(profile: string) {
@@ -31,6 +35,10 @@ export class UserProfile {
     return this.profile.toLowerCase() === "admin";
   }
 
+  get isActive() {
+    return this.status === "active";
+  }
+
   get path() {
     return this.profile
       .trim()
@@ -47,10 +55,27 @@ export class UserProfile {
     return this;
   }
 
+  updateUserProfile(profile_id: string, profile: string) {
+    return this.profileId === profile_id && Boolean(profile.trim());
+  }
+
+  suspendUserProfile(profile_id: string) {
+    return this.profileId === profile_id && this.status !== "suspended";
+  }
+
+  activateUserProfile(profile_id: string) {
+    return this.profileId === profile_id && this.status === "suspended";
+  }
+
+  deleteUserProfile(profile_id: string) {
+    return this.profileId === profile_id;
+  }
+
   toDTO(): UserProfileDTO {
     return {
       profileId: this.profileId,
       profile: this.profile,
+      status: this.status,
     };
   }
 }
@@ -60,6 +85,7 @@ export type Profile = UserProfile;
 export type UserProfileDTO = {
   profileId: string;
   profile: string;
+  status: UserProfileStatus;
 };
 
 export function getProfileLabel(profile: UserProfile) {

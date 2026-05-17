@@ -1,3 +1,4 @@
+import { UpdateUserProfilePage } from "@/admin/boundary/UpdateUserProfilePage";
 import { Header } from "@/components/Header";
 import { createProfile } from "@/controller/authActions";
 import type { UserAccountDTO } from "@/entity/UserAccount";
@@ -7,38 +8,32 @@ import type { UserProfileDTO } from "@/entity/UserProfile";
 export function ViewUserProfilePage({
   account,
   profiles,
+  profileAccountCounts,
 }: {
   account: UserAccountDTO;
   profiles: UserProfileDTO[];
+  profileAccountCounts: Record<string, number>;
 }) {
   // displayUserProfileInfo()
   const displayUserProfileInfo = () => (
     <section className="mt-8">
       <h2 className="text-2xl font-bold">Profiles</h2>
 
-      <div className="mt-5 overflow-x-auto rounded-2xl border border-[#FFB347] bg-white/40 p-5 shadow-lg">
-        <table className="w-full min-w-[520px] border-collapse text-left text-sm">
-          <thead>
-            <tr className="border-b border-[#f0d8bd] text-md text-[#6f6258]">
-              <th className="py-3 pr-4 font-semibold">Profile</th>
-            </tr>
-          </thead>
-          <tbody>
-            {profiles.map((profile) => (
-              <tr key={profile.profileId} className="border-b border-[#f6e7d6]">
-                <td className="py-4 pr-4 font-semibold">{profile.profile}</td>
-              </tr>
-            ))}
-            {!profiles.length ? (
-              <tr>
-                <td className="py-8 text-center text-sm text-[#6f6258]">
-                  No profiles have been created.
-                </td>
-              </tr>
-            ) : null}
-          </tbody>
-        </table>
-      </div>
+      {profiles.length ? (
+        <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+          {profiles.map((profile) => (
+            <UpdateUserProfilePage
+              key={profile.profileId}
+              profile={profile}
+              accountCount={profileAccountCounts[profile.profileId] ?? 0}
+            />
+          ))}
+        </div>
+      ) : (
+        <p className="mt-5 rounded-2xl border border-[#FFB347] bg-white/40 p-8 text-center text-sm font-semibold text-[#6f6258] shadow-lg">
+          No profiles have been created.
+        </p>
+      )}
     </section>
   );
 

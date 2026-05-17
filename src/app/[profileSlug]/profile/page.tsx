@@ -14,12 +14,16 @@ export default async function AdminProfilePage({
   const adminAccount = await new AuthController().requireAdmin();
   const profileController = new ViewUserProfileController();
   await profileController.viewUserProfile((adminAccount ?? account).userId);
-  const profiles = await profileController.listUserProfiles();
+  const [profiles, profileAccountCounts] = await Promise.all([
+    profileController.listUserProfiles(),
+    profileController.countUserAccountsByProfile(),
+  ]);
 
   return (
     <ViewUserProfilePage
       account={(adminAccount ?? account).toDTO()}
       profiles={profiles.map((profile) => profile.toDTO())}
+      profileAccountCounts={profileAccountCounts}
     />
   );
 }
