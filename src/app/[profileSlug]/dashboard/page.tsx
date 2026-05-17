@@ -1,7 +1,6 @@
 import { DashboardBoundary } from "@/boundary/DashboardBoundary";
 import { DoneeDashboardBoundary } from "@/boundary/DoneeDashboardBoundary";
 import { FundraiserHomePage } from "@/boundary/FundraiserHomePage";
-import { PlatformManagementHomePage } from "@/boundary/PlatformManagementHomePage";
 import { AuthController } from "@/controller/AuthController";
 import { DoneeController } from "@/controller/DoneeController";
 import { FundraiserController } from "@/controller/FundraiserController";
@@ -27,6 +26,10 @@ export default async function DashboardRoutePage({
     redirect(`/${profileToPath(account.profile)}/account`);
   }
 
+  if (profileName === "platform management") {
+    redirect(`/${profileToPath(account.profile)}/categories`);
+  }
+
   if (profileName === "donee") {
     const doneeController = new DoneeController();
     const categoryController = new FRACategoryController();
@@ -48,22 +51,7 @@ export default async function DashboardRoutePage({
 
   const isFundraiser = profileName === "fundraiser" || profileName === "fund raiser";
 
-  if (profileName === "platform management") {
-    const platformManagementController = new PlatformManagementController();
-
-    const [categories, totalUsers] = await Promise.all([
-      platformManagementController.listCategories(),
-      platformManagementController.getTotalUsers(),
-    ]);
-
-    return (
-      <PlatformManagementHomePage
-        account={account.toDTO()}
-        categories={categories}
-        totalUsers={totalUsers}
-      />
-    );
-  }
+  
 
   if (isFundraiser) {
     const fundraiserController = new FundraiserController();
