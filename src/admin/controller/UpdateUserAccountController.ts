@@ -12,47 +12,26 @@ type UserAccountRow = {
   username: string;
   email: string;
   status: UserAccount["status"];
-  profile: ProfileRow;
+  profile: ProfileRow | null;
 };
 
-export class ViewUserAccountController {
-  async viewUserAccount(user_id: string): Promise<UserAccount> {
-    if (!user_id.trim()) {
-      throw new Error("User id is required.");
-    }
-
-    const supabase = createSupabaseAdminClient();
-    const { data, error } = await supabase
-      .from("user_account")
-      .select("user_id, username, email, status, profile:user_profile(profile_id, profile)")
-      .eq("user_id", user_id)
-      .limit(1)
-      .overrideTypes<UserAccountRow[], { merge: false }>();
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    const account = data[0];
-
-    if (!account) {
-      throw new Error("User account was not found.");
-    }
-
-    return mapUserAccount(account).viewUserAccount(user_id);
-  }
-
-  async updateUserAccountDetails(input: {
+// UpdateUserAccountController
+export class UpdateUserAccountController {
+  // updateUserAccount(...)
+  async updateUserAccount(input: {
     userId: string;
     username: string;
     email: string;
-    status: UserAccount["status"];
-  }): Promise<UserAccount> {
-    const currentAccount = await this.viewUserAccount(input.userId);
+  }): Promise<boolean> {
+    const currentAccount = await this.getCurrentAccount(input.userId);
+
+    if (!currentAccount.updateUserAccount(input.userId, input.username)) {
+      throw new Error("User account details do not match the requested user.");
+    }
+
     const updatedAccount = currentAccount.updateUserAccountDetails({
       username: input.username,
       email: input.email,
-      status: input.status,
     });
 
     const supabase = createSupabaseAdminClient();
@@ -76,7 +55,6 @@ export class ViewUserAccountController {
       .update({
         username: updatedAccount.username,
         email: updatedAccount.email,
-        status: updatedAccount.status,
         updated_at: new Date().toISOString(),
       })
       .eq("user_id", updatedAccount.userId)
@@ -88,13 +66,33 @@ export class ViewUserAccountController {
       throw new Error(error.message);
     }
 
+    return Boolean(data[0]);
+  }
+
+  private async getCurrentAccount(userId: string): Promise<UserAccount> {
+    if (!userId.trim()) {
+      throw new Error("User id is required.");
+    }
+
+    const supabase = createSupabaseAdminClient();
+    const { data, error } = await supabase
+      .from("user_account")
+      .select("user_id, username, email, status, profile:user_profile(profile_id, profile)")
+      .eq("user_id", userId)
+      .limit(1)
+      .overrideTypes<UserAccountRow[], { merge: false }>();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
     const account = data[0];
 
     if (!account) {
-      throw new Error("User account was not updated.");
+      throw new Error("User account was not found.");
     }
 
-    return mapUserAccount(account).viewUserAccount(input.userId);
+    return mapUserAccount(account);
   }
 }
 
@@ -108,6 +106,10 @@ function mapUserAccount(account: UserAccountRow) {
   });
 }
 
-function mapProfile(profile: ProfileRow): Profile {
+function mapProfile(profile: ProfileRow | null): Profile {
+  if (!profile) {
+    return new UserProfile("missing-profile", "Missing Profile");
+  }
+
   return new UserProfile(profile.profile_id, profile.profile);
 }

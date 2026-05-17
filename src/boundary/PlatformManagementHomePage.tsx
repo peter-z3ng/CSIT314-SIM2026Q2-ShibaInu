@@ -91,11 +91,7 @@ export function PlatformManagementHomePage({
                       strokeLinejoin="round"
                       d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.169.659 1.591l8.182 8.182a2.25 2.25 0 0 0 3.182 0l4.318-4.318a2.25 2.25 0 0 0 0-3.182L11.159 3.659A2.25 2.25 0 0 0 9.568 3Z"
                     />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 6h.008v.008H6V6Z"
-                    />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6Z" />
                   </svg>
                 }
               >
@@ -129,16 +125,12 @@ export function PlatformManagementHomePage({
 
         <section className="mt-8 grid gap-5 md:grid-cols-2">
           <div className="rounded-3xl border border-[#f0d8bd] bg-[#fffaf5] p-6 shadow-sm">
-            <p className="text-sm font-semibold text-[#6f6258]">
-              Total Users
-            </p>
+            <p className="text-sm font-semibold text-[#6f6258]">Total Users</p>
             <h2 className="mt-3 text-4xl font-bold">{totalUsers}</h2>
           </div>
 
           <div className="rounded-3xl border border-[#f0d8bd] bg-[#fffaf5] p-6 shadow-sm">
-            <p className="text-sm font-semibold text-[#6f6258]">
-              Total FRA Categories
-            </p>
+            <p className="text-sm font-semibold text-[#6f6258]">Total FRA Categories</p>
             <h2 className="mt-3 text-4xl font-bold">{categories.length}</h2>
           </div>
         </section>

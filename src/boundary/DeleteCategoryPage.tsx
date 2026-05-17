@@ -6,9 +6,7 @@ type DeleteCategoryPageProps = {
   isUsed?: boolean;
   isOpen: boolean;
   onClose: () => void;
-  deleteCategoryAction: (
-    formData: FormData,
-  ) => Promise<{ success: boolean }>;
+  deleteCategoryAction: (formData: FormData) => Promise<{ success: boolean }>;
 };
 
 export function DeleteCategoryPage({
@@ -25,15 +23,10 @@ export function DeleteCategoryPage({
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
         <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
-          <h2 className="text-xl font-bold text-[#0b1f2a]">
-            Failed to Delete
-          </h2>
+          <h2 className="text-xl font-bold text-[#0b1f2a]">Failed to Delete</h2>
 
           <p className="mt-4 text-sm text-[#5f5148]">
-            <span className="font-bold">
-              "{categoryName}"
-            </span>{" "}
-            is being used by FRAs.
+            <span className="font-bold">"{categoryName}"</span> is being used by FRAs.
           </p>
 
           <div className="mt-8 flex justify-end">
@@ -53,16 +46,10 @@ export function DeleteCategoryPage({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
       <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
-        <h2 className="text-xl font-bold text-[#0b1f2a]">
-          Delete Category
-        </h2>
+        <h2 className="text-xl font-bold text-[#0b1f2a]">Delete Category</h2>
 
         <p className="mt-4 text-sm text-[#5f5148]">
-          Are you sure you want to delete{" "}
-          <span className="font-bold">
-            "{categoryName}"
-          </span>
-          ?
+          Are you sure you want to delete <span className="font-bold">"{categoryName}"</span>?
         </p>
 
         <div className="mt-8 flex justify-end gap-3">
@@ -76,19 +63,14 @@ export function DeleteCategoryPage({
 
           <form
             action={async (formData) => {
-              const result =
-                await deleteCategoryAction(formData);
+              const result = await deleteCategoryAction(formData);
 
               if (result.success) {
                 window.location.href = `${window.location.pathname}?success=deleted`;
               }
             }}
           >
-            <input
-              type="hidden"
-              name="categoryId"
-              value={categoryId}
-            />
+            <input type="hidden" name="categoryId" value={categoryId} />
 
             <button
               type="submit"

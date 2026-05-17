@@ -42,36 +42,36 @@ type DonationUserRow = {
 };
 
 export class ViewFRADetailsController {
-    async viewFRADetails(fra_id: string): Promise<FRA> {
-        if (!fra_id.trim()) {
-          throw new Error("FRA id is required.");
-        }
+  async viewFRADetails(fra_id: string): Promise<FRA> {
+    if (!fra_id.trim()) {
+      throw new Error("FRA id is required.");
+    }
 
-      const autoCloseController = new AutoCloseFRAController();
-      await autoCloseController.autoCloseExpiredFRAs();
+    const autoCloseController = new AutoCloseFRAController();
+    await autoCloseController.autoCloseExpiredFRAs();
 
-      const supabase = createSupabaseAdminClient();
+    const supabase = createSupabaseAdminClient();
 
-      const { data, error } = await supabase
-        .from("fra")
-        .select(
-          "fra_id, user_id, category_id, title, description, target_amount, current_amount, start_date, status, view_count, fav_count, end_date, created_at, updated_at",
-        )
-        .eq("fra_id", fra_id)
-        .limit(1)
-        .overrideTypes<FRARow[], { merge: false }>();
+    const { data, error } = await supabase
+      .from("fra")
+      .select(
+        "fra_id, user_id, category_id, title, description, target_amount, current_amount, start_date, status, view_count, fav_count, end_date, created_at, updated_at",
+      )
+      .eq("fra_id", fra_id)
+      .limit(1)
+      .overrideTypes<FRARow[], { merge: false }>();
 
-      if (error) {
-        throw new Error(error.message);
-      }
+    if (error) {
+      throw new Error(error.message);
+    }
 
-      const fra = data[0];
+    const fra = data[0];
 
-      if (!fra) {
-        throw new Error("FRA was not found.");
-      }
+    if (!fra) {
+      throw new Error("FRA was not found.");
+    }
 
-      return mapFRARow(fra).viewFRADetails(fra_id);
+    return mapFRARow(fra).viewFRADetails(fra_id);
   }
 
   async incrementFRAViewCount(fra_id: string): Promise<number> {
@@ -136,10 +136,10 @@ export class ViewFRADetailsController {
       .select("user_id, amount, message, payment_method, paydate")
       .eq("fra_id", fra_id)
       .order("paydate", { ascending: false })
-      .limit(5)
+      .limit(5);
     console.log("FRA ID:", fra_id);
     console.log("DONATIONS:", donations);
-    console.log("ERROR:", error);  
+    console.log("ERROR:", error);
 
     if (error) {
       throw new Error(error.message);

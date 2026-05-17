@@ -29,8 +29,8 @@ export function DoneeFRASectionBoundary({
 
   function getCategoryName(categoryId: string) {
     return (
-      categoryList.find((category) => category.categoryId === categoryId)
-        ?.categoryName ?? "Unknown Category"
+      categoryList.find((category) => category.categoryId === categoryId)?.categoryName ??
+      "Unknown Category"
     );
   }
 

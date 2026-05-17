@@ -29,9 +29,7 @@ export function CreateCategoryPage({
       router.push(`/${profilePath}/categories?success=created`);
       router.refresh();
     } catch (error) {
-      setMessage(
-        error instanceof Error ? error.message : "Failed to create category.",
-      );
+      setMessage(error instanceof Error ? error.message : "Failed to create category.");
     } finally {
       setIsSubmitting(false);
     }
@@ -58,9 +56,7 @@ export function CreateCategoryPage({
 
         <h1 className="mt-2 text-3xl font-bold">Create Category</h1>
 
-        <p className="mt-1 text-sm text-[#6f6258]">
-          Add a new FRA category.
-        </p>
+        <p className="mt-1 text-sm text-[#6f6258]">Add a new FRA category.</p>
 
         <div className="mt-6 flex justify-center">
           <form
@@ -69,9 +65,7 @@ export function CreateCategoryPage({
           >
             <div className="grid gap-4">
               <div>
-                <label className="text-xs font-bold text-[#5f5148]">
-                  Category Name
-                </label>
+                <label className="text-xs font-bold text-[#5f5148]">Category Name</label>
 
                 <input
                   name="categoryName"
@@ -81,9 +75,7 @@ export function CreateCategoryPage({
               </div>
 
               <div>
-                <label className="text-xs font-bold text-[#5f5148]">
-                  Description
-                </label>
+                <label className="text-xs font-bold text-[#5f5148]">Description</label>
 
                 <textarea
                   name="description"

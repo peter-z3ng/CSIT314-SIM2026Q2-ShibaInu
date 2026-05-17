@@ -17,10 +17,7 @@ export class DeleteCategoryController {
       throw new Error("This category is being used by FRAs.");
     }
 
-    const { error } = await supabase
-      .from("fra_category")
-      .delete()
-      .eq("category_id", categoryId);
+    const { error } = await supabase.from("fra_category").delete().eq("category_id", categoryId);
 
     if (error) {
       throw new Error(error.message);

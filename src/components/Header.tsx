@@ -14,14 +14,11 @@ export function Header({ account }: { account: UserAccountDTO }) {
   const profilePath = profileToPath(account.profile);
   const profileName = account.profile.profile.toLowerCase();
 
-  const isFundraiser =
-    profileName === "fundraiser" || profileName === "fund raiser";
+  const isFundraiser = profileName === "fundraiser" || profileName === "fund raiser";
   const isAdmin = profileName === "admin";
   const isDonee = profileName === "donee";
   const navLinks = [
-    ...(!isAdmin
-      ? [{ label: "Home", href: `/${profilePath}/dashboard`, showHomeIcon: true }]
-      : []),
+    ...(!isAdmin ? [{ label: "Home", href: `/${profilePath}/dashboard`, showHomeIcon: true }] : []),
     ...(isAdmin
       ? [
           { label: "Manage Accounts", href: `/${profilePath}/account` },
@@ -71,7 +68,7 @@ export function Header({ account }: { account: UserAccountDTO }) {
                         href={navLink.href}
                         className={`whitespace-nowrap rounded-xl px-3 py-1.5 text-md font-semibold transition ${
                           isActive
-                            ? "bg-[#fff2df] text-[#9b5d12]"
+                            ? "bg-[#FFB347] text-white"
                             : "text-[#1d2520] hover:bg-[#fff2df] hover:text-[#FFB347]"
                         }`}
                       >
@@ -128,15 +125,12 @@ export function Header({ account }: { account: UserAccountDTO }) {
             className="absolute inset-0 bg-black/30"
           />
 
-          <ProfileSidePanel
-            account={account}
-            onClose={() => setIsMenuOpen(false)}
-          />
-                  </div>
-                ) : null}
-              </header>
-            );
-          }
+          <ProfileSidePanel account={account} onClose={() => setIsMenuOpen(false)} />
+        </div>
+      ) : null}
+    </header>
+  );
+}
 
 function HomeIcon() {
   return (

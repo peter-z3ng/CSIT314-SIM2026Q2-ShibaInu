@@ -30,9 +30,6 @@ export default async function CreateCategoryRoutePage({
   }
 
   return (
-    <CreateCategoryPage
-      account={account.toDTO()}
-      createCategoryAction={createCategoryAction}
-    />
+    <CreateCategoryPage account={account.toDTO()} createCategoryAction={createCategoryAction} />
   );
 }

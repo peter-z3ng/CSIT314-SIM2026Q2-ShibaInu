@@ -17,10 +17,5 @@ export default async function CreateFRARoutePage({
   const account = await authController.requireProfilePath(profileSlug);
   const categoryList = await categoryController.listCategories();
 
-  return (
-    <CreateFRAPage
-      account={account.toDTO()}
-      categoryList={categoryList}
-    />
-  );
+  return <CreateFRAPage account={account.toDTO()} categoryList={categoryList} />;
 }

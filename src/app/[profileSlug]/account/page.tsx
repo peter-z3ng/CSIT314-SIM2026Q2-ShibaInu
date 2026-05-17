@@ -1,4 +1,4 @@
-import { ViewUserAccountPage } from "@/admin/ViewUserAccountPage";
+import { ViewUserAccountPage } from "@/admin/boundary/ViewUserAccountPage";
 import { AdminController } from "@/controller/AdminController";
 import { AuthController } from "@/controller/AuthController";
 

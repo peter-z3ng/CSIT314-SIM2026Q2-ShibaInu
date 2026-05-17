@@ -19,9 +19,7 @@ export function LandingBoundary() {
 
       <section className="flex min-h-screen max-w-[100vw] items-center justify-center text-center">
         <div>
-          <h1 className="text-6xl font-bold leading-tight">
-            Landing Page under maintenance
-          </h1>
+          <h1 className="text-6xl font-bold leading-tight">Landing Page under maintenance</h1>
         </div>
       </section>
     </main>

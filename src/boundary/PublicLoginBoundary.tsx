@@ -4,7 +4,11 @@ import Link from "next/link";
 import { FormEvent, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { RouteController } from "@/controller/RouteController";
-import { createPendingUserAccount, lookupEmail, type EmailLookupDTO } from "@/controller/authActions";
+import {
+  createPendingUserAccount,
+  lookupEmail,
+  type EmailLookupDTO,
+} from "@/controller/authActions";
 import type { UserProfileDTO } from "@/entity/UserProfile";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
@@ -27,18 +31,14 @@ export function PublicLoginBoundary({ profiles }: { profiles: UserProfileDTO[] }
         const result = await lookupEmail(String(form.get("email") ?? ""));
         setLookup(result);
         setStep(
-          result.status === "existing"
-            ? "password"
-            : result.status === "new"
-              ? "signup"
-              : "email",
+          result.status === "existing" ? "password" : result.status === "new" ? "signup" : "email",
         );
         setMessage(
           result.status === "pending"
             ? "Your account is waiting for admin approval."
             : result.status === "suspended"
               ? "Your account has been suspended."
-            : "",
+              : "",
         );
       } catch (error) {
         setMessage(error instanceof Error ? error.message : "Unable to continue.");
@@ -106,81 +106,77 @@ export function PublicLoginBoundary({ profiles }: { profiles: UserProfileDTO[] }
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#FFF4EC] px-5 py-10 text-[#1d2520]">
       <section className="w-full max-w-md rounded-4xl border border-[#FFFFFF] bg-[#FFF4EC] p-6 shadow-2xl shadow-orange-300">
-            {step === "email" ? (
-              <form onSubmit={handleEmailLookup} className="space-y-5">
-                <div>
-                  <h2 className="flex justify-center text-2xl font-semibold">Log in</h2>
-                </div>
-                <Field label="Email" name="email" type="email" placeholder="name@example.com" />
-                <SubmitButton label={isPending ? "Checking..." : "Continue"} />
-                <Link href="/" className="flex justify-center text-sm font-semibold text-[#FFB347]">
-                  Back to Home
-                </Link>
-              </form>
-            ) : null}
+        {step === "email" ? (
+          <form onSubmit={handleEmailLookup} className="space-y-5">
+            <div>
+              <h2 className="flex justify-center text-2xl font-semibold">Log in</h2>
+            </div>
+            <Field label="Email" name="email" type="email" placeholder="name@example.com" />
+            <SubmitButton label={isPending ? "Checking..." : "Continue"} />
+            <Link href="/" className="flex justify-center text-sm font-semibold text-[#FFB347]">
+              Back to Home
+            </Link>
+          </form>
+        ) : null}
 
-            {step === "password" ? (
-              <form onSubmit={handlePasswordSignIn} className="space-y-5">
-                <div>
-                  <h2 className="text-2xl font-semibold">Welcome back</h2>
-                  <p className="mt-2 text-sm text-[#586158]">{email}</p>
-                </div>
-                <Field label="Password" name="password" type="password" placeholder="Password" />
-                <SubmitButton label="Log In" />
-                <button
-                  type="button"
-                  onClick={resetFlow}
-                  className="flex w-full justify-center text-sm font-semibold text-[#FFB347]"
-                >
-                  Use another email
-                </button>
-              </form>
-            ) : null}
+        {step === "password" ? (
+          <form onSubmit={handlePasswordSignIn} className="space-y-5">
+            <div>
+              <h2 className="text-2xl font-semibold">Welcome back</h2>
+              <p className="mt-2 text-sm text-[#586158]">{email}</p>
+            </div>
+            <Field label="Password" name="password" type="password" placeholder="Password" />
+            <SubmitButton label="Log In" />
+            <button
+              type="button"
+              onClick={resetFlow}
+              className="flex w-full justify-center text-sm font-semibold text-[#FFB347]"
+            >
+              Use another email
+            </button>
+          </form>
+        ) : null}
 
-            {step === "signup" ? (
-              <form onSubmit={handleSignUp} className="space-y-5">
-                <div>
-                  <h2 className="text-2xl font-semibold">Create a pending account</h2>
-                  <p className="mt-2 text-sm text-[#586158]">{email}</p>
-                </div>
-                <Field label="Username" name="username" placeholder="Your name" />
-                <Field label="Password" name="password" type="password" placeholder="Password" />
-                <label className="block text-sm font-medium">
-                  Profile Type
-                  <select
-                    name="profileId"
-                    disabled={!profiles.length}
-                    className="mt-2 h-11 w-full rounded-md border border-[#cfc7b5] bg-white px-3 text-sm outline-none transition focus:border-[#1f5a46] focus:ring-2 focus:ring-[#1f5a46]/20"
-                  >
-                    {profiles.length ? (
-                      profiles.map((profile) => (
-                        <option key={profile.profileId} value={profile.profileId}>
-                          {profile.profile}
-                        </option>
-                      ))
-                    ) : (
-                      <option value="">
-                        No profiles available
-                      </option>
-                    )}
-                  </select>
-                </label>
-                <SubmitButton label={isPending ? "Creating..." : "Create Account"} />
-                <button
-                  type="button"
-                  onClick={resetFlow}
-                  className="text-sm font-semibold text-[#1f5a46]"
-                >
-                  Use another email
-                </button>
-              </form>
-            ) : null}
+        {step === "signup" ? (
+          <form onSubmit={handleSignUp} className="space-y-5">
+            <div>
+              <h2 className="text-2xl font-semibold">Create a pending account</h2>
+              <p className="mt-2 text-sm text-[#586158]">{email}</p>
+            </div>
+            <Field label="Username" name="username" placeholder="Your name" />
+            <Field label="Password" name="password" type="password" placeholder="Password" />
+            <label className="block text-sm font-medium">
+              Profile Type
+              <select
+                name="profileId"
+                disabled={!profiles.length}
+                className="mt-2 h-11 w-full rounded-md border border-[#cfc7b5] bg-white/60 px-3 text-sm outline-none transition focus:border-[#FFB347] focus:ring-2 focus:ring-[#FFB347]/30"
+              >
+                {profiles.length ? (
+                  profiles.map((profile) => (
+                    <option key={profile.profileId} value={profile.profileId}>
+                      {profile.profile}
+                    </option>
+                  ))
+                ) : (
+                  <option value="">No profiles available</option>
+                )}
+              </select>
+            </label>
+            <SubmitButton label={isPending ? "Creating..." : "Create Account"} />
+            <button
+              type="button"
+              onClick={resetFlow}
+              className="flex w-full justify-center text-sm font-semibold text-[#FFB347] transition hover:text-[#FFBE5C]"
+            >
+              Use another email
+            </button>
+          </form>
+        ) : null}
 
-            {message ? (
-              <p className="mt-5 rounded-md bg-[#f1e7d7] px-3 py-2 text-sm text-[#7d3f24]">
-                {message}
-              </p>
-            ) : null}
+        {message ? (
+          <p className="mt-5 rounded-md bg-[#f1e7d7] px-3 py-2 text-sm text-[#7d3f24]">{message}</p>
+        ) : null}
       </section>
     </main>
   );
@@ -203,7 +199,7 @@ function Field({
       <input
         name={name}
         type={type}
-        className="mt-2 h-11 w-full rounded-md border border-[#cfc7b5] px-3 text-sm outline-none transition focus:border-[#1f5a46] focus:ring-2 focus:ring-[#1f5a46]/20"
+        className="mt-2 h-11 w-full rounded-md border border-[#cfc7b5] px-3 text-sm outline-none transition focus:border-[#FFB347] focus:ring-2 focus:ring-[#FFB347]/30"
         placeholder={placeholder}
       />
     </label>

@@ -98,9 +98,7 @@ export class FundraiserController {
     }
 
     const fraIds = fraRows.map((fra) => fra.fra_id);
-    const fraTitleById = new Map(
-      fraRows.map((fra) => [fra.fra_id, fra.title]),
-    );
+    const fraTitleById = new Map(fraRows.map((fra) => [fra.fra_id, fra.title]));
 
     const { data: donations, error: donationError } = await supabase
       .from("donation")
@@ -118,9 +116,7 @@ export class FundraiserController {
       return [];
     }
 
-    const donorIds = Array.from(
-      new Set(donations.map((donation) => donation.user_id)),
-    );
+    const donorIds = Array.from(new Set(donations.map((donation) => donation.user_id)));
 
     const { data: users, error: userError } = await supabase
       .from("user_account")
@@ -132,9 +128,7 @@ export class FundraiserController {
       throw new Error(userError.message);
     }
 
-    const usernameById = new Map(
-      users.map((user) => [user.user_id, user.username]),
-    );
+    const usernameById = new Map(users.map((user) => [user.user_id, user.username]));
 
     return donations.map((donation) => ({
       fraId: donation.fra_id,

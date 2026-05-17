@@ -1,13 +1,7 @@
 import { Header } from "@/components/Header";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 
-export function DoneePageBoundary({
-  account,
-  title,
-}: {
-  account: UserAccountDTO;
-  title: string;
-}) {
+export function DoneePageBoundary({ account, title }: { account: UserAccountDTO; title: string }) {
   return (
     <main className="min-h-screen bg-[#FFF4EC] text-[#111111]">
       <Header account={account} />

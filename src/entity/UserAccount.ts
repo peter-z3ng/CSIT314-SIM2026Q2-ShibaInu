@@ -62,16 +62,9 @@ export class UserAccount {
     }
   }
 
-  static createUserAccount(input: {
-    username: string;
-    email: string;
-    password: string;
-  }) {
+  static createUserAccount(input: { username: string; email: string; password: string }) {
     const username = input.username.trim();
-    const email = UserAccount.normalizeEmail(input.email);
-
-    UserAccount.validateUsername(username);
-    UserAccount.validatePassword(input.password);
+    const email = input.email.trim().toLowerCase();
 
     return {
       username,
@@ -102,11 +95,28 @@ export class UserAccount {
     return this;
   }
 
+  getUserAccountDetails(username: string) {
+    if (this.username !== username.trim()) {
+      throw new Error("User account details do not match the requested username.");
+    }
+
+    return this;
+  }
+
+  searchByUsername(username: string) {
+    const normalizedUsername = username.trim().toLowerCase();
+
+    return !normalizedUsername || this.username.toLowerCase().includes(normalizedUsername);
+  }
+
+  updateUserAccount(userId: string, username: string) {
+    return this.userId === userId && Boolean(username.trim());
+  }
+
   updateUserAccountDetails(input: {
     username: string;
     fullName?: string | null;
     email: string;
-    status: AccountStatus;
 
     gender?: string | null;
     dateOfBirth?: string | null;
@@ -117,13 +127,21 @@ export class UserAccount {
       username: input.username,
       fullName: input.fullName,
       email: input.email,
-      status: input.status,
+      status: this.status,
       profile: this.profile,
 
       gender: input.gender,
       dateOfBirth: input.dateOfBirth,
       bio: input.bio,
     });
+  }
+
+  suspendUserAccount(userId: string) {
+    return this.userId === userId && this.status !== "suspended";
+  }
+
+  activateUserAccount(userId: string) {
+    return this.userId === userId && this.status === "suspended";
   }
 
   toDTO(): UserAccountDTO {

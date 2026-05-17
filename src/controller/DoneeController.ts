@@ -53,21 +53,24 @@ export class DoneeController {
       throw new Error(error.message);
     }
 
-    return data.map((fra) => new FRA({
-      fraId: fra.fra_id,
-      userId: fra.user_id,
-      categoryId: fra.category_id,
-      title: fra.title,
-      description: fra.description,
-      targetAmount: Number(fra.target_amount),
-      currentAmount: Number(fra.current_amount),
-      startDate: fra.start_date,
-      status: fra.status,
-      viewCount: Number(fra.view_count),
-      favCount: Number(fra.fav_count),
-      endDate: fra.end_date,
-      createdAt: fra.created_at,
-      updatedAt: fra.updated_at,
-    }));
+    return data.map(
+      (fra) =>
+        new FRA({
+          fraId: fra.fra_id,
+          userId: fra.user_id,
+          categoryId: fra.category_id,
+          title: fra.title,
+          description: fra.description,
+          targetAmount: Number(fra.target_amount),
+          currentAmount: Number(fra.current_amount),
+          startDate: fra.start_date,
+          status: fra.status,
+          viewCount: Number(fra.view_count),
+          favCount: Number(fra.fav_count),
+          endDate: fra.end_date,
+          createdAt: fra.created_at,
+          updatedAt: fra.updated_at,
+        }),
+    );
   }
 }

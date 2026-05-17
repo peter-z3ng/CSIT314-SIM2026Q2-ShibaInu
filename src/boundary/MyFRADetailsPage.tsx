@@ -29,15 +29,15 @@ export function FRADetailsPage({
   const profilePath = profileToPath(account.profile);
   const isDonee = account.profile.profile.toLowerCase() === "donee";
   function formatDateTime(value: string) {
-  return new Date(value).toLocaleString("en-GB", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-}
+    return new Date(value).toLocaleString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+  }
 
   const displayFRADetails = (selectedFRA: FRADTO) => (
     <section className="mx-auto w-full px-6 py-10 lg:w-[60vw] lg:px-0">
@@ -58,11 +58,7 @@ export function FRADetailsPage({
               stroke="currentColor"
               className="size-5"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 19.5 8.25 12l7.5-7.5"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
             </svg>
             Previous
           </Link>
@@ -76,11 +72,7 @@ export function FRADetailsPage({
               stroke="currentColor"
               className="size-5"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 19.5 8.25 12l7.5-7.5"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
             </svg>
             Previous
           </span>
@@ -99,11 +91,7 @@ export function FRADetailsPage({
               stroke="currentColor"
               className="size-5"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="m8.25 4.5 7.5 7.5-7.5 7.5"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
             </svg>
           </Link>
         ) : (
@@ -117,11 +105,7 @@ export function FRADetailsPage({
               stroke="currentColor"
               className="size-5"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="m8.25 4.5 7.5 7.5-7.5 7.5"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
             </svg>
           </span>
         )}
@@ -139,9 +123,7 @@ export function FRADetailsPage({
                   {selectedFRA.status}
                 </span>
               </div>
-              <h1 className="mt-3 text-4xl font-black text-[#111111]">
-                {selectedFRA.title}
-              </h1>
+              <h1 className="mt-3 text-4xl font-black text-[#111111]">{selectedFRA.title}</h1>
             </div>
             <div className="flex w-fit flex-col items-end gap-3">
               <SaveFavouritePage
@@ -230,9 +212,7 @@ export function FRADetailsPage({
 function DetailItem({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border border-[#f0d8bd] bg-[#fffaf5] p-4">
-      <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#9b5d12]">
-        {label}
-      </p>
+      <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#9b5d12]">{label}</p>
       <p className="mt-2 text-sm font-semibold text-[#1d2520]">{value}</p>
     </div>
   );
