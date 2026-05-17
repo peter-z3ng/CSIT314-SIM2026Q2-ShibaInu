@@ -190,6 +190,7 @@ export async function createProfile(formData: FormData) {
   await new AuthController().requireAdmin();
   await new AdminController().createProfile(String(formData.get("name") ?? ""));
   revalidatePath("/admin/dashboard");
+  revalidatePath("/admin/profile");
   revalidatePath("/login");
 }
 

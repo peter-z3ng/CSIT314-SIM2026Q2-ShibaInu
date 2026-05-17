@@ -68,7 +68,7 @@ export function Header({ account }: { account: UserAccountDTO }) {
                         href={navLink.href}
                         className={`whitespace-nowrap rounded-xl px-3 py-1.5 text-md font-semibold transition ${
                           isActive
-                            ? "bg-[#fff2df] text-[#9b5d12]"
+                            ? "bg-[#FFB347] text-white"
                             : "text-[#1d2520] hover:bg-[#fff2df] hover:text-[#FFB347]"
                         }`}
                       >

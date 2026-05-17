@@ -39,6 +39,14 @@ export class UserProfile {
       .replace(/^-|-$/g, "");
   }
 
+  viewUserProfile(user_id: string) {
+    if (!user_id.trim()) {
+      throw new Error("User id is required.");
+    }
+
+    return this;
+  }
+
   toDTO(): UserProfileDTO {
     return {
       profileId: this.profileId,

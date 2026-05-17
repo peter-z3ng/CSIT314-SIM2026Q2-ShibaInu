@@ -1,5 +1,5 @@
-import { AdminProfileBoundary } from "@/boundary/AdminProfileBoundary";
-import { AdminController } from "@/controller/AdminController";
+import { ViewUserProfilePage } from "@/admin/boundary/ViewUserProfilePage";
+import { ViewUserProfileController } from "@/admin/controller/ViewUserProfileController";
 import { AuthController } from "@/controller/AuthController";
 
 export const dynamic = "force-dynamic";
@@ -12,10 +12,12 @@ export default async function AdminProfilePage({
   const { profileSlug } = await params;
   const account = await new AuthController().requireProfilePath(profileSlug);
   const adminAccount = await new AuthController().requireAdmin();
-  const profiles = await new AdminController().listProfiles();
+  const profileController = new ViewUserProfileController();
+  await profileController.viewUserProfile((adminAccount ?? account).userId);
+  const profiles = await profileController.listUserProfiles();
 
   return (
-    <AdminProfileBoundary
+    <ViewUserProfilePage
       account={(adminAccount ?? account).toDTO()}
       profiles={profiles.map((profile) => profile.toDTO())}
     />
