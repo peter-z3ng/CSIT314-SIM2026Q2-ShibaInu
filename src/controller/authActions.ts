@@ -72,6 +72,70 @@ export async function suspendUserAccount(formData: FormData) {
   revalidatePath("/admin/dashboard");
 }
 
+export async function activateUserAccount(input: { userId: string }): Promise<ActionResult> {
+  await new AuthController().requireAdmin();
+
+  try {
+    await new AdminController().activateUserAccount(input.userId);
+    revalidatePath("/admin/account");
+
+    return {
+      ok: true,
+      message: "User account activated.",
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      message: error instanceof Error ? error.message : "User account could not be activated.",
+    };
+  }
+}
+
+export async function activateUserAccountWithPassword(input: {
+  userId: string;
+  password: string;
+}): Promise<ActionResult> {
+  const adminAccount = await new AuthController().requireAdmin();
+
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error("Supabase public environment variables are not configured.");
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    });
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: adminAccount.email,
+      password: input.password,
+    });
+
+    if (error) {
+      throw new Error("Password is incorrect.");
+    }
+
+    await new AdminController().activateUserAccount(input.userId);
+    revalidatePath("/admin/account");
+
+    return {
+      ok: true,
+      message: "User account activated.",
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      message: error instanceof Error ? error.message : "User account could not be activated.",
+    };
+  }
+}
+
 export async function suspendUserAccountWithPassword(input: {
   userId: string;
   password: string;

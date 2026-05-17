@@ -32,6 +32,10 @@ export class AdminController {
     await this.updateUserAccountStatus(userId, "suspended");
   }
 
+  async activateUserAccount(userId: string) {
+    await this.updateUserAccountStatus(userId, "active");
+  }
+
   async listProfiles(): Promise<Profile[]> {
     const supabase = createSupabaseAdminClient();
     const { data, error } = await supabase

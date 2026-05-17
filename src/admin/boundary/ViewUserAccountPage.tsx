@@ -3,6 +3,7 @@
 import { CreateUserAccountPage } from "@/admin/boundary/CreateUserAccountPage";
 import { Header } from "@/components/Header";
 import {
+  activateUserAccountWithPassword,
   approveUserAccount,
   suspendUserAccountWithPassword,
   updateUserAccountDetails,
@@ -92,6 +93,12 @@ export function ViewUserAccountPage({
     }
 
     const displayedAccount = editableAccount ?? userAccount;
+    const isActivatingAccount = displayedAccount.status === "suspended";
+    const accountAction = isActivatingAccount ? "activate" : "suspend";
+    const accountActionLabel = isActivatingAccount ? "Activate" : "Suspend";
+    const accountActionPendingLabel = isActivatingAccount ? "Activating..." : "Suspending...";
+    const accountActionColor = isActivatingAccount ? "#16a34a" : "#c83232";
+    const accountActionHoverClass = isActivatingAccount ? "hover:bg-green-700" : "hover:bg-[#b42626]";
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center px-5">
@@ -102,7 +109,7 @@ export function ViewUserAccountPage({
           className="absolute inset-0 bg-black/30"
         />
 
-        <div className="relative w-full max-w-xl rounded-2xl border border-[#f0d8bd] bg-[#fffaf5] p-6 shadow-2xl">
+        <div className="relative w-full max-w-xl rounded-4xl border border-[#f0d8bd] bg-white/40 backdrop-blur-sm p-8 shadow-2xl">
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
             <div>
               <h2 className="text-2xl font-bold">User Account Details</h2>
@@ -116,7 +123,7 @@ export function ViewUserAccountPage({
             </span>
           </div>
 
-          <div className="mt-6 grid gap-4">
+          <div className="mt-6 rounded-2xl border border-[#f0d8bd] bg-white/60 p-4">
             <EditableField
               label="Username"
               value={displayedAccount.username}
@@ -130,7 +137,7 @@ export function ViewUserAccountPage({
               isEditing={isEditingAccount}
               onChange={(value) => updateEditableAccount({ email: value })}
             />
-            <label className="block rounded-lg border border-[#f0d8bd] bg-white p-4">
+            <label className="block px-2 py-4">
               <span className="text-xs font-bold uppercase tracking-[0.16em] text-[#9b5d12]">
                 Profile
               </span>
@@ -148,8 +155,8 @@ export function ViewUserAccountPage({
             </label>
           </div>
 
-          {displayedAccount.status !== "suspended" ? (
-            <div className="mt-5 rounded-lg border border-[#f6c7c7] bg-[#fff7f7] p-4">
+          {isEditingAccount ? (
+            <div className="mt-5">
               {suspendStep === "idle" ? (
                 <button
                   type="button"
@@ -157,29 +164,44 @@ export function ViewUserAccountPage({
                     setAccountMessage("");
                     setSuspendStep("confirm");
                   }}
-                  className="h-11 w-full rounded-md bg-[#c83232] px-4 text-sm font-semibold text-white transition hover:bg-[#b42626]"
+                  className={`h-11 w-full rounded-3xl px-4 text-sm font-semibold text-white transition ${accountActionHoverClass}`}
+                  style={{ backgroundColor: accountActionColor }}
                 >
-                  Suspend Account
+                  {accountActionLabel}
                 </button>
               ) : null}
 
               {suspendStep === "confirm" ? (
-                <div className="grid gap-4">
-                  <p className="text-sm font-semibold text-[#7a1f1f]">
-                    Are you sure you want to suspend {displayedAccount.username}?
+                <div
+                  className="grid gap-5 rounded-3xl border bg-white/40 p-6"
+                  style={{ borderColor: accountActionColor }}
+                >
+                  <p
+                    className="text-center text-sm font-semibold"
+                    style={{ color: accountActionColor }}
+                  >
+                    Are you sure to {accountAction}{" "}
+                    <span
+                      className="rounded-4xl border px-3 py-0.5 font-bold"
+                      style={{ borderColor: accountActionColor, color: accountActionColor }}
+                    >
+                      {displayedAccount.username}
+                    </span>{" "}
+                    ?
                   </p>
-                  <div className="flex justify-end gap-3">
+                  <div className="flex justify-center gap-3">
                     <button
                       type="button"
                       onClick={() => setSuspendStep("idle")}
-                      className="h-10 rounded-md border border-[#e8b4b4] px-4 text-sm font-semibold text-[#7a1f1f] transition hover:bg-[#ffecec]"
+                      className="h-10 rounded-3xl border border-[#e8b4b4] px-4 text-sm font-semibold text-[#7a1f1f] transition hover:bg-[#ffecec]"
                     >
                       Cancel
                     </button>
                     <button
                       type="button"
                       onClick={() => setSuspendStep("password")}
-                      className="h-10 rounded-md bg-[#c83232] px-4 text-sm font-semibold text-white transition hover:bg-[#b42626]"
+                      className={`h-10 rounded-3xl px-4 text-sm font-semibold text-white transition ${accountActionHoverClass}`}
+                      style={{ backgroundColor: accountActionColor }}
                     >
                       Confirm
                     </button>
@@ -189,26 +211,32 @@ export function ViewUserAccountPage({
 
               {suspendStep === "password" ? (
                 <form
-                  className="grid gap-4"
+                  className="grid gap-5 rounded-3xl border bg-white/40 p-6"
+                  style={{ borderColor: accountActionColor }}
                   onSubmit={(event) => {
                     event.preventDefault();
                     setAccountMessage("");
                     startSuspendingAccount(async () => {
-                      const result = await suspendUserAccountWithPassword({
-                        userId: displayedAccount.userId,
-                        password: suspendPassword,
-                      });
+                      const result = isActivatingAccount
+                        ? await activateUserAccountWithPassword({
+                            userId: displayedAccount.userId,
+                            password: suspendPassword,
+                          })
+                        : await suspendUserAccountWithPassword({
+                            userId: displayedAccount.userId,
+                            password: suspendPassword,
+                          });
 
                       setAccountMessage(result.message);
 
                       if (result.ok) {
-                        const suspendedAccount: UserAccountDTO = {
+                        const updatedAccount: UserAccountDTO = {
                           ...displayedAccount,
-                          status: "suspended",
+                          status: isActivatingAccount ? "active" : "suspended",
                         };
 
-                        setSelectedAccount(suspendedAccount);
-                        setEditableAccount(suspendedAccount);
+                        setSelectedAccount(updatedAccount);
+                        setEditableAccount(updatedAccount);
                         setIsEditingAccount(false);
                         setSuspendStep("idle");
                         setSuspendPassword("");
@@ -217,32 +245,37 @@ export function ViewUserAccountPage({
                     });
                   }}
                 >
-                  <label className="block text-sm font-medium text-[#7a1f1f]">
-                    Enter your admin password to suspend this account
+                  <label
+                    className="block text-center text-sm font-medium"
+                    style={{ color: accountActionColor }}
+                  >
+                    Enter your password to {accountAction} this account
                     <input
                       value={suspendPassword}
                       onChange={(event) => setSuspendPassword(event.target.value)}
                       type="password"
-                      className="mt-2 h-10 w-full rounded-md border border-[#e8b4b4] bg-white px-3 text-sm text-[#1d2520] outline-none transition focus:border-[#c83232] focus:ring-2 focus:ring-[#c83232]/20"
-                      placeholder="Admin password"
+                      className="mt-4 h-10 w-full rounded-md border bg-white px-3 text-sm text-[#1d2520] outline-none transition focus:ring-1"
+                      style={{ borderColor: accountActionColor }}
+                      placeholder="Password"
                     />
                   </label>
-                  <div className="flex justify-end gap-3">
+                  <div className="flex justify-center gap-3">
                     <button
                       type="button"
                       onClick={() => {
                         setSuspendStep("confirm");
                         setSuspendPassword("");
                       }}
-                      className="h-10 rounded-md border border-[#e8b4b4] px-4 text-sm font-semibold text-[#7a1f1f] transition hover:bg-[#ffecec]"
+                      className="h-10 rounded-3xl border border-[#e8b4b4] px-4 text-sm font-semibold text-[#7a1f1f] transition hover:bg-[#ffecec]"
                     >
                       Cancel
                     </button>
                     <button
                       disabled={isSuspendingAccount || !suspendPassword}
-                      className="h-10 rounded-md bg-[#c83232] px-4 text-sm font-semibold text-white transition hover:bg-[#b42626] disabled:cursor-not-allowed disabled:opacity-60"
+                      className={`h-10 rounded-3xl px-4 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60 ${accountActionHoverClass}`}
+                      style={{ backgroundColor: accountActionColor }}
                     >
-                      {isSuspendingAccount ? "Suspending..." : "Suspend Account"}
+                      {isSuspendingAccount ? accountActionPendingLabel : accountActionLabel}
                     </button>
                   </div>
                 </form>
@@ -252,9 +285,10 @@ export function ViewUserAccountPage({
 
           {accountMessage ? (
             <p
-              className={`mt-5 rounded-md px-4 py-3 text-sm font-semibold ${
+              className={`mt-5 rounded-2xl px-4 py-3 text-sm font-semibold ${
                 accountMessage === "User account updated." ||
-                accountMessage === "User account suspended."
+                accountMessage === "User account suspended." ||
+                accountMessage === "User account activated."
                   ? "bg-[#f0f8ef] text-[#0b5b2d]"
                   : "bg-[#fff2df] text-[#9b5d12]"
               }`}
@@ -267,7 +301,7 @@ export function ViewUserAccountPage({
             <button
               type="button"
               onClick={closeUserDetails}
-              className="h-10 rounded-md border border-[#f0d8bd] px-4 text-sm font-semibold text-[#9b5d12] transition hover:bg-[#fff2df]"
+              className="h-10 rounded-3xl border border-[#f0d8bd] bg-white/60 px-4 text-sm font-semibold text-[#9b5d12] transition hover:bg-[#fff2df]"
             >
               Close
             </button>
@@ -295,15 +329,15 @@ export function ViewUserAccountPage({
                   });
                 }}
                 disabled={isSavingAccount}
-                className="h-10 rounded-md bg-[#FFB347] px-4 text-sm font-semibold text-white transition hover:bg-[#FFBE5C] disabled:cursor-not-allowed disabled:opacity-60"
+                className="h-10 rounded-3xl bg-[#FFB347] px-4 text-sm font-semibold text-white transition hover:bg-[#FFBE5C] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {isSavingAccount ? "Saving..." : "Save changes"}
+                {isSavingAccount ? "Updating..." : "Update"}
               </button>
             ) : (
               <button
                 type="button"
                 onClick={() => setIsEditingAccount(true)}
-                className="h-10 rounded-md bg-[#FFB347] px-4 text-sm font-semibold text-white transition hover:bg-[#FFBE5C]"
+                className="h-10 rounded-3xl bg-[#FFB347] px-5 text-sm font-semibold text-white transition hover:bg-[#FFBE5C]"
               >
                 Edit
               </button>
@@ -363,7 +397,7 @@ export function ViewUserAccountPage({
                       <button
                         type="button"
                         onClick={() => openUserDetails(userAccount)}
-                        className="inline-flex h-9 items-center rounded-md bg-[#FFB347] px-4 text-sm font-semibold text-white transition hover:bg-[#FFBE5C]"
+                        className="inline-flex h-9 items-center rounded-3xl bg-[#FFB347] px-4 text-sm font-semibold text-white transition hover:bg-[#FFBE5C]"
                       >
                         View details
                       </button>
@@ -547,7 +581,7 @@ function EditableField({
   type?: string;
 }) {
   return (
-    <label className="block rounded-lg border border-[#f0d8bd] bg-white p-4">
+    <label className="block border-b border-[#f0d8bd] px-2 py-4">
       <span className="text-xs font-bold uppercase tracking-[0.16em] text-[#9b5d12]">{label}</span>
       {isEditing ? (
         <input
