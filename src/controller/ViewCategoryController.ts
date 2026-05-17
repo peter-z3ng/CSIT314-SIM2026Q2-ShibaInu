@@ -22,17 +22,13 @@ export class ViewCategoryController {
       throw new Error(categoryError.message);
     }
 
-    const { data: fras, error: fraError } = await supabase
-      .from("fra")
-      .select("category_id");
+    const { data: fras, error: fraError } = await supabase.from("fra").select("category_id");
 
     if (fraError) {
       throw new Error(fraError.message);
     }
 
-    const usedCategoryIds = new Set(
-      fras.map((fra) => fra.category_id),
-    );
+    const usedCategoryIds = new Set(fras.map((fra) => fra.category_id));
 
     return categories.map((category) => ({
       categoryId: category.category_id,

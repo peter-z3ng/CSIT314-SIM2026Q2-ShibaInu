@@ -8,12 +8,7 @@ type DuplicateEmailRow = {
 // CreateUserAccountController
 export class CreateUserAccountController {
   // createUserAccount(...)
-  async createUserAccount(
-    username: string,
-    email: string,
-    password: string,
-    profileId: string,
-  ) {
+  async createUserAccount(username: string, email: string, password: string, profileId: string) {
     const validatedInput = this.validateInput(username, email, password, profileId);
     const userAccount = UserAccount.createUserAccount({
       username: validatedInput.username,
@@ -57,12 +52,7 @@ export class CreateUserAccountController {
   }
 
   // validateInput(...)
-  validateInput(
-    username: string,
-    email: string,
-    password: string,
-    profileId: string,
-  ) {
+  validateInput(username: string, email: string, password: string, profileId: string) {
     const trimmedUsername = username.trim();
     const normalizedEmail = email.trim().toLowerCase();
     const trimmedProfileId = profileId.trim();

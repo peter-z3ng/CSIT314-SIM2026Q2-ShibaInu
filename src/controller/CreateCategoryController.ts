@@ -1,11 +1,7 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export class CreateCategoryController {
-  async createCategory(input: {
-    userId: string;
-    categoryName: string;
-    description: string;
-  }) {
+  async createCategory(input: { userId: string; categoryName: string; description: string }) {
     const supabase = createSupabaseAdminClient();
 
     const categoryName = input.categoryName.trim();

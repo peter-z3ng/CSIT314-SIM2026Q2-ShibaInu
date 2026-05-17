@@ -1,10 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import {
-  processFavourite,
-  type SaveFavouriteState,
-} from "@/controller/saveFavouriteActions";
+import { processFavourite, type SaveFavouriteState } from "@/controller/saveFavouriteActions";
 
 export function SaveFavouritePage({
   profilePath,

@@ -37,12 +37,10 @@ export function AdminDashboardBoundary({
         userAccount.email.toLowerCase().includes(normalizedKeyword) ||
         userAccount.profile.profile.toLowerCase().includes(normalizedKeyword);
 
-      const matchesStatus =
-        statusFilter === "all" || userAccount.status === statusFilter;
+      const matchesStatus = statusFilter === "all" || userAccount.status === statusFilter;
 
       const matchesProfile =
-        profileFilter === "all" ||
-        userAccount.profile.profileId === profileFilter;
+        profileFilter === "all" || userAccount.profile.profileId === profileFilter;
 
       return matchesKeyword && matchesStatus && matchesProfile;
     });

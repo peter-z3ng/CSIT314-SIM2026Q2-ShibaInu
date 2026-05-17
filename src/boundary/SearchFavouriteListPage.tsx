@@ -23,9 +23,7 @@ export function SearchFavouriteListPage({
   const profilePath = profileToPath(account.profile);
 
   const categoryNameById = useMemo(() => {
-    return new Map(
-      categories.map((category) => [category.categoryId, category.categoryName]),
-    );
+    return new Map(categories.map((category) => [category.categoryId, category.categoryName]));
   }, [categories]);
 
   const statusOptions = useMemo(() => {
@@ -55,8 +53,7 @@ export function SearchFavouriteListPage({
         fra.title.toLowerCase().includes(normalizedKeyword) ||
         (fra.description?.toLowerCase().includes(normalizedKeyword) ?? false) ||
         (categoryName?.toLowerCase().includes(normalizedKeyword) ?? false);
-      const matchesCategory =
-        selectedCategoryId === "all" || fra.categoryId === selectedCategoryId;
+      const matchesCategory = selectedCategoryId === "all" || fra.categoryId === selectedCategoryId;
       const matchesStatus =
         normalizedStatus === "all" || fra.status.toLowerCase() === normalizedStatus;
 

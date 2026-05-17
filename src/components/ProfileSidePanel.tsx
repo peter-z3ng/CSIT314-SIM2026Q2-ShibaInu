@@ -40,9 +40,7 @@ export function ProfileSidePanel({
       setMessage("Profile updated successfully.");
       setIsEditing(false);
     } catch (error) {
-      setMessage(
-        error instanceof Error ? error.message : "Failed to update profile.",
-      );
+      setMessage(error instanceof Error ? error.message : "Failed to update profile.");
     }
   }
 
@@ -155,16 +153,10 @@ export function ProfileSidePanel({
           ) : (
             <div className="grid gap-4">
               <ProfileInfo label="Username" value={username} />
-              <ProfileInfo
-                label="Full Name"
-                value={fullName || "Not added"}
-              />
+              <ProfileInfo label="Full Name" value={fullName || "Not added"} />
               <ProfileInfo label="Email" value={email} />
               <ProfileInfo label="Gender" value={formatValue(gender)} />
-              <ProfileInfo
-                label="Date of Birth"
-                value={dateOfBirth || "Not added"}
-              />
+              <ProfileInfo label="Date of Birth" value={dateOfBirth || "Not added"} />
               <ProfileInfo label="Bio" value={bio || "No bio added yet."} />
 
               <button
@@ -177,11 +169,7 @@ export function ProfileSidePanel({
             </div>
           )}
 
-          {message ? (
-            <p className="mt-4 text-sm font-semibold text-[#9b5d12]">
-              {message}
-            </p>
-          ) : null}
+          {message ? <p className="mt-4 text-sm font-semibold text-[#9b5d12]">{message}</p> : null}
         </div>
       </div>
 
@@ -197,18 +185,10 @@ export function ProfileSidePanel({
   );
 }
 
-function ProfileField({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
+function ProfileField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label>
-      <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#9b5d12]">
-        {label}
-      </p>
+      <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#9b5d12]">{label}</p>
       {children}
     </label>
   );
@@ -217,12 +197,8 @@ function ProfileField({
 function ProfileInfo({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#9b5d12]">
-        {label}
-      </p>
-      <p className="mt-1 truncate text-sm font-semibold text-[#1d2520]">
-        {value}
-      </p>
+      <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#9b5d12]">{label}</p>
+      <p className="mt-1 truncate text-sm font-semibold text-[#1d2520]">{value}</p>
     </div>
   );
 }

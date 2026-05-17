@@ -22,9 +22,7 @@ export function SearchFRAPage({
   const profilePath = profileToPath(account.profile);
 
   const categoryNameById = useMemo(() => {
-    return new Map(
-      categories.map((category) => [category.categoryId, category.categoryName]),
-    );
+    return new Map(categories.map((category) => [category.categoryId, category.categoryName]));
   }, [categories]);
 
   const filteredFRA = useMemo(() => {
@@ -38,8 +36,7 @@ export function SearchFRAPage({
         (fra.description?.toLowerCase().includes(normalizedKeyword) ?? false) ||
         (categoryName?.toLowerCase().includes(normalizedKeyword) ?? false);
 
-      const matchesCategory =
-        selectedCategoryId === "all" || fra.categoryId === selectedCategoryId;
+      const matchesCategory = selectedCategoryId === "all" || fra.categoryId === selectedCategoryId;
 
       return matchesKeyword && matchesCategory;
     });
@@ -107,9 +104,7 @@ export function SearchFRAPage({
         <div className="rounded-[2rem] bg-white p-6 shadow-sm md:p-8">
           <div className="flex flex-col justify-between gap-3 md:flex-row md:items-end">
             <div>
-              <h1 className="mt-2 text-4xl font-black text-[#FFB347]">
-                Fundraising Activities
-              </h1>
+              <h1 className="mt-2 text-4xl font-black text-[#FFB347]">Fundraising Activities</h1>
             </div>
             <p className="text-sm font-semibold text-[#6f6258]">
               {filteredFRA.length} of {fraList.length} FRA found

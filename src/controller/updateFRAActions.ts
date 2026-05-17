@@ -1,10 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import {
-  UpdateFRAController,
-  type UpdateFRAInput,
-} from "@/controller/UpdateFRAController";
+import { UpdateFRAController, type UpdateFRAInput } from "@/controller/UpdateFRAController";
 
 export async function updateFRAAction(input: UpdateFRAInput) {
   const controller = new UpdateFRAController();

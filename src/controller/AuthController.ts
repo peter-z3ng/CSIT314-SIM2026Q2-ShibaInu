@@ -1,11 +1,6 @@
 import { redirect } from "next/navigation";
 import { UserAccount } from "@/entity/UserAccount";
-import {
-  UserProfile,
-  isAdminProfile,
-  profileToPath,
-  type Profile,
-} from "@/entity/UserProfile";
+import { UserProfile, isAdminProfile, profileToPath, type Profile } from "@/entity/UserProfile";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { RouteController } from "./RouteController";
@@ -19,10 +14,7 @@ type UserAccountRow = {
   gender: string | null;
   dob: string | null;
   bio: string | null;
-  profile: {
-    profile_id: string;
-    profile: string;
-  };
+  profile: ProfileRow | null;
 };
 
 export type EmailLookupResult =
@@ -44,7 +36,7 @@ type ProfileRow = {
 type AccountLookupRow = {
   email: string;
   status: UserAccount["status"];
-  profile: ProfileRow;
+  profile: ProfileRow | null;
 };
 
 export class AuthController {
@@ -113,8 +105,7 @@ export class AuthController {
     } catch (error) {
       return {
         ok: false,
-        message:
-          error instanceof Error ? error.message : "Invalid account details.",
+        message: error instanceof Error ? error.message : "Invalid account details.",
       };
     }
 
@@ -156,16 +147,15 @@ export class AuthController {
       };
     }
 
-    const { data: createdUser, error: createError } =
-      await supabase.auth.admin.createUser({
-        email,
-        password: input.password,
-        email_confirm: true,
-        user_metadata: {
-          username,
-          profile_id: input.requestedProfileId,
-        },
-      });
+    const { data: createdUser, error: createError } = await supabase.auth.admin.createUser({
+      email,
+      password: input.password,
+      email_confirm: true,
+      user_metadata: {
+        username,
+        profile_id: input.requestedProfileId,
+      },
+    });
 
     if (createError || !createdUser.user) {
       return {
@@ -274,7 +264,11 @@ export class AuthController {
   }
 }
 
-function mapProfileRow(row: ProfileRow): Profile {
+function mapProfileRow(row: ProfileRow | null): Profile {
+  if (!row) {
+    return new UserProfile("missing-profile", "Missing Profile");
+  }
+
   return new UserProfile(row.profile_id, row.profile);
 }
 
@@ -285,7 +279,7 @@ function mapUserAccountRow(row: UserAccountRow): UserAccount {
     fullName: row.full_name,
     email: row.email,
     status: row.status,
-    profile: new UserProfile(row.profile.profile_id, row.profile.profile),
+    profile: mapProfileRow(row.profile),
     gender: row.gender,
     dateOfBirth: row.dob,
     bio: row.bio,

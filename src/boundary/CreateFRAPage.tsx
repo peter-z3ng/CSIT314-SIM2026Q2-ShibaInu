@@ -31,9 +31,7 @@ export function CreateFRAPage({
 
   const filteredCategories = useMemo(() => {
     return categoryList.filter((category) =>
-      category.categoryName
-        .toLowerCase()
-        .includes(categorySearch.toLowerCase()),
+      category.categoryName.toLowerCase().includes(categorySearch.toLowerCase()),
     );
   }, [categoryList, categorySearch]);
 
@@ -68,9 +66,7 @@ export function CreateFRAPage({
 
       router.replace(`/${profilePath}/my-fras?created=true`);
     } catch (error) {
-      setMessage(
-        error instanceof Error ? error.message : "Failed to create FRA.",
-      );
+      setMessage(error instanceof Error ? error.message : "Failed to create FRA.");
     }
   }
 
@@ -92,9 +88,7 @@ export function CreateFRAPage({
 
         <h1 className="mt-2 text-3xl font-bold">Create FRA</h1>
 
-        <p className="mt-2 text-[#6f6258]">
-          Create a new fundraising activity.
-        </p>
+        <p className="mt-2 text-[#6f6258]">Create a new fundraising activity.</p>
 
         <form
           onSubmit={handleSubmit}
@@ -128,17 +122,13 @@ export function CreateFRAPage({
 
               <button
                 type="button"
-                onClick={() =>
-                  setShowCategoryDropdown(!showCategoryDropdown)
-                }
+                onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
                 className="mt-2 flex w-full items-center justify-between rounded-md border border-[#f0d8bd] bg-white px-4 py-3 text-left outline-none transition hover:border-[#FFB347]"
               >
                 <span>
                   {categoryId
-                    ? categoryList.find(
-                        (category) =>
-                          category.categoryId === categoryId,
-                      )?.categoryName
+                    ? categoryList.find((category) => category.categoryId === categoryId)
+                        ?.categoryName
                     : "Select category"}
                 </span>
 
@@ -150,9 +140,7 @@ export function CreateFRAPage({
                   <div className="p-3">
                     <input
                       value={categorySearch}
-                      onChange={(e) =>
-                        setCategorySearch(e.target.value)
-                      }
+                      onChange={(e) => setCategorySearch(e.target.value)}
                       placeholder="Search category..."
                       className="w-full rounded-md border border-[#f0d8bd] px-3 py-2 outline-none focus:border-[#FFB347]"
                     />
@@ -170,10 +158,7 @@ export function CreateFRAPage({
                         }}
                         className="flex w-full items-center justify-between px-4 py-3 text-left transition hover:bg-[#fff4e8]"
                       >
-                        <span className="font-semibold">
-                          {category.categoryName}
-                        </span>
-
+                        <span className="font-semibold">{category.categoryName}</span>
                       </button>
                     ))}
                   </div>
@@ -182,9 +167,7 @@ export function CreateFRAPage({
             </div>
 
             <div>
-              <label className="text-sm font-semibold">
-                Target Amount
-              </label>
+              <label className="text-sm font-semibold">Target Amount</label>
 
               <input
                 type="number"
@@ -197,9 +180,7 @@ export function CreateFRAPage({
 
             <div className="grid gap-5 md:grid-cols-2">
               <div>
-                <label className="text-sm font-semibold">
-                  Start Date
-                </label>
+                <label className="text-sm font-semibold">Start Date</label>
 
                 <input
                   type="datetime-local"
@@ -212,16 +193,12 @@ export function CreateFRAPage({
               </div>
 
               <div>
-                <label className="text-sm font-semibold">
-                  End Date
-                </label>
+                <label className="text-sm font-semibold">End Date</label>
 
                 <input
                   type="datetime-local"
                   value={endDate}
-                  min={
-                    startDate || new Date().toISOString().slice(0, 16)
-                  }
+                  min={startDate || new Date().toISOString().slice(0, 16)}
                   onChange={(e) => setEndDate(e.target.value)}
                   className="mt-2 w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
                   required
@@ -229,11 +206,7 @@ export function CreateFRAPage({
               </div>
             </div>
 
-            {message ? (
-              <p className="text-sm font-semibold text-[#9b5d12]">
-                {message}
-              </p>
-            ) : null}
+            {message ? <p className="text-sm font-semibold text-[#9b5d12]">{message}</p> : null}
 
             <button
               type="submit"

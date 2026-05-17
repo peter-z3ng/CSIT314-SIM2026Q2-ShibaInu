@@ -59,7 +59,9 @@ export class SaveFavouriteController {
       throw new Error(error.message);
     }
 
-    const favourite = data[0] ? mapFavouriteRow(data[0]) : await this.getExistingFavourite(user_id, fra_id);
+    const favourite = data[0]
+      ? mapFavouriteRow(data[0])
+      : await this.getExistingFavourite(user_id, fra_id);
 
     if (!favourite.saveFavourite(user_id, fra_id)) {
       throw new Error("Unable to save favourite.");

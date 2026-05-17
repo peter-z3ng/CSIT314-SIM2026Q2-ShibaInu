@@ -46,8 +46,7 @@ export default async function DashboardRoutePage({
     );
   }
 
-  const isFundraiser =
-    profileName === "fundraiser" || profileName === "fund raiser";
+  const isFundraiser = profileName === "fundraiser" || profileName === "fund raiser";
 
   if (profileName === "platform management") {
     const platformManagementController = new PlatformManagementController();

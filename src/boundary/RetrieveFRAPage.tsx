@@ -39,23 +39,20 @@ export function RetrieveFRAPage({
     return () => clearInterval(timer);
   }, [fra.endDate]);
 
-  const displayStatus =
-    timeLeft.isExpired && fra.status === "active" ? "closed" : fra.status;
+  const displayStatus = timeLeft.isExpired && fra.status === "active" ? "closed" : fra.status;
 
   const isCompleted = displayStatus === "completed";
 
   const categoryName =
-    categoryList.find((category) => category.categoryId === fra.categoryId)
-      ?.categoryName ?? "Unknown Category";
+    categoryList.find((category) => category.categoryId === fra.categoryId)?.categoryName ??
+    "Unknown Category";
 
   async function handleDelete() {
     try {
       await deleteFRAAction(fra.fraId, account.userId);
       router.push(`/${profilePath}/my-fras`);
     } catch (error) {
-      setDeleteMessage(
-        error instanceof Error ? error.message : "Failed to delete FRA.",
-      );
+      setDeleteMessage(error instanceof Error ? error.message : "Failed to delete FRA.");
     }
   }
 
@@ -65,11 +62,7 @@ export function RetrieveFRAPage({
 
       <main className="mx-auto max-w-7xl px-5 py-8 lg:px-8">
         <Link
-          href={
-            isCompleted
-              ? `/${profilePath}/completed-fras`
-              : `/${profilePath}/my-fras`
-          }
+          href={isCompleted ? `/${profilePath}/completed-fras` : `/${profilePath}/my-fras`}
           className="text-sm font-semibold text-[#9b5d12] hover:underline"
         >
           ← Back to {isCompleted ? "Completed FRAs" : "My FRAs"}
@@ -110,22 +103,14 @@ export function RetrieveFRAPage({
             </p>
 
             {!isCompleted ? (
-              <p className="mt-5 text-lg font-bold text-[#c77700]">
-                {timeLeft.message}
-              </p>
+              <p className="mt-5 text-lg font-bold text-[#c77700]">{timeLeft.message}</p>
             ) : null}
 
             <div className="mt-10 grid gap-4 md:grid-cols-2">
               <DetailCard label="Views" value={String(fra.viewCount)} />
               <DetailCard label="Shortlisted" value={String(fra.favCount)} />
-              <DetailCard
-                label="Start Date"
-                value={formatDateTime(fra.startDate)}
-              />
-              <DetailCard
-                label="End Date"
-                value={formatDateTime(fra.endDate)}
-              />
+              <DetailCard label="Start Date" value={formatDateTime(fra.startDate)} />
+              <DetailCard label="End Date" value={formatDateTime(fra.endDate)} />
             </div>
           </article>
 
@@ -153,9 +138,7 @@ export function RetrieveFRAPage({
             </div>
 
             <div className="mt-6">
-              <h2 className="text-4xl font-black">
-                ${fra.currentAmount.toFixed(2)}
-              </h2>
+              <h2 className="text-4xl font-black">${fra.currentAmount.toFixed(2)}</h2>
 
               <p className="mt-1 text-lg text-[#6f6258]">
                 raised of ${fra.targetAmount.toFixed(2)}
@@ -177,9 +160,7 @@ export function RetrieveFRAPage({
               <h3 className="text-lg font-bold">Recent Donations</h3>
 
               {recentDonations.length === 0 ? (
-                <p className="mt-3 text-sm text-[#6f6258]">
-                  No recent donations yet.
-                </p>
+                <p className="mt-3 text-sm text-[#6f6258]">No recent donations yet.</p>
               ) : (
                 <div className="mt-4 grid gap-4">
                   {recentDonations.slice(0, 3).map((donation, index) => (
@@ -188,9 +169,7 @@ export function RetrieveFRAPage({
                       className="rounded-2xl bg-[#fffaf5] p-4"
                     >
                       <div className="flex items-center justify-between gap-3">
-                        <p className="font-bold">
-                          {donation.username || "Anonymous"}
-                        </p>
+                        <p className="font-bold">{donation.username || "Anonymous"}</p>
 
                         <p className="text-sm font-bold text-[#c77700]">
                           ${Number(donation.amount).toFixed(2)}
@@ -198,9 +177,7 @@ export function RetrieveFRAPage({
                       </div>
 
                       {donation.message ? (
-                        <p className="mt-2 text-sm text-[#6f6258]">
-                          “{donation.message}”
-                        </p>
+                        <p className="mt-2 text-sm text-[#6f6258]">“{donation.message}”</p>
                       ) : null}
                     </div>
                   ))}
@@ -217,13 +194,9 @@ export function RetrieveFRAPage({
             <h2 className="text-2xl font-bold text-[#1d2520]">Delete FRA</h2>
 
             {deleteMessage ? (
-              <p className="mt-4 text-sm font-semibold text-red-600">
-                {deleteMessage}
-              </p>
+              <p className="mt-4 text-sm font-semibold text-red-600">{deleteMessage}</p>
             ) : (
-              <p className="mt-4 text-[#6f6258]">
-                Are you sure you want to delete "{fra.title}"?
-              </p>
+              <p className="mt-4 text-[#6f6258]">Are you sure you want to delete "{fra.title}"?</p>
             )}
 
             <div className="mt-8 flex justify-end gap-3">

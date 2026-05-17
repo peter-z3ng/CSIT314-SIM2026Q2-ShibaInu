@@ -12,9 +12,10 @@ type UserAccountRow = {
   username: string;
   email: string;
   status: UserAccount["status"];
-  profile: ProfileRow;
+  profile: ProfileRow | null;
 };
 
+// ViewUserAccountController
 export class ViewUserAccountController {
   async viewUserAccount(user_id: string): Promise<UserAccount> {
     if (!user_id.trim()) {
@@ -42,6 +43,35 @@ export class ViewUserAccountController {
     return mapUserAccount(account).viewUserAccount(user_id);
   }
 
+  // getUserAccountDetails(...)
+  async getUserAccountDetails(username: string): Promise<UserAccount> {
+    const trimmedUsername = username.trim();
+
+    if (!trimmedUsername) {
+      throw new Error("Username is required.");
+    }
+
+    const supabase = createSupabaseAdminClient();
+    const { data, error } = await supabase
+      .from("user_account")
+      .select("user_id, username, email, status, profile:user_profile(profile_id, profile)")
+      .eq("username", trimmedUsername)
+      .limit(1)
+      .overrideTypes<UserAccountRow[], { merge: false }>();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    const account = data[0];
+
+    if (!account) {
+      throw new Error("User account was not found.");
+    }
+
+    return mapUserAccount(account).getUserAccountDetails(trimmedUsername);
+  }
+
   async updateUserAccountDetails(input: {
     userId: string;
     username: string;
@@ -58,13 +88,10 @@ export class ViewUserAccountController {
     const supabase = createSupabaseAdminClient();
 
     if (updatedAccount.email !== currentAccount.email) {
-      const { error: authError } = await supabase.auth.admin.updateUserById(
-        updatedAccount.userId,
-        {
-          email: updatedAccount.email,
-          email_confirm: true,
-        },
-      );
+      const { error: authError } = await supabase.auth.admin.updateUserById(updatedAccount.userId, {
+        email: updatedAccount.email,
+        email_confirm: true,
+      });
 
       if (authError) {
         throw new Error(authError.message);
@@ -108,6 +135,10 @@ function mapUserAccount(account: UserAccountRow) {
   });
 }
 
-function mapProfile(profile: ProfileRow): Profile {
+function mapProfile(profile: ProfileRow | null): Profile {
+  if (!profile) {
+    return new UserProfile("missing-profile", "Missing Profile");
+  }
+
   return new UserProfile(profile.profile_id, profile.profile);
 }

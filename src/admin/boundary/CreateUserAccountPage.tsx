@@ -1,26 +1,16 @@
 "use client";
 
 import { useActionState } from "react";
-import {
-  createUserAccount,
-  type CreateUserAccountState,
-} from "@/controller/authActions";
+import { createUserAccount, type CreateUserAccountState } from "@/controller/authActions";
 import type { UserProfileDTO } from "@/entity/UserProfile";
 
 // CreateUserAccountPage
-export function CreateUserAccountPage({
-  profiles,
-}: {
-  profiles: UserProfileDTO[];
-}) {
+export function CreateUserAccountPage({ profiles }: { profiles: UserProfileDTO[] }) {
   const initialState: CreateUserAccountState = {
     ok: true,
     message: "",
   };
-  const [state, formAction, isPending] = useActionState(
-    createUserAccount,
-    initialState,
-  );
+  const [state, formAction, isPending] = useActionState(createUserAccount, initialState);
 
   // displaySuccess(...)
   const displaySuccess = () =>
@@ -37,22 +27,17 @@ export function CreateUserAccountPage({
         {state.message}
       </p>
     ) : null;
-  
+
   // displayForm(...)
   const displayForm = () => (
     <form
       action={formAction}
-      className="rounded-lg border border-[#FFB347] bg-white/40 p-5 shadow-lg"
+      className="rounded-2xl border border-[#FFB347] bg-white/40 p-5 shadow-lg"
     >
       <div className="grid gap-4">
         <Field label="Username" name="username" placeholder="shiba_inu" />
         <Field label="Email" name="email" type="email" placeholder="name@example.com" />
-        <Field
-          label="Password"
-          name="password"
-          type="password"
-          placeholder="Password"
-        />
+        <Field label="Password" name="password" type="password" placeholder="Password" />
         <label className="block text-sm font-medium">
           Profile
           <div className="relative mt-2">
@@ -75,11 +60,7 @@ export function CreateUserAccountPage({
               className="pointer-events-none absolute right-3 top-1/2 size-5 -translate-y-1/2 text-[#1d2520]"
               aria-hidden="true"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="m19.5 8.25-7.5 7.5-7.5-7.5"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
             </svg>
           </div>
         </label>

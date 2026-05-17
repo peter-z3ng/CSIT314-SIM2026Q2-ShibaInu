@@ -164,75 +164,75 @@ function DonateForm({
         </div>
 
         <label className="mt-7 block">
-        <span className="text-sm font-bold text-[#1d2520]">Amount</span>
-        <div className="mt-2 flex h-12 overflow-hidden rounded-md border border-[#f0d8bd] bg-white/60 transition focus-within:border-[#FFB347] focus-within:ring-2 focus-within:ring-[#FFB347]/20">
-          <span className="flex h-full items-center border-r border-[#f0d8bd] px-3 text-sm font-bold text-[#9b5d12]">
-            SGD
-          </span>
-          <input
-            name="amount"
-            type="number"
-            min="0.01"
-            step="0.01"
-            required
-            value={amount}
-            onChange={(event) => setAmount(event.target.value)}
-            placeholder="0.00"
-            className="h-full min-w-0 flex-1 bg-transparent px-3 text-sm outline-none"
-          />
-        </div>
+          <span className="text-sm font-bold text-[#1d2520]">Amount</span>
+          <div className="mt-2 flex h-12 overflow-hidden rounded-md border border-[#f0d8bd] bg-white/60 transition focus-within:border-[#FFB347] focus-within:ring-2 focus-within:ring-[#FFB347]/20">
+            <span className="flex h-full items-center border-r border-[#f0d8bd] px-3 text-sm font-bold text-[#9b5d12]">
+              SGD
+            </span>
+            <input
+              name="amount"
+              type="number"
+              min="0.01"
+              step="0.01"
+              required
+              value={amount}
+              onChange={(event) => setAmount(event.target.value)}
+              placeholder="0.00"
+              className="h-full min-w-0 flex-1 bg-transparent px-3 text-sm outline-none"
+            />
+          </div>
         </label>
 
         <label className="mt-5 block">
-        <span className="text-sm font-bold text-[#1d2520]">Message</span>
-        <textarea
-          name="message"
-          value={message}
-          onChange={(event) => setMessage(event.target.value)}
-          placeholder="Write a message"
-          rows={4}
-          className="mt-2 w-full resize-none rounded-md border border-[#f0d8bd] bg-white/60 px-3 py-3 text-sm outline-none transition focus:border-[#FFB347] focus:ring-2 focus:ring-[#FFB347]/20"
-        />
+          <span className="text-sm font-bold text-[#1d2520]">Message</span>
+          <textarea
+            name="message"
+            value={message}
+            onChange={(event) => setMessage(event.target.value)}
+            placeholder="Write a message"
+            rows={4}
+            className="mt-2 w-full resize-none rounded-md border border-[#f0d8bd] bg-white/60 px-3 py-3 text-sm outline-none transition focus:border-[#FFB347] focus:ring-2 focus:ring-[#FFB347]/20"
+          />
         </label>
 
         <fieldset className="mt-6">
-        <legend className="text-sm font-bold text-[#1d2520]">Payment method</legend>
-        <div className="mt-3 overflow-hidden rounded-xl border border-[#f0d8bd] bg-white/40">
-          {paymentOptions.map((option) => (
-            <label
-              key={option.label}
-              className={`flex min-h-16 items-center gap-4 border-b border-[#f0d8bd] px-4 text-sm font-semibold transition last:border-b-0 ${
-                paymentOption === option.label
-                  ? "bg-[#fff2df] text-[#1d2520]"
-                  : "bg-white/30 text-[#6f6258] hover:bg-[#fffaf5]"
-              }`}
-            >
-              <input
-                type="radio"
-                name="paymentOptionChoice"
-                checked={paymentOption === option.label}
-                onChange={() => setPaymentOption(option.label)}
-                className="accent-[#FFB347]"
-              />
-              <span className="flex w-20 items-center justify-center">{option.logo}</span>
-              <span className="text-base">{option.label}</span>
-            </label>
-          ))}
-        </div>
+          <legend className="text-sm font-bold text-[#1d2520]">Payment method</legend>
+          <div className="mt-3 overflow-hidden rounded-xl border border-[#f0d8bd] bg-white/40">
+            {paymentOptions.map((option) => (
+              <label
+                key={option.label}
+                className={`flex min-h-16 items-center gap-4 border-b border-[#f0d8bd] px-4 text-sm font-semibold transition last:border-b-0 ${
+                  paymentOption === option.label
+                    ? "bg-[#fff2df] text-[#1d2520]"
+                    : "bg-white/30 text-[#6f6258] hover:bg-[#fffaf5]"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="paymentOptionChoice"
+                  checked={paymentOption === option.label}
+                  onChange={() => setPaymentOption(option.label)}
+                  className="accent-[#FFB347]"
+                />
+                <span className="flex w-20 items-center justify-center">{option.logo}</span>
+                <span className="text-base">{option.label}</span>
+              </label>
+            ))}
+          </div>
         </fieldset>
 
         <section className="mt-6 rounded-xl border border-[#f0d8bd] bg-white/40 p-5">
-        <p className="text-sm font-bold text-[#1d2520]">Donation summary</p>
-        <div className="mt-3 grid gap-2 text-sm font-semibold text-[#6f6258]">
-          <div className="flex items-center justify-between gap-4">
-            <span>Amount</span>
-            <span>SGD {summary.amount}</span>
+          <p className="text-sm font-bold text-[#1d2520]">Donation summary</p>
+          <div className="mt-3 grid gap-2 text-sm font-semibold text-[#6f6258]">
+            <div className="flex items-center justify-between gap-4">
+              <span>Amount</span>
+              <span>SGD {summary.amount}</span>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <span>Payment method</span>
+              <span>{summary.paymentOption}</span>
+            </div>
           </div>
-          <div className="flex items-center justify-between gap-4">
-            <span>Payment method</span>
-            <span>{summary.paymentOption}</span>
-          </div>
-        </div>
         </section>
 
         {hasError ? (
@@ -253,18 +253,8 @@ function DonateForm({
   );
 }
 
-function PaymentTextLogo({
-  text,
-  className,
-}: {
-  text: string;
-  className: string;
-}) {
-  return (
-    <span className={`text-sm font-black tracking-tight ${className}`}>
-      {text}
-    </span>
-  );
+function PaymentTextLogo({ text, className }: { text: string; className: string }) {
+  return <span className={`text-sm font-black tracking-tight ${className}`}>{text}</span>;
 }
 
 function CardLogo() {

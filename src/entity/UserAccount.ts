@@ -62,11 +62,7 @@ export class UserAccount {
     }
   }
 
-  static createUserAccount(input: {
-    username: string;
-    email: string;
-    password: string;
-  }) {
+  static createUserAccount(input: { username: string; email: string; password: string }) {
     const username = input.username.trim();
     const email = input.email.trim().toLowerCase();
 
@@ -94,6 +90,14 @@ export class UserAccount {
   viewUserAccount(userId: string) {
     if (this.userId !== userId) {
       throw new Error("User account details do not match the requested id.");
+    }
+
+    return this;
+  }
+
+  getUserAccountDetails(username: string) {
+    if (this.username !== username.trim()) {
+      throw new Error("User account details do not match the requested username.");
     }
 
     return this;

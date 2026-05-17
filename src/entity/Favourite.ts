@@ -13,12 +13,7 @@ export class Favourite {
   readonly fra_id: string;
   readonly fra: FRA | null;
 
-  constructor(input: {
-    fav_id: string;
-    user_id: string;
-    fra_id: string;
-    fra?: FRA | null;
-  }) {
+  constructor(input: { fav_id: string; user_id: string; fra_id: string; fra?: FRA | null }) {
     this.fav_id = input.fav_id;
     this.user_id = input.user_id;
     this.fra_id = input.fra_id;
@@ -29,12 +24,7 @@ export class Favourite {
     return this.user_id === user_id && this.fra_id === fra_id;
   }
 
-  searchFavourite(
-    user_id: string,
-    keyword: string,
-    category: string,
-    status: string,
-  ): Favourite[] {
+  searchFavourite(user_id: string, keyword: string, category: string, status: string): Favourite[] {
     if (this.user_id !== user_id || !this.fra) {
       return [];
     }

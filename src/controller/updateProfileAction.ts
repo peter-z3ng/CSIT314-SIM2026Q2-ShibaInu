@@ -62,12 +62,9 @@ export async function updateProfileAction(input: UpdateProfileInput) {
     throw new Error("Already taken.");
   }
 
-  const { error: authError } = await supabase.auth.admin.updateUserById(
-    input.userId,
-    {
-      email,
-    },
-  );
+  const { error: authError } = await supabase.auth.admin.updateUserById(input.userId, {
+    email,
+  });
 
   if (authError) {
     throw new Error(authError.message);

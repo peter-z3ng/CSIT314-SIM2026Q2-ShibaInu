@@ -20,15 +20,11 @@ export default async function RetrieveFRARoutePage({
 
   const account = await authController.requireProfilePath(profileSlug);
 
-  const fra = await retrieveFRAController.retrieveFRA(
-    fraId,
-    account.userId,
-  );
+  const fra = await retrieveFRAController.retrieveFRA(fraId, account.userId);
 
   const categoryList = await categoryController.listCategories();
 
-  const recentDonations =
-    await viewFRADetailsController.viewRecentDonations(fraId);
+  const recentDonations = await viewFRADetailsController.viewRecentDonations(fraId);
 
   return (
     <RetrieveFRAPage

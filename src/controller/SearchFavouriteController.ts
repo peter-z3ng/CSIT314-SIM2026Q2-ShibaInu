@@ -52,9 +52,7 @@ export class SearchFavouriteController {
 
     return data
       .map(mapFavouriteRow)
-      .flatMap((favourite) =>
-        favourite.searchFavourite(user_id, keyword, category, status),
-      );
+      .flatMap((favourite) => favourite.searchFavourite(user_id, keyword, category, status));
   }
 }
 

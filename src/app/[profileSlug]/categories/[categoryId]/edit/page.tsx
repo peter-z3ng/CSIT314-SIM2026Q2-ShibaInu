@@ -20,8 +20,7 @@ export default async function UpdateCategoryRoutePage({
 
   const categoryController = new UpdateCategoryController();
 
-  const category =
-    await categoryController.getCategoryById(categoryId);
+  const category = await categoryController.getCategoryById(categoryId);
 
   async function updateCategoryAction(formData: FormData) {
     "use server";

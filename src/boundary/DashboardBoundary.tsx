@@ -36,9 +36,7 @@ export function DashboardBoundary({
           Dashboard
         </p>
         <h1 className="mt-4 text-4xl font-bold">{account.profile.profile} Dashboard</h1>
-        <p className="mt-4 max-w-2xl text-base leading-7 text-[#586158]">
-          {dashboardCopy}
-        </p>
+        <p className="mt-4 max-w-2xl text-base leading-7 text-[#586158]">{dashboardCopy}</p>
 
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           <DashboardCard title="Account" text={`${account.username} (${account.email})`} />

@@ -16,17 +16,14 @@ export function ViewCategoryPage({
 }: {
   account: UserAccountDTO;
   categories: CategoryDTO[];
-  deleteCategoryAction: (
-    formData: FormData,
-  ) => Promise<{ success: boolean }>;
+  deleteCategoryAction: (formData: FormData) => Promise<{ success: boolean }>;
 }) {
   const profilePath = profileToPath(account.profile);
   const searchParams = useSearchParams();
 
   const [successMessage, setSuccessMessage] = useState("");
   const [cannotDeleteMessage, setCannotDeleteMessage] = useState("");
-  const [selectedCategory, setSelectedCategory] =
-    useState<CategoryDTO | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<CategoryDTO | null>(null);
 
   useEffect(() => {
     const success = searchParams.get("success");
@@ -52,7 +49,7 @@ export function ViewCategoryPage({
 
   function handleDeleteClick(category: CategoryDTO) {
     setSelectedCategory(category);
-    }
+  }
 
   return (
     <main className="min-h-screen bg-[#fffaf5] text-[#0b1f2a]">
@@ -61,15 +58,11 @@ export function ViewCategoryPage({
       <section className="px-10 py-6">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-xs font-bold tracking-[0.3em] text-[#a45f00]">
-              PLATFORM MANAGEMENT
-            </p>
+            <p className="text-xs font-bold tracking-[0.3em] text-[#a45f00]">PLATFORM MANAGEMENT</p>
 
             <h1 className="mt-3 text-4xl font-bold">Category Management</h1>
 
-            <p className="mt-2 text-base text-[#6f6258]">
-              View and manage FRA categories.
-            </p>
+            <p className="mt-2 text-base text-[#6f6258]">View and manage FRA categories.</p>
           </div>
 
           <Link
@@ -96,9 +89,7 @@ export function ViewCategoryPage({
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold">FRA Categories</h2>
 
-            <p className="text-sm font-bold text-[#a45f00]">
-              {categories.length} Categories
-            </p>
+            <p className="text-sm font-bold text-[#a45f00]">{categories.length} Categories</p>
           </div>
 
           <div className="mt-6">
@@ -132,9 +123,7 @@ export function ViewCategoryPage({
               </p>
 
               <p className="text-xs text-[#6f6258]">
-                {category.updatedAt
-                  ? new Date(category.updatedAt).toLocaleDateString()
-                  : "-"}
+                {category.updatedAt ? new Date(category.updatedAt).toLocaleDateString() : "-"}
               </p>
 
               <div className="flex gap-2">
@@ -157,9 +146,7 @@ export function ViewCategoryPage({
           ))}
 
           {categories.length === 0 && (
-            <p className="py-6 text-sm font-semibold text-[#6f6258]">
-              No categories found.
-            </p>
+            <p className="py-6 text-sm font-semibold text-[#6f6258]">No categories found.</p>
           )}
         </section>
       </section>
@@ -171,7 +158,7 @@ export function ViewCategoryPage({
         isOpen={selectedCategory !== null}
         onClose={() => setSelectedCategory(null)}
         deleteCategoryAction={deleteCategoryAction}
-        />
+      />
     </main>
   );
 }

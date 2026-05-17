@@ -35,9 +35,7 @@ export function UpdateCategoryPage({
       router.push(`/${profilePath}/categories?success=updated`);
       router.refresh();
     } catch (error) {
-      setMessage(
-        error instanceof Error ? error.message : "Failed to update category.",
-      );
+      setMessage(error instanceof Error ? error.message : "Failed to update category.");
     } finally {
       setIsSubmitting(false);
     }
@@ -60,9 +58,7 @@ export function UpdateCategoryPage({
       <section className="px-10 py-4">
         <h1 className="mt-2 text-3xl font-bold">Update Category</h1>
 
-        <p className="mt-1 text-sm text-[#6f6258]">
-          Edit FRA category information.
-        </p>
+        <p className="mt-1 text-sm text-[#6f6258]">Edit FRA category information.</p>
 
         <div className="mt-6 flex justify-center">
           <form
@@ -73,9 +69,7 @@ export function UpdateCategoryPage({
 
             <div className="grid gap-4">
               <div>
-                <label className="text-xs font-bold text-[#5f5148]">
-                  Category Name
-                </label>
+                <label className="text-xs font-bold text-[#5f5148]">Category Name</label>
 
                 <input
                   name="categoryName"
@@ -85,9 +79,7 @@ export function UpdateCategoryPage({
               </div>
 
               <div>
-                <label className="text-xs font-bold text-[#5f5148]">
-                  Description
-                </label>
+                <label className="text-xs font-bold text-[#5f5148]">Description</label>
 
                 <textarea
                   name="description"

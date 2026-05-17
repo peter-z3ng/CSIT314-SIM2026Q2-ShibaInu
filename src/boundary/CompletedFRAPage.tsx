@@ -80,8 +80,8 @@ export function CompletedFRAPage({
 
   function getCategoryName(categoryId: string) {
     return (
-      categoryList.find((category) => category.categoryId === categoryId)
-        ?.categoryName ?? "Unknown Category"
+      categoryList.find((category) => category.categoryId === categoryId)?.categoryName ??
+      "Unknown Category"
     );
   }
 
@@ -106,9 +106,7 @@ export function CompletedFRAPage({
 
         <h1 className="mt-2 text-3xl font-bold">Completed FRAs</h1>
 
-        <p className="mt-2 text-[#6f6258]">
-          View your completed fundraising activities.
-        </p>
+        <p className="mt-2 text-[#6f6258]">View your completed fundraising activities.</p>
 
         <section className="mt-8 grid items-start gap-5 lg:grid-cols-[7fr_3fr]">
           <div className="grid gap-6">
@@ -237,47 +235,47 @@ export function CompletedFRAPage({
 
                 {isCategoryOpen ? (
                   <div className="mt-4">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      updateSearchParam("categoryId", "");
-                      setCategoryQuery("");
-                    }}
-                    className="text-xs font-semibold text-[#9b5d12] transition hover:text-[#FFB347]"
-                  >
-                    Clear
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        updateSearchParam("categoryId", "");
+                        setCategoryQuery("");
+                      }}
+                      className="text-xs font-semibold text-[#9b5d12] transition hover:text-[#FFB347]"
+                    >
+                      Clear
+                    </button>
 
-                  <input
-                    value={categoryQuery}
-                    onChange={(event) => setCategoryQuery(event.target.value)}
-                    placeholder="Search category"
-                    className="mt-4 h-10 w-full rounded-md border border-[#f0d8bd] px-3 text-sm outline-none transition focus:border-[#FFB347] focus:ring-2 focus:ring-[#FFB347]/20"
-                  />
+                    <input
+                      value={categoryQuery}
+                      onChange={(event) => setCategoryQuery(event.target.value)}
+                      placeholder="Search category"
+                      className="mt-4 h-10 w-full rounded-md border border-[#f0d8bd] px-3 text-sm outline-none transition focus:border-[#FFB347] focus:ring-2 focus:ring-[#FFB347]/20"
+                    />
 
-                  <div className="mt-4 grid max-h-80 gap-3 overflow-y-auto pr-1">
-                    {filteredCategories.map((category) => (
-                      <label
-                        key={category.categoryId}
-                        className="flex items-center gap-3 text-sm font-semibold text-[#6f6258]"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedCategoryIds.includes(category.categoryId)}
-                          onChange={() =>
-                            toggleSearchParamValue("categoryId", category.categoryId)
-                          }
-                          className="size-5 rounded border-[#f0d8bd] accent-[#FFB347]"
-                        />
-                        {category.categoryName}
-                      </label>
-                    ))}
+                    <div className="mt-4 grid max-h-80 gap-3 overflow-y-auto pr-1">
+                      {filteredCategories.map((category) => (
+                        <label
+                          key={category.categoryId}
+                          className="flex items-center gap-3 text-sm font-semibold text-[#6f6258]"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedCategoryIds.includes(category.categoryId)}
+                            onChange={() =>
+                              toggleSearchParamValue("categoryId", category.categoryId)
+                            }
+                            className="size-5 appearance-none rounded border border-[#8a8a8a] bg-white transition checked:border-[#9b5d12] checked:bg-[#9b5d12]"
+                          />
+                          {category.categoryName}
+                        </label>
+                      ))}
 
-                    {!filteredCategories.length ? (
-                      <p className="text-sm text-[#6f6258]">No categories found.</p>
-                    ) : null}
+                      {!filteredCategories.length ? (
+                        <p className="text-sm text-[#6f6258]">No categories found.</p>
+                      ) : null}
+                    </div>
                   </div>
-                </div>
                 ) : null}
               </div>
 

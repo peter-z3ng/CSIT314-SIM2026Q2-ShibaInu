@@ -12,7 +12,7 @@ type UserAccountRow = {
   username: string;
   email: string;
   status: UserAccount["status"];
-  profile: ProfileRow;
+  profile: ProfileRow | null;
 };
 
 export class AdminController {
@@ -69,13 +69,16 @@ export class AdminController {
       throw new Error(error.message);
     }
 
-    return data.map((account) => new UserAccount({
-      userId: account.user_id,
-      username: account.username,
-      email: account.email,
-      status: account.status,
-      profile: mapProfile(account.profile),
-    }));
+    return data.map(
+      (account) =>
+        new UserAccount({
+          userId: account.user_id,
+          username: account.username,
+          email: account.email,
+          status: account.status,
+          profile: mapProfile(account.profile),
+        }),
+    );
   }
 
   private async updateUserAccountStatus(userId: string, status: UserAccount["status"]) {
@@ -95,6 +98,10 @@ export class AdminController {
   }
 }
 
-function mapProfile(profile: ProfileRow): Profile {
+function mapProfile(profile: ProfileRow | null): Profile {
+  if (!profile) {
+    return new UserProfile("missing-profile", "Missing Profile");
+  }
+
   return new UserProfile(profile.profile_id, profile.profile);
 }

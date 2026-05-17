@@ -25,11 +25,7 @@ export class AutoCloseFRAController {
     }
 
     for (const fra of data) {
-      const newStatus = getAutoStatus(
-        fra.start_date,
-        fra.end_date,
-        fra.status,
-      );
+      const newStatus = getAutoStatus(fra.start_date, fra.end_date, fra.status);
 
       if (newStatus !== fra.status) {
         const { error: updateError } = await supabase
@@ -50,11 +46,7 @@ export class AutoCloseFRAController {
   }
 }
 
-function getAutoStatus(
-  startDate: string,
-  endDate: string | null,
-  currentStatus: string,
-) {
+function getAutoStatus(startDate: string, endDate: string | null, currentStatus: string) {
   const now = new Date();
   const start = new Date(startDate);
   const end = endDate ? new Date(endDate) : null;

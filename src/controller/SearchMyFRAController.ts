@@ -70,10 +70,7 @@ export class SearchMyFRAController {
       query = query.lte("end_date", input.endDate);
     }
 
-    const { data, error } = await query.overrideTypes<
-      FRARow[],
-      { merge: false }
-    >();
+    const { data, error } = await query.overrideTypes<FRARow[], { merge: false }>();
 
     if (error) {
       throw new Error(error.message);

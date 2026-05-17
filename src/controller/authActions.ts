@@ -7,7 +7,7 @@ import { CreateUserAccountController } from "@/admin/controller/CreateUserAccoun
 import { AdminController } from "@/controller/AdminController";
 import { AuthController, type EmailLookupResult } from "@/controller/AuthController";
 import { CreateUserAccount } from "@/controller/CreateUserAccount";
-import { ViewUserAccountController } from "@/controller/ViewUserAccountController";
+import { ViewUserAccountController } from "@/admin/controller/ViewUserAccountController";
 import type { AccountStatus } from "@/entity/UserAccount";
 import type { UserProfileDTO } from "@/entity/UserProfile";
 import { createSupabaseServerClient } from "@/lib/supabase/server";

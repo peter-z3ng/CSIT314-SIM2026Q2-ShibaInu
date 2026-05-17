@@ -19,22 +19,11 @@ export default async function UpdateFRARoutePage({
   const retrieveFRAController = new RetrieveFRAController();
   const categoryController = new FRACategoryController();
 
-  const account = await authController.requireProfilePath(
-    profileSlug,
-  );
+  const account = await authController.requireProfilePath(profileSlug);
 
-  const fra = await retrieveFRAController.retrieveFRA(
-    fraId,
-    account.userId,
-  );
+  const fra = await retrieveFRAController.retrieveFRA(fraId, account.userId);
 
   const categoryList = await categoryController.listCategories();
 
-  return (
-    <UpdateFRAPage
-      account={account.toDTO()}
-      fra={fra.toDTO()}
-      categoryList={categoryList}
-    />
-  );
+  return <UpdateFRAPage account={account.toDTO()} fra={fra.toDTO()} categoryList={categoryList} />;
 }

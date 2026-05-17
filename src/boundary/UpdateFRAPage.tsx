@@ -20,29 +20,19 @@ export function UpdateFRAPage({
 }) {
   const router = useRouter();
 
-  const profilePath = account.profile.profile
-    .toLowerCase()
-    .replace(" ", "-");
+  const profilePath = account.profile.profile.toLowerCase().replace(" ", "-");
 
   const [title, setTitle] = useState(fra.title);
   const [description, setDescription] = useState(fra.description ?? "");
   const [categoryId, setCategoryId] = useState(fra.categoryId);
 
-  const initialDate = fra.endDate
-    ? new Date(fra.endDate)
-    : new Date();
+  const initialDate = fra.endDate ? new Date(fra.endDate) : new Date();
 
-  const [endDate, setEndDate] = useState(
-    initialDate.toISOString().split("T")[0],
-  );
+  const [endDate, setEndDate] = useState(initialDate.toISOString().split("T")[0]);
 
-  const [hour, setHour] = useState(
-    String(initialDate.getHours()).padStart(2, "0"),
-  );
+  const [hour, setHour] = useState(String(initialDate.getHours()).padStart(2, "0"));
 
-  const [minute, setMinute] = useState(
-    String(initialDate.getMinutes()).padStart(2, "0"),
-  );
+  const [minute, setMinute] = useState(String(initialDate.getMinutes()).padStart(2, "0"));
 
   const [status, setStatus] = useState(fra.status);
   const [pendingStatus, setPendingStatus] = useState(fra.status);
@@ -50,15 +40,11 @@ export function UpdateFRAPage({
   const [message, setMessage] = useState("");
   const [showStatusModal, setShowStatusModal] = useState(false);
 
-  async function handleSubmit(
-    event: React.FormEvent<HTMLFormElement>,
-  ) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     try {
-      const fullEndDate = new Date(
-        `${endDate}T${hour}:${minute}:00`,
-      ).toISOString();
+      const fullEndDate = new Date(`${endDate}T${hour}:${minute}:00`).toISOString();
 
       await updateFRAAction({
         fraId: fra.fraId,
@@ -70,15 +56,9 @@ export function UpdateFRAPage({
         status,
       });
 
-      router.push(
-        `/${profilePath}/my-fras/${fra.fraId}?updated=true`,
-      );
+      router.push(`/${profilePath}/my-fras/${fra.fraId}?updated=true`);
     } catch (error) {
-      setMessage(
-        error instanceof Error
-          ? error.message
-          : "Failed to update FRA.",
-      );
+      setMessage(error instanceof Error ? error.message : "Failed to update FRA.");
     }
   }
 
@@ -100,13 +80,9 @@ export function UpdateFRAPage({
               Fundraiser
             </p>
 
-            <h1 className="mt-2 text-3xl font-bold">
-              Update FRA
-            </h1>
+            <h1 className="mt-2 text-3xl font-bold">Update FRA</h1>
 
-            <p className="mt-2 text-[#6f6258]">
-              Update your fundraising activity details.
-            </p>
+            <p className="mt-2 text-[#6f6258]">Update your fundraising activity details.</p>
           </div>
 
           <div className="w-48">
@@ -139,54 +115,39 @@ export function UpdateFRAPage({
         >
           <div className="space-y-6">
             <div>
-              <label className="text-sm font-semibold">
-                Title
-              </label>
+              <label className="text-sm font-semibold">Title</label>
 
               <input
                 type="text"
                 value={title}
-                onChange={(event) =>
-                  setTitle(event.target.value)
-                }
+                onChange={(event) => setTitle(event.target.value)}
                 className="mt-2 w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
                 required
               />
             </div>
 
             <div>
-              <label className="text-sm font-semibold">
-                Description
-              </label>
+              <label className="text-sm font-semibold">Description</label>
 
               <textarea
                 value={description}
-                onChange={(event) =>
-                  setDescription(event.target.value)
-                }
+                onChange={(event) => setDescription(event.target.value)}
                 className="mt-2 min-h-[180px] w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
                 required
               />
             </div>
 
             <div>
-              <label className="text-sm font-semibold">
-                Category
-              </label>
+              <label className="text-sm font-semibold">Category</label>
 
               <select
                 value={categoryId}
-                onChange={(event) =>
-                  setCategoryId(event.target.value)
-                }
+                onChange={(event) => setCategoryId(event.target.value)}
                 className="mt-2 w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
                 required
               >
                 {categoryList.map((category) => (
-                  <option
-                    key={category.categoryId}
-                    value={category.categoryId}
-                  >
+                  <option key={category.categoryId} value={category.categoryId}>
                     {category.categoryName}
                   </option>
                 ))}
@@ -194,84 +155,54 @@ export function UpdateFRAPage({
             </div>
 
             <div>
-              <label className="text-sm font-semibold">
-                End Date
-              </label>
+              <label className="text-sm font-semibold">End Date</label>
 
               <input
                 type="date"
                 value={endDate}
-                onChange={(event) =>
-                  setEndDate(event.target.value)
-                }
+                onChange={(event) => setEndDate(event.target.value)}
                 className="mt-2 w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
                 required
               />
 
               <div className="mt-4 flex gap-4">
                 <div>
-                  <label className="text-sm font-semibold">
-                    Hr
-                  </label>
+                  <label className="text-sm font-semibold">Hr</label>
 
                   <select
                     value={hour}
-                    onChange={(event) =>
-                      setHour(event.target.value)
-                    }
+                    onChange={(event) => setHour(event.target.value)}
                     className="mt-2 rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
                   >
-                    {Array.from(
-                      { length: 24 },
-                      (_, index) => {
-                        const value = String(index).padStart(
-                          2,
-                          "0",
-                        );
+                    {Array.from({ length: 24 }, (_, index) => {
+                      const value = String(index).padStart(2, "0");
 
-                        return (
-                          <option
-                            key={value}
-                            value={value}
-                          >
-                            {value} hr
-                          </option>
-                        );
-                      },
-                    )}
+                      return (
+                        <option key={value} value={value}>
+                          {value} hr
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
 
                 <div>
-                  <label className="text-sm font-semibold">
-                    Min
-                  </label>
+                  <label className="text-sm font-semibold">Min</label>
 
                   <select
                     value={minute}
-                    onChange={(event) =>
-                      setMinute(event.target.value)
-                    }
+                    onChange={(event) => setMinute(event.target.value)}
                     className="mt-2 rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
                   >
-                    {Array.from(
-                      { length: 60 },
-                      (_, index) => {
-                        const value = String(index).padStart(
-                          2,
-                          "0",
-                        );
+                    {Array.from({ length: 60 }, (_, index) => {
+                      const value = String(index).padStart(2, "0");
 
-                        return (
-                          <option
-                            key={value}
-                            value={value}
-                          >
-                            {value} min
-                          </option>
-                        );
-                      },
-                    )}
+                      return (
+                        <option key={value} value={value}>
+                          {value} min
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
               </div>
@@ -296,16 +227,11 @@ export function UpdateFRAPage({
       {showStatusModal ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-3xl bg-white p-7 shadow-2xl">
-            <h2 className="text-2xl font-bold text-[#1d2520]">
-              Change FRA Status
-            </h2>
+            <h2 className="text-2xl font-bold text-[#1d2520]">Change FRA Status</h2>
 
             <p className="mt-4 text-[#6f6258]">
-              Are you sure you want to change the FRA
-              status to "
-              <span className="font-bold">
-                {pendingStatus}
-              </span>
+              Are you sure you want to change the FRA status to "
+              <span className="font-bold">{pendingStatus}</span>
               "?
             </p>
 

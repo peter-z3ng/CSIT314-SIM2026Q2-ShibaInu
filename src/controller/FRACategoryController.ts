@@ -1,7 +1,4 @@
-import {
-  FRACategory,
-  type FRACategoryDTO,
-} from "@/entity/FRACategory";
+import { FRACategory, type FRACategoryDTO } from "@/entity/FRACategory";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 type FRACategoryRow = {
@@ -19,9 +16,7 @@ export class FRACategoryController {
 
     const { data, error } = await supabase
       .from("fra_category")
-      .select(
-        "category_id, category_name, user_id, description, created_at, updated_at",
-      )
+      .select("category_id, category_name, user_id, description, created_at, updated_at")
       .order("category_name", { ascending: true })
       .overrideTypes<FRACategoryRow[], { merge: false }>();
 

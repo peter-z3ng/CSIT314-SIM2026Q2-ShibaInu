@@ -20,8 +20,8 @@ export function FundraiserHomePage({
 
   function getCategoryName(categoryId: string) {
     return (
-      categoryList.find((category) => category.categoryId === categoryId)
-        ?.categoryName ?? "Unknown Category"
+      categoryList.find((category) => category.categoryId === categoryId)?.categoryName ??
+      "Unknown Category"
     );
   }
 
@@ -48,10 +48,7 @@ export function FundraiserHomePage({
           <DashboardCard title="Total FRAs" value={String(fraList.length)} />
           <DashboardCard title="Active FRAs" value={String(activeFRAs.length)} />
           <DashboardCard title="Closed FRAs" value={String(closedFRAs.length)} />
-          <DashboardCard
-            title="Completed FRAs"
-            value={String(completedFRAs.length)}
-          />
+          <DashboardCard title="Completed FRAs" value={String(completedFRAs.length)} />
         </section>
 
         <section className="mt-8">
@@ -115,9 +112,7 @@ export function FundraiserHomePage({
                     {fra.progressPercentage}% funded
                   </p>
 
-                  <p className="text-sm text-[#6f6258]">
-                    {fra.viewCount} views
-                  </p>
+                  <p className="text-sm text-[#6f6258]">{fra.viewCount} views</p>
                 </div>
               </div>
             ))}
@@ -157,9 +152,7 @@ export function FundraiserHomePage({
                       “{donation.message}”
                     </p>
                   ) : (
-                    <p className="mt-3 text-sm text-[#6f6258]">
-                      No message added.
-                    </p>
+                    <p className="mt-3 text-sm text-[#6f6258]">No message added.</p>
                   )}
                 </div>
               ))}
@@ -171,13 +164,7 @@ export function FundraiserHomePage({
   );
 }
 
-function DashboardCard({
-  title,
-  value,
-}: {
-  title: string;
-  value: string;
-}) {
+function DashboardCard({ title, value }: { title: string; value: string }) {
   return (
     <div className="rounded-2xl border border-[#f0d8bd] bg-white/40 px-5 py-4 shadow-sm">
       <p className="text-sm text-[#6f6258]">{title}</p>

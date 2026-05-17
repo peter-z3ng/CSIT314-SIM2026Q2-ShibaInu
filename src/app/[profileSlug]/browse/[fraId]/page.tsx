@@ -39,9 +39,7 @@ export default async function DoneeFRADetailsRoute({
   const currentIndex = fraList.findIndex((listedFRA) => listedFRA.fraId === fra.fraId);
   const previousFraId = currentIndex > 0 ? fraList[currentIndex - 1].fraId : null;
   const nextFraId =
-    currentIndex >= 0 && currentIndex < fraList.length - 1
-      ? fraList[currentIndex + 1].fraId
-      : null;
+    currentIndex >= 0 && currentIndex < fraList.length - 1 ? fraList[currentIndex + 1].fraId : null;
 
   return (
     <FRADetailsPage
