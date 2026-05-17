@@ -2,6 +2,17 @@ import { type UserProfile, type UserProfileDTO } from "./UserProfile";
 
 export type AccountStatus = "active" | "pending" | "suspended";
 
+export type Report = {
+  period: string;
+  startDate: string;
+  endDate: string;
+  totalUsers: number;
+  newUsers: number;
+  activeUsers: number;
+  suspendedUsers: number;
+  pendingUsers: number;
+};
+
 export class UserAccount {
   readonly userId: string;
   readonly username: string;
@@ -81,6 +92,18 @@ export class UserAccount {
     }
 
     return normalizedEmail;
+  }
+
+  static getDailyReport(reports: Report[]): Report[] {
+    return reports;
+  }
+
+  static getWeeklyReport(reports: Report[]): Report[] {
+    return reports;
+  }
+
+  static getMonthlyReport(reports: Report[]): Report[] {
+    return reports;
   }
 
   get isActive() {

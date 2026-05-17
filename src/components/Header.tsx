@@ -65,15 +65,15 @@ export function Header({ account }: { account: UserAccountDTO }) {
                 <div className="flex rounded-2xl border border-[#f0d8bd] bg-white p-1">
                   {(isAdmin
                     ? [
-                        { label: "Accounts", href: `/${profilePath}/account` },
-                        { label: "Profiles", href: `/${profilePath}/profile` },
+                        { label: "Accounts", href: `/${profilePath}/account`, section: "accounts" },
+                        { label: "Profiles", href: `/${profilePath}/profile`, section: "profiles" },
                       ]
                     : [
-                        { label: "Categories", href: `/${profilePath}/categories` },
-                        { label: "Reports", href: `/${profilePath}/reports` },
+                        { label: "Categories", href: `/${profilePath}/categories`, section: "categories" },
+                        { label: "Reports", href: `/${profilePath}/reports`, section: "reports" },
                       ]
                   ).map((navLink) => {
-                    const isActive = pathname === navLink.href;
+                    const isActive = isManagementNavActive(pathname, profilePath, navLink.section);
 
                     return (
                       <Link
@@ -162,4 +162,34 @@ function HomeIcon() {
       />
     </svg>
   );
+}
+
+function isManagementNavActive(pathname: string, profilePath: string, section: string) {
+  const path = pathname.replace(/\/$/, "");
+
+  if (section === "accounts") {
+    return path.startsWith(`/${profilePath}/account`);
+  }
+
+  if (section === "profiles") {
+    return path.startsWith(`/${profilePath}/profile`);
+  }
+
+  if (section === "categories") {
+    return (
+      path === `/${profilePath}/categories` || 
+      path.startsWith(`/${profilePath}/categories/`) ||
+      path === `/${profilePath}/create-categories`
+      );
+  }
+
+  if (section === "reports") {
+    return (
+      path === `/${profilePath}/reports` ||
+      path === `/${profilePath}/weekly-reports` ||
+      path === `/${profilePath}/monthly-reports`
+    );
+  }
+
+  return path === `/${profilePath}/dashboard`;
 }
