@@ -19,7 +19,6 @@ export function UpdateFRAPage({
   categoryList: FRACategoryDTO[];
 }) {
   const router = useRouter();
-
   const profilePath = account.profile.profile.toLowerCase().replace(" ", "-");
 
   const [title, setTitle] = useState(fra.title);
@@ -27,16 +26,10 @@ export function UpdateFRAPage({
   const [categoryId, setCategoryId] = useState(fra.categoryId);
 
   const initialDate = fra.endDate ? new Date(fra.endDate) : new Date();
-
-  const [endDate, setEndDate] = useState(initialDate.toISOString().split("T")[0]);
-
-  const [hour, setHour] = useState(String(initialDate.getHours()).padStart(2, "0"));
-
-  const [minute, setMinute] = useState(String(initialDate.getMinutes()).padStart(2, "0"));
+  const [endDate, setEndDate] = useState(formatDateTimeLocal(initialDate));
 
   const [status, setStatus] = useState(fra.status);
   const [pendingStatus, setPendingStatus] = useState(fra.status);
-
   const [message, setMessage] = useState("");
   const [showStatusModal, setShowStatusModal] = useState(false);
 
@@ -44,15 +37,13 @@ export function UpdateFRAPage({
     event.preventDefault();
 
     try {
-      const fullEndDate = new Date(`${endDate}T${hour}:${minute}:00`).toISOString();
-
       await updateFRAAction({
         fraId: fra.fraId,
         userId: account.userId,
         title,
         description,
         categoryId,
-        endDate: fullEndDate,
+        endDate,
         status,
       });
 
@@ -79,10 +70,10 @@ export function UpdateFRAPage({
             <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#9b5d12]">
               Fundraiser
             </p>
-
             <h1 className="mt-2 text-3xl font-bold">Update FRA</h1>
-
-            <p className="mt-2 text-[#6f6258]">Update your fundraising activity details.</p>
+            <p className="mt-2 text-[#6f6258]">
+              Update your fundraising activity details.
+            </p>
           </div>
 
           <div className="w-48">
@@ -92,15 +83,13 @@ export function UpdateFRAPage({
                 setPendingStatus(event.target.value);
                 setShowStatusModal(true);
               }}
-              className={`w-full rounded-full border px-4 py-3 text-center text-sm font-bold uppercase tracking-[0.12em] outline-none
-                ${
-                  status === "completed"
-                    ? "border-green-200 bg-green-100 text-green-700"
-                    : status === "closed"
-                      ? "border-red-200 bg-red-100 text-red-600"
-                      : "border-[#f0d8bd] bg-[#fff2df] text-[#c77700]"
-                }
-              `}
+              className={`w-full rounded-full border px-4 py-3 text-center text-sm font-bold uppercase tracking-[0.12em] outline-none ${
+                status === "completed"
+                  ? "border-green-200 bg-green-100 text-green-700"
+                  : status === "closed"
+                    ? "border-red-200 bg-red-100 text-red-600"
+                    : "border-[#f0d8bd] bg-[#fff2df] text-[#c77700]"
+              }`}
             >
               <option value="active">Active</option>
               <option value="closed">Closed</option>
@@ -116,7 +105,6 @@ export function UpdateFRAPage({
           <div className="space-y-6">
             <div>
               <label className="text-sm font-semibold">Title</label>
-
               <input
                 type="text"
                 value={title}
@@ -128,7 +116,6 @@ export function UpdateFRAPage({
 
             <div>
               <label className="text-sm font-semibold">Description</label>
-
               <textarea
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
@@ -139,7 +126,6 @@ export function UpdateFRAPage({
 
             <div>
               <label className="text-sm font-semibold">Category</label>
-
               <select
                 value={categoryId}
                 onChange={(event) => setCategoryId(event.target.value)}
@@ -158,54 +144,23 @@ export function UpdateFRAPage({
               <label className="text-sm font-semibold">End Date</label>
 
               <input
-                type="date"
+                type="datetime-local"
                 value={endDate}
+                min={
+                  fra.startDate
+                    ? formatDateTimeLocal(new Date(fra.startDate))
+                    : new Date().toISOString().slice(0, 16)
+                }
                 onChange={(event) => setEndDate(event.target.value)}
                 className="mt-2 w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
                 required
               />
 
-              <div className="mt-4 flex gap-4">
-                <div>
-                  <label className="text-sm font-semibold">Hr</label>
-
-                  <select
-                    value={hour}
-                    onChange={(event) => setHour(event.target.value)}
-                    className="mt-2 rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
-                  >
-                    {Array.from({ length: 24 }, (_, index) => {
-                      const value = String(index).padStart(2, "0");
-
-                      return (
-                        <option key={value} value={value}>
-                          {value} hr
-                        </option>
-                      );
-                    })}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-semibold">Min</label>
-
-                  <select
-                    value={minute}
-                    onChange={(event) => setMinute(event.target.value)}
-                    className="mt-2 rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
-                  >
-                    {Array.from({ length: 60 }, (_, index) => {
-                      const value = String(index).padStart(2, "0");
-
-                      return (
-                        <option key={value} value={value}>
-                          {value} min
-                        </option>
-                      );
-                    })}
-                  </select>
-                </div>
-              </div>
+              {endDate ? (
+                <p className="mt-2 text-sm font-medium text-[#6f6258]">
+                  Selected Time: {formatDisplayDateTime(endDate)}
+                </p>
+              ) : null}
             </div>
 
             {message ? (
@@ -227,12 +182,13 @@ export function UpdateFRAPage({
       {showStatusModal ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-3xl bg-white p-7 shadow-2xl">
-            <h2 className="text-2xl font-bold text-[#1d2520]">Change FRA Status</h2>
+            <h2 className="text-2xl font-bold text-[#1d2520]">
+              Change FRA Status
+            </h2>
 
             <p className="mt-4 text-[#6f6258]">
-              Are you sure you want to change the FRA status to "
-              <span className="font-bold">{pendingStatus}</span>
-              "?
+              Are you sure you want to change the FRA status to &quot;
+              <span className="font-bold">{pendingStatus}</span>&quot;?
             </p>
 
             <div className="mt-8 flex justify-end gap-3">
@@ -263,4 +219,25 @@ export function UpdateFRAPage({
       ) : null}
     </div>
   );
+}
+
+function formatDateTimeLocal(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hour = String(date.getHours()).padStart(2, "0");
+  const minute = String(date.getMinutes()).padStart(2, "0");
+
+  return `${year}-${month}-${day}T${hour}:${minute}`;
+}
+
+function formatDisplayDateTime(value: string) {
+  return new Date(value).toLocaleString("en-US", {
+    month: "2-digit",
+    day: "2-digit",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
 }

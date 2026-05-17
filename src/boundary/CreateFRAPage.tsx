@@ -178,33 +178,51 @@ export function CreateFRAPage({
               />
             </div>
 
-            <div className="grid gap-5 md:grid-cols-2">
-              <div>
-                <label className="text-sm font-semibold">Start Date</label>
+            <div className="grid gap-6 md:grid-cols-2">
+                <div>
+                  <label className="text-sm font-semibold">
+                    Start Date
+                  </label>
 
-                <input
-                  type="datetime-local"
-                  value={startDate}
-                  min={new Date().toISOString().slice(0, 16)}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="mt-2 w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
-                  required
-                />
+                  <input
+                    type="datetime-local"
+                    value={startDate}
+                    min={new Date().toISOString().slice(0, 16)}
+                    onChange={(event) => setStartDate(event.target.value)}
+                    className="mt-2 w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
+                    required
+                  />
+
+                  {startDate ? (
+                    <p className="mt-2 text-sm font-medium text-[#6f6258]">
+                      Selected Time: {formatDisplayDateTime(startDate)}
+                    </p>
+                  ) : null}
+                </div>
+
+                <div>
+                  <label className="text-sm font-semibold">
+                    End Date
+                  </label>
+
+                  <input
+                    type="datetime-local"
+                    value={endDate}
+                    min={
+                      startDate || new Date().toISOString().slice(0, 16)
+                    }
+                    onChange={(event) => setEndDate(event.target.value)}
+                    className="mt-2 w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
+                    required
+                  />
+
+                  {endDate ? (
+                    <p className="mt-2 text-sm font-medium text-[#6f6258]">
+                      Selected Time: {formatDisplayDateTime(endDate)}
+                    </p>
+                  ) : null}
+                </div>
               </div>
-
-              <div>
-                <label className="text-sm font-semibold">End Date</label>
-
-                <input
-                  type="datetime-local"
-                  value={endDate}
-                  min={startDate || new Date().toISOString().slice(0, 16)}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="mt-2 w-full rounded-md border border-[#f0d8bd] px-4 py-3 outline-none focus:border-[#FFB347]"
-                  required
-                />
-              </div>
-            </div>
 
             {message ? <p className="text-sm font-semibold text-[#9b5d12]">{message}</p> : null}
 
@@ -219,4 +237,14 @@ export function CreateFRAPage({
       </main>
     </div>
   );
+  function formatDisplayDateTime(value: string) {
+  return new Date(value).toLocaleString("en-US", {
+    month: "2-digit",
+    day: "2-digit",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
 }

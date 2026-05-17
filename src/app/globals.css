@@ -24,3 +24,7 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.create-fra-datetime::-webkit-datetime-edit-ampm-field {
+  display: none;
+}
