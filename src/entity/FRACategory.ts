@@ -22,6 +22,18 @@ export class FRACategory {
     this.updatedAt = input.updatedAt ?? null;
   }
 
+  static createCategory(category_name: string, description: string, user_id: string): boolean {
+    if (!category_name.trim()) {
+      throw new Error("Category name is required.");
+    }
+
+    if (!user_id.trim()) {
+      throw new Error("User id is required.");
+    }
+
+    return true;
+  }
+
   toDTO(): FRACategoryDTO {
     return {
       categoryId: this.categoryId,

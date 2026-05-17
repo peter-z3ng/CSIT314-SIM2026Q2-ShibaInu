@@ -15,7 +15,8 @@ import { AdminController } from "@/controller/AdminController";
 import { AuthController, type EmailLookupResult } from "@/controller/AuthController";
 import { CreateUserAccount } from "@/controller/CreateUserAccount";
 import { UpdateUserAccountController } from "@/admin/controller/UpdateUserAccountController";
-import type { UserProfileDTO } from "@/entity/UserProfile";
+import { CreateFRACategoryController } from "@/platform_management/controller/CreateFRACategoryController";
+import { profileToPath, type UserProfileDTO } from "@/entity/UserProfile";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type ActionResult = {
@@ -25,6 +26,7 @@ type ActionResult = {
 
 export type CreateUserAccountState = ActionResult;
 export type CreateUserProfileState = ActionResult;
+export type CreateFRACategoryState = ActionResult;
 
 export type EmailLookupDTO =
   | { status: "existing"; email: string; profile: UserProfileDTO }
@@ -219,6 +221,45 @@ export async function createUserProfile(
       ok: false,
       message:
         error instanceof Error ? error.message : previousState.message || "Profile could not be created.",
+    };
+  }
+}
+
+export async function createFRACategory(
+  previousState: CreateFRACategoryState,
+  formData: FormData,
+): Promise<CreateFRACategoryState> {
+  try {
+    const account = await new AuthController().getCurrentAccount();
+
+    if (!account || account.status !== "active") {
+      throw new Error("You must be logged in to create a category.");
+    }
+
+    if (account.profile.profile.toLowerCase() !== "platform management") {
+      throw new Error("Only platform management can create FRA categories.");
+    }
+
+    await new CreateFRACategoryController().createCategory(
+      String(formData.get("categoryName") ?? ""),
+      String(formData.get("description") ?? ""),
+      account.userId,
+    );
+
+    revalidatePath(`/${profileToPath(account.profile)}/categories`);
+    revalidatePath(`/${profileToPath(account.profile)}/create-categories`);
+
+    return {
+      ok: true,
+      message: "FRA category created.",
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : previousState.message || "FRA category could not be created.",
     };
   }
 }

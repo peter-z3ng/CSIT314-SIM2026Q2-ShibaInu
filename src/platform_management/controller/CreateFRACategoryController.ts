@@ -1,15 +1,16 @@
+import { FRACategory } from "@/entity/FRACategory";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
-export class CreateCategoryController {
-  async createCategory(input: { userId: string; categoryName: string; description: string }) {
+// CreateFRACategoryController
+export class CreateFRACategoryController {
+  // createCategory(...)
+  async createCategory(category_name: string, description: string, user_id: string): Promise<boolean> {
     const supabase = createSupabaseAdminClient();
 
-    const categoryName = input.categoryName.trim();
-    const description = input.description.trim();
+    const categoryName = category_name.trim();
+    const categoryDescription = description.trim();
 
-    if (!categoryName) {
-      throw new Error("Category name is required.");
-    }
+    FRACategory.createCategory(categoryName, categoryDescription, user_id);
 
     const { data: existingCategory, error: checkError } = await supabase
       .from("fra_category")
@@ -26,9 +27,9 @@ export class CreateCategoryController {
     }
 
     const { error } = await supabase.from("fra_category").insert({
-      user_id: input.userId,
+      user_id,
       category_name: categoryName,
-      description,
+      description: categoryDescription,
     });
 
     if (error) {
