@@ -6,6 +6,7 @@ import { createClient } from "@supabase/supabase-js";
 import { ActivateUserAccountController } from "@/admin/controller/ActivateUserAccountController";
 import { ActivateUserProfileController } from "@/admin/controller/ActivateUserProfileController";
 import { CreateUserAccountController } from "@/admin/controller/CreateUserAccountController";
+import { CreateUserProfileController } from "@/admin/controller/CreateUserProfileController";
 import { DeleteUserProfileController } from "@/admin/controller/DeleteUserProfileController";
 import { SuspendUserAccountController } from "@/admin/controller/SuspendUserAccountController";
 import { SuspendUserProfileController } from "@/admin/controller/SuspendUserProfileController";
@@ -23,6 +24,7 @@ type ActionResult = {
 };
 
 export type CreateUserAccountState = ActionResult;
+export type CreateUserProfileState = ActionResult;
 
 export type EmailLookupDTO =
   | { status: "existing"; email: string; profile: UserProfileDTO }
@@ -196,6 +198,29 @@ export async function createProfile(formData: FormData) {
   revalidatePath("/admin/dashboard");
   revalidatePath("/admin/profile");
   revalidatePath("/login");
+}
+
+export async function createUserProfile(
+  previousState: CreateUserProfileState,
+  formData: FormData,
+): Promise<CreateUserProfileState> {
+  try {
+    await new AuthController().requireAdmin();
+    await new CreateUserProfileController().createUserProfile(String(formData.get("profile") ?? ""));
+    revalidatePath("/admin/profile");
+    revalidatePath("/login");
+
+    return {
+      ok: true,
+      message: "Profile created.",
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      message:
+        error instanceof Error ? error.message : previousState.message || "Profile could not be created.",
+    };
+  }
 }
 
 export async function createUserAccount(

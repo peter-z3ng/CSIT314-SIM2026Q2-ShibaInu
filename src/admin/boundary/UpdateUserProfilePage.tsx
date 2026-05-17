@@ -123,7 +123,7 @@ export function UpdateUserProfilePage({
   const actionColor = profileAction === "activate" ? "#0b7a3b" : "#c83232";
 
   return (
-    <article className="flex min-h-[520px] flex-col rounded-4xl border border-[#FFB347] bg-white/40 px-6 pb-5 pt-8 text-center shadow-lg">
+    <article className="flex min-h-[520px] flex-col rounded-4xl border border-[#FFB347] bg-white/40 px-6 pb-5 pt-8 text-center shadow-lg hover:scale-105 transition">
       <span
         className={`mx-auto block w-fit rounded-md px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.1em] ${
           profile.status === "suspended" ? "bg-red-100 text-red-600" : "bg-green-100 text-green-700"
