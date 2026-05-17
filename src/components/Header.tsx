@@ -17,6 +17,7 @@ export function Header({ account }: { account: UserAccountDTO }) {
   const isFundraiser = profileName === "fundraiser" || profileName === "fund raiser";
   const isAdmin = profileName === "admin";
   const isDonee = profileName === "donee";
+  const isPlatformManagement = profileName === "platform management";
   const navLinks = [
     ...(!isAdmin ? [{ label: "Home", href: `/${profilePath}/dashboard`, showHomeIcon: true }] : []),
     ...(isAdmin
@@ -38,6 +39,12 @@ export function Header({ account }: { account: UserAccountDTO }) {
           { label: "Completed FRAs", href: `/${profilePath}/completed-fras` },
         ]
       : []),
+    ...(isPlatformManagement
+      ? [
+          { label: "Manage Categories", href: `/${profilePath}/categories` },
+          { label: "Manage Reports", href: `/${profilePath}/reports` },
+        ]
+      : []),
   ];
 
   return (
@@ -52,14 +59,20 @@ export function Header({ account }: { account: UserAccountDTO }) {
 
         <div className="flex items-center gap-3 justify-self-end">
           <nav className="hidden items-center gap-2 md:flex">
-            {isAdmin ? (
+            {(isAdmin || isPlatformManagement) ? (
               <div className="flex items-center gap-3">
                 <span className="text-md font-semibold text-[#1d2520]">Manage</span>
                 <div className="flex rounded-2xl border border-[#f0d8bd] bg-white p-1">
-                  {[
-                    { label: "Accounts", href: `/${profilePath}/account` },
-                    { label: "Profiles", href: `/${profilePath}/profile` },
-                  ].map((navLink) => {
+                  {(isAdmin
+                    ? [
+                        { label: "Accounts", href: `/${profilePath}/account` },
+                        { label: "Profiles", href: `/${profilePath}/profile` },
+                      ]
+                    : [
+                        { label: "Categories", href: `/${profilePath}/categories` },
+                        { label: "Reports", href: `/${profilePath}/reports` },
+                      ]
+                  ).map((navLink) => {
                     const isActive = pathname === navLink.href;
 
                     return (
