@@ -7,7 +7,7 @@ import { CreateUserAccountController } from "@/admin/controller/CreateUserAccoun
 import { AdminController } from "@/controller/AdminController";
 import { AuthController, type EmailLookupResult } from "@/controller/AuthController";
 import { CreateUserAccount } from "@/controller/CreateUserAccount";
-import { ViewUserAccountController } from "@/admin/controller/ViewUserAccountController";
+import { UpdateUserAccountController } from "@/admin/controller/UpdateUserAccountController";
 import type { AccountStatus } from "@/entity/UserAccount";
 import type { UserProfileDTO } from "@/entity/UserProfile";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -231,7 +231,7 @@ export async function updateUserAccountDetails(input: {
   await new AuthController().requireAdmin();
 
   try {
-    await new ViewUserAccountController().updateUserAccountDetails(input);
+    await new UpdateUserAccountController().updateUserAccount(input);
     revalidatePath("/admin/account");
 
     return {

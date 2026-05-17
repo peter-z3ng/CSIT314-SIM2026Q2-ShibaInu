@@ -103,6 +103,10 @@ export class UserAccount {
     return this;
   }
 
+  updateUserAccount(userId: string, username: string) {
+    return this.userId === userId && Boolean(username.trim());
+  }
+
   updateUserAccountDetails(input: {
     username: string;
     fullName?: string | null;

@@ -15,10 +15,65 @@ type UserAccountRow = {
   profile: ProfileRow | null;
 };
 
-// ViewUserAccountController
-export class ViewUserAccountController {
-  async viewUserAccount(user_id: string): Promise<UserAccount> {
-    if (!user_id.trim()) {
+// UpdateUserAccountController
+export class UpdateUserAccountController {
+  // updateUserAccount(...)
+  async updateUserAccount(input: {
+    userId: string;
+    username: string;
+    email: string;
+    status: UserAccount["status"];
+  }): Promise<boolean> {
+    const currentAccount = await this.getCurrentAccount(input.userId);
+
+    if (!currentAccount.updateUserAccount(input.userId, input.username)) {
+      throw new Error("User account details do not match the requested user.");
+    }
+
+    const updatedAccount = currentAccount.updateUserAccountDetails({
+      username: input.username,
+      email: input.email,
+      status: input.status,
+    });
+
+    const supabase = createSupabaseAdminClient();
+
+    if (updatedAccount.email !== currentAccount.email) {
+      const { error: authError } = await supabase.auth.admin.updateUserById(
+        updatedAccount.userId,
+        {
+          email: updatedAccount.email,
+          email_confirm: true,
+        },
+      );
+
+      if (authError) {
+        throw new Error(authError.message);
+      }
+    }
+
+    const { data, error } = await supabase
+      .from("user_account")
+      .update({
+        username: updatedAccount.username,
+        email: updatedAccount.email,
+        status: updatedAccount.status,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("user_id", updatedAccount.userId)
+      .select("user_id, username, email, status, profile:user_profile(profile_id, profile)")
+      .limit(1)
+      .overrideTypes<UserAccountRow[], { merge: false }>();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return Boolean(data[0]);
+  }
+
+  private async getCurrentAccount(userId: string): Promise<UserAccount> {
+    if (!userId.trim()) {
       throw new Error("User id is required.");
     }
 
@@ -26,7 +81,7 @@ export class ViewUserAccountController {
     const { data, error } = await supabase
       .from("user_account")
       .select("user_id, username, email, status, profile:user_profile(profile_id, profile)")
-      .eq("user_id", user_id)
+      .eq("user_id", userId)
       .limit(1)
       .overrideTypes<UserAccountRow[], { merge: false }>();
 
@@ -40,38 +95,8 @@ export class ViewUserAccountController {
       throw new Error("User account was not found.");
     }
 
-    return mapUserAccount(account).viewUserAccount(user_id);
+    return mapUserAccount(account);
   }
-
-  // getUserAccountDetails(...)
-  async getUserAccountDetails(username: string): Promise<UserAccount> {
-    const trimmedUsername = username.trim();
-
-    if (!trimmedUsername) {
-      throw new Error("Username is required.");
-    }
-
-    const supabase = createSupabaseAdminClient();
-    const { data, error } = await supabase
-      .from("user_account")
-      .select("user_id, username, email, status, profile:user_profile(profile_id, profile)")
-      .eq("username", trimmedUsername)
-      .limit(1)
-      .overrideTypes<UserAccountRow[], { merge: false }>();
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    const account = data[0];
-
-    if (!account) {
-      throw new Error("User account was not found.");
-    }
-
-    return mapUserAccount(account).getUserAccountDetails(trimmedUsername);
-  }
-
 }
 
 function mapUserAccount(account: UserAccountRow) {
