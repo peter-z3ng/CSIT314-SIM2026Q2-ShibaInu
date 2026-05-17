@@ -103,6 +103,12 @@ export class UserAccount {
     return this;
   }
 
+  searchByUsername(username: string) {
+    const normalizedUsername = username.trim().toLowerCase();
+
+    return !normalizedUsername || this.username.toLowerCase().includes(normalizedUsername);
+  }
+
   updateUserAccount(userId: string, username: string) {
     return this.userId === userId && Boolean(username.trim());
   }

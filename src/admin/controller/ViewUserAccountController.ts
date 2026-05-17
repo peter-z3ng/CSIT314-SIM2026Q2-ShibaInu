@@ -43,35 +43,6 @@ export class ViewUserAccountController {
     return mapUserAccount(account).viewUserAccount(user_id);
   }
 
-  // getUserAccountDetails(...)
-  async getUserAccountDetails(username: string): Promise<UserAccount> {
-    const trimmedUsername = username.trim();
-
-    if (!trimmedUsername) {
-      throw new Error("Username is required.");
-    }
-
-    const supabase = createSupabaseAdminClient();
-    const { data, error } = await supabase
-      .from("user_account")
-      .select("user_id, username, email, status, profile:user_profile(profile_id, profile)")
-      .eq("username", trimmedUsername)
-      .limit(1)
-      .overrideTypes<UserAccountRow[], { merge: false }>();
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    const account = data[0];
-
-    if (!account) {
-      throw new Error("User account was not found.");
-    }
-
-    return mapUserAccount(account).getUserAccountDetails(trimmedUsername);
-  }
-
 }
 
 function mapUserAccount(account: UserAccountRow) {
