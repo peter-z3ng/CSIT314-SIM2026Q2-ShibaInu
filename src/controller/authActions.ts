@@ -3,12 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
+import { ActivateUserAccountController } from "@/admin/controller/ActivateUserAccountController";
 import { CreateUserAccountController } from "@/admin/controller/CreateUserAccountController";
+import { SuspendUserAccountController } from "@/admin/controller/SuspendUserAccountController";
 import { AdminController } from "@/controller/AdminController";
 import { AuthController, type EmailLookupResult } from "@/controller/AuthController";
 import { CreateUserAccount } from "@/controller/CreateUserAccount";
 import { UpdateUserAccountController } from "@/admin/controller/UpdateUserAccountController";
-import type { AccountStatus } from "@/entity/UserAccount";
 import type { UserProfileDTO } from "@/entity/UserProfile";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -68,7 +69,7 @@ export async function approveUserAccount(formData: FormData) {
 
 export async function suspendUserAccount(formData: FormData) {
   await new AuthController().requireAdmin();
-  await new AdminController().suspendUserAccount(String(formData.get("userId") ?? ""));
+  await new SuspendUserAccountController().suspendUserAccount(String(formData.get("userId") ?? ""));
   revalidatePath("/admin/dashboard");
 }
 
@@ -76,7 +77,7 @@ export async function activateUserAccount(input: { userId: string }): Promise<Ac
   await new AuthController().requireAdmin();
 
   try {
-    await new AdminController().activateUserAccount(input.userId);
+    await new ActivateUserAccountController().activateUserAccount(input.userId);
     revalidatePath("/admin/account");
 
     return {
@@ -121,7 +122,7 @@ export async function activateUserAccountWithPassword(input: {
       throw new Error("Password is incorrect.");
     }
 
-    await new AdminController().activateUserAccount(input.userId);
+    await new ActivateUserAccountController().activateUserAccount(input.userId);
     revalidatePath("/admin/account");
 
     return {
@@ -170,7 +171,7 @@ export async function suspendUserAccountWithPassword(input: {
       throw new Error("Admin password is incorrect.");
     }
 
-    await new AdminController().suspendUserAccount(input.userId);
+    await new SuspendUserAccountController().suspendUserAccount(input.userId);
     revalidatePath("/admin/account");
 
     return {
@@ -226,7 +227,6 @@ export async function updateUserAccountDetails(input: {
   userId: string;
   username: string;
   email: string;
-  status: AccountStatus;
 }): Promise<ActionResult> {
   await new AuthController().requireAdmin();
 

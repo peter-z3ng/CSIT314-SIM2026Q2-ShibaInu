@@ -1,10 +1,7 @@
 "use client";
 
-import {
-  activateUserAccountWithPassword,
-  suspendUserAccountWithPassword,
-  updateUserAccountDetails,
-} from "@/controller/authActions";
+import { SuspendUserAccountPage } from "@/admin/boundary/SuspendUserAccountPage";
+import { activateUserAccountWithPassword, updateUserAccountDetails } from "@/controller/authActions";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import type { UserAccountDTO } from "@/entity/UserAccount";
@@ -34,11 +31,6 @@ export function UpdateUserAccountPage({
 
   const displayedAccount = editableAccount ?? userAccount;
   const isActivatingAccount = displayedAccount.status === "suspended";
-  const accountAction = isActivatingAccount ? "activate" : "suspend";
-  const accountActionLabel = isActivatingAccount ? "Activate" : "Suspend";
-  const accountActionPendingLabel = isActivatingAccount ? "Activating..." : "Suspending...";
-  const accountActionColor = isActivatingAccount ? "#16a34a" : "#c83232";
-  const accountActionHoverClass = isActivatingAccount ? "hover:bg-green-700" : "hover:bg-[#b42626]";
 
   const updateEditableAccount = (updates: Partial<UserAccountDTO>) => {
     setEditableAccount((currentAccount) =>
@@ -122,7 +114,8 @@ export function UpdateUserAccountPage({
         </div>
 
         {isEditingAccount ? (
-          <div className="mt-5">
+          isActivatingAccount ? (
+            <div className="mt-5">
             {accountActionStep === "idle" ? (
               <button
                 type="button"
@@ -130,26 +123,18 @@ export function UpdateUserAccountPage({
                   setAccountMessage("");
                   setAccountActionStep("confirm");
                 }}
-                className={`h-11 w-full rounded-3xl px-4 text-sm font-semibold text-white transition ${accountActionHoverClass}`}
-                style={{ backgroundColor: accountActionColor }}
+                className="h-11 w-full rounded-3xl bg-[#16a34a] px-4 text-sm font-semibold text-white transition hover:bg-green-700"
               >
-                {accountActionLabel}
+                Activate
               </button>
             ) : null}
 
             {accountActionStep === "confirm" ? (
-              <div
-                className="grid gap-5 rounded-3xl border bg-white/40 p-6"
-                style={{ borderColor: accountActionColor }}
-              >
-                <p
-                  className="text-center text-sm font-semibold"
-                  style={{ color: accountActionColor }}
-                >
-                  Are you sure to {accountAction}{" "}
+              <div className="grid gap-5 rounded-3xl border border-[#16a34a] bg-white/40 p-6">
+                <p className="text-center text-sm font-semibold text-[#16a34a]">
+                  Are you sure to activate{" "}
                   <span
-                    className="rounded-4xl border px-3 py-0.5 font-bold"
-                    style={{ borderColor: accountActionColor, color: accountActionColor }}
+                    className="rounded-4xl border border-[#16a34a] px-3 py-0.5 font-bold text-[#16a34a]"
                   >
                     {displayedAccount.username}
                   </span>{" "}
@@ -163,42 +148,35 @@ export function UpdateUserAccountPage({
                   >
                     Cancel
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setAccountActionStep("password")}
-                    className={`h-10 rounded-3xl px-4 text-sm font-semibold text-white transition ${accountActionHoverClass}`}
-                    style={{ backgroundColor: accountActionColor }}
-                  >
-                    Confirm
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => setAccountActionStep("password")}
+                      className="h-10 rounded-3xl bg-[#16a34a] px-4 text-sm font-semibold text-white transition hover:bg-green-700"
+                    >
+                      Confirm
+                    </button>
                 </div>
               </div>
             ) : null}
 
             {accountActionStep === "password" ? (
               <form
-                className="grid gap-5 rounded-3xl border bg-white/40 p-6"
-                style={{ borderColor: accountActionColor }}
+                className="grid gap-5 rounded-3xl border border-[#16a34a] bg-white/40 p-6"
                 onSubmit={(event) => {
                   event.preventDefault();
                   setAccountMessage("");
                   startChangingStatus(async () => {
-                    const result = isActivatingAccount
-                      ? await activateUserAccountWithPassword({
-                          userId: displayedAccount.userId,
-                          password: adminPassword,
-                        })
-                      : await suspendUserAccountWithPassword({
-                          userId: displayedAccount.userId,
-                          password: adminPassword,
-                        });
+                    const result = await activateUserAccountWithPassword({
+                      userId: displayedAccount.userId,
+                      password: adminPassword,
+                    });
 
                     setAccountMessage(result.message);
 
                     if (result.ok) {
                       const updatedAccount: UserAccountDTO = {
                         ...displayedAccount,
-                        status: isActivatingAccount ? "active" : "suspended",
+                        status: "active",
                       };
 
                       setEditableAccount(updatedAccount);
@@ -210,17 +188,13 @@ export function UpdateUserAccountPage({
                   });
                 }}
               >
-                <label
-                  className="block text-center text-sm font-medium"
-                  style={{ color: accountActionColor }}
-                >
-                  Enter your password to {accountAction} this account
+                <label className="block text-center text-sm font-medium text-[#16a34a]">
+                  Enter your password to activate this account
                   <input
                     value={adminPassword}
                     onChange={(event) => setAdminPassword(event.target.value)}
                     type="password"
-                    className="mt-4 h-10 w-full rounded-md border bg-white px-3 text-sm text-[#1d2520] outline-none transition focus:ring-1"
-                    style={{ borderColor: accountActionColor }}
+                    className="mt-4 h-10 w-full rounded-md border border-[#16a34a] bg-white px-3 text-sm text-[#1d2520] outline-none transition focus:ring-1 focus:ring-[#16a34a]"
                     placeholder="Password"
                   />
                 </label>
@@ -237,15 +211,25 @@ export function UpdateUserAccountPage({
                   </button>
                   <button
                     disabled={isChangingStatus || !adminPassword}
-                    className={`h-10 rounded-3xl px-4 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60 ${accountActionHoverClass}`}
-                    style={{ backgroundColor: accountActionColor }}
+                    className="h-10 rounded-3xl bg-[#16a34a] px-4 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    {isChangingStatus ? accountActionPendingLabel : accountActionLabel}
+                    {isChangingStatus ? "Activating..." : "Activate"}
                   </button>
                 </div>
               </form>
             ) : null}
           </div>
+          ) : (
+            <SuspendUserAccountPage
+              userAccount={displayedAccount}
+              onSuspended={(message) => {
+                setAccountMessage(message);
+                setEditableAccount({ ...displayedAccount, status: "suspended" });
+                setIsEditingAccount(false);
+                router.refresh();
+              }}
+            />
+          )
         ) : null}
 
         {accountMessage
@@ -272,7 +256,6 @@ export function UpdateUserAccountPage({
                     userId: displayedAccount.userId,
                     username: displayedAccount.username,
                     email: displayedAccount.email,
-                    status: displayedAccount.status,
                   });
 
                   setAccountMessage(result.message);

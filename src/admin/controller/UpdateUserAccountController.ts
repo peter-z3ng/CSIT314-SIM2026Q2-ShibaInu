@@ -22,7 +22,6 @@ export class UpdateUserAccountController {
     userId: string;
     username: string;
     email: string;
-    status: UserAccount["status"];
   }): Promise<boolean> {
     const currentAccount = await this.getCurrentAccount(input.userId);
 
@@ -33,7 +32,6 @@ export class UpdateUserAccountController {
     const updatedAccount = currentAccount.updateUserAccountDetails({
       username: input.username,
       email: input.email,
-      status: input.status,
     });
 
     const supabase = createSupabaseAdminClient();
@@ -57,7 +55,6 @@ export class UpdateUserAccountController {
       .update({
         username: updatedAccount.username,
         email: updatedAccount.email,
-        status: updatedAccount.status,
         updated_at: new Date().toISOString(),
       })
       .eq("user_id", updatedAccount.userId)

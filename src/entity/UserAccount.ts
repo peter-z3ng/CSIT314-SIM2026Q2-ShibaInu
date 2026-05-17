@@ -111,7 +111,6 @@ export class UserAccount {
     username: string;
     fullName?: string | null;
     email: string;
-    status: AccountStatus;
 
     gender?: string | null;
     dateOfBirth?: string | null;
@@ -122,13 +121,21 @@ export class UserAccount {
       username: input.username,
       fullName: input.fullName,
       email: input.email,
-      status: input.status,
+      status: this.status,
       profile: this.profile,
 
       gender: input.gender,
       dateOfBirth: input.dateOfBirth,
       bio: input.bio,
     });
+  }
+
+  suspendUserAccount(userId: string) {
+    return this.userId === userId && this.status !== "suspended";
+  }
+
+  activateUserAccount(userId: string) {
+    return this.userId === userId && this.status === "suspended";
   }
 
   toDTO(): UserAccountDTO {
