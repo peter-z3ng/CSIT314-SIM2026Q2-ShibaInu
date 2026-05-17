@@ -1,12 +1,11 @@
 import { AuthController } from "@/controller/AuthController";
-import { ViewCategoryController } from "@/controller/ViewCategoryController";
+import { RetrieveFRACategoryController } from "@/platform_management/controller/RetrieveFRACategoryController";
 import { DeleteCategoryController } from "@/controller/DeleteCategoryController";
-import { ViewCategoryPage } from "@/boundary/ViewCategoryPage";
-import { redirect } from "next/navigation";
+import { RetrieveFRACategoryPage } from "@/platform_management/boundary/RetrieveFRACategoryPage";
 
 export const dynamic = "force-dynamic";
 
-export default async function ViewCategoryRoutePage({
+export default async function RetrieveFRACategoryRoutePage({
   params,
 }: {
   params: Promise<{ profileSlug: string }>;
@@ -16,8 +15,8 @@ export default async function ViewCategoryRoutePage({
   const authController = new AuthController();
   const account = await authController.requireProfilePath(profileSlug);
 
-  const viewCategoryController = new ViewCategoryController();
-  const categories = await viewCategoryController.viewCategories();
+  const retrieveFRACategoryController = new RetrieveFRACategoryController();
+  const categories = await retrieveFRACategoryController.retrieveCategories();
 
   async function deleteCategoryAction(formData: FormData) {
     "use server";
@@ -30,7 +29,7 @@ export default async function ViewCategoryRoutePage({
   }
 
   return (
-    <ViewCategoryPage
+    <RetrieveFRACategoryPage
       account={account.toDTO()}
       categories={categories}
       deleteCategoryAction={deleteCategoryAction}

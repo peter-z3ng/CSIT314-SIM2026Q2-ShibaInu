@@ -34,6 +34,23 @@ export class FRACategory {
     return true;
   }
 
+  static retrieveCategories(categories: FRACategory[]): FRACategory[] {
+    return categories;
+  }
+
+  searchCategory(keyword: string): boolean {
+    const normalizedKeyword = keyword.trim().toLowerCase();
+
+    if (!normalizedKeyword) {
+      return true;
+    }
+
+    return (
+      this.categoryName.toLowerCase().includes(normalizedKeyword) ||
+      (this.description ?? "").toLowerCase().includes(normalizedKeyword)
+    );
+  }
+
   toDTO(): FRACategoryDTO {
     return {
       categoryId: this.categoryId,
