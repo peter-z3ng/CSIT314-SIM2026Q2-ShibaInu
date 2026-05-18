@@ -3,7 +3,7 @@ import { SearchFavouriteListPage } from "@/boundary/SearchFavouriteListPage";
 import { AuthController } from "@/controller/AuthController";
 import { RouteController } from "@/controller/RouteController";
 import { SearchFavouriteController } from "@/controller/SearchFavouriteController";
-import { SearchFRAController } from "@/controller/SearchFRAController";
+import { SearchFRAController } from "@/donee/controller/SearchFRAController";
 
 export const dynamic = "force-dynamic";
 

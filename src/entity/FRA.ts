@@ -62,6 +62,25 @@ export class FRA {
     return this;
   }
 
+  // searchFRA(...)
+  static searchFRA(fraList: FRA[], keyword: string = "", category: string = "") {
+    const normalizedKeyword = keyword.trim().toLowerCase();
+    const categoryIds = category
+      .split(",")
+      .map((item) => item.trim())
+      .filter((item) => item && item !== "all");
+
+    return fraList.filter((fra) => {
+      const matchesKeyword =
+        !normalizedKeyword ||
+        fra.title.toLowerCase().includes(normalizedKeyword) ||
+        (fra.description?.toLowerCase().includes(normalizedKeyword) ?? false);
+      const matchesCategory = !categoryIds.length || categoryIds.includes(fra.categoryId);
+
+      return matchesKeyword && matchesCategory;
+    });
+  }
+
   toDTO(): FRADTO {
     return {
       fraId: this.fraId,

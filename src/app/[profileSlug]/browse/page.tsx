@@ -1,17 +1,23 @@
 import { redirect } from "next/navigation";
-import { SearchFRAPage } from "@/boundary/SearchFRAPage";
+import { SearchFRAPage } from "@/donee/boundary/SearchFRAPage";
 import { AuthController } from "@/controller/AuthController";
 import { RouteController } from "@/controller/RouteController";
-import { SearchFRAController } from "@/controller/SearchFRAController";
+import { SearchFRAController } from "@/donee/controller/SearchFRAController";
 
 export const dynamic = "force-dynamic";
 
 export default async function DoneeBrowsePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ profileSlug: string }>;
+  searchParams: Promise<{
+    keyword?: string;
+    categoryId?: string;
+  }>;
 }) {
   const { profileSlug } = await params;
+  const filters = await searchParams;
   const account = await new AuthController().requireProfilePath(profileSlug);
 
   if (account.profile.profile.toLowerCase() !== "donee") {
@@ -19,8 +25,9 @@ export default async function DoneeBrowsePage({
   }
 
   const searchFRAController = new SearchFRAController();
-  const [fraList, categories] = await Promise.all([
-    searchFRAController.searchFRA("", "all"),
+  const [fraList, allFRAList, categories] = await Promise.all([
+    searchFRAController.searchFRA(filters.keyword ?? "", filters.categoryId ?? ""),
+    searchFRAController.searchFRA("", ""),
     searchFRAController.listCategories(),
   ]);
 
@@ -28,6 +35,7 @@ export default async function DoneeBrowsePage({
     <SearchFRAPage
       account={account.toDTO()}
       fraList={fraList.map((fra) => fra.toDTO())}
+      totalFRA={allFRAList.length}
       categories={categories}
     />
   );

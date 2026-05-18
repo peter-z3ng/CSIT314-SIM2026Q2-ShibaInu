@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { DonationHistoryPage } from "@/boundary/DonationHistoryPage";
 import { AuthController } from "@/controller/AuthController";
 import { RouteController } from "@/controller/RouteController";
-import { SearchFRAController } from "@/controller/SearchFRAController";
+import { SearchFRAController } from "@/donee/controller/SearchFRAController";
 import { ViewDonationHistoryController } from "@/controller/ViewDonationHistoryController";
 
 export const dynamic = "force-dynamic";

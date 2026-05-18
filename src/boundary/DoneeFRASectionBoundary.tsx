@@ -36,12 +36,12 @@ export function DoneeFRASectionBoundary({
 
   return (
     <section className="relative z-0 -mt-40 min-h-[60vh] rounded-[2rem] bg-[#FFF4EC] px-8 pb-10 pt-44">
-      <h2 className="text-3xl font-black text-[#1d2520]">Highlighted Campaigns</h2>
+      <h2 className="text-3xl font-black text-[#1d2520]">Highlighted Fundraising Activities</h2>
       <div className="mt-6 grid gap-5 md:grid-cols-3">
         {visibleFRA.map((fra) => (
           <article
             key={fra.fraId}
-            className="rounded-2xl border border-[#f0d8bd] bg-white/40 p-4 shadow-sm"
+            className="rounded-3xl border border-[#FFB347] bg-white/40 p-4 shadow-lg"
           >
             <div className="flex items-start justify-between gap-3">
               <div>

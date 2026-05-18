@@ -29,36 +29,26 @@ type FRACategoryRow = {
   updated_at: string | null;
 };
 
+// SearchFRAController
 export class SearchFRAController {
-  async searchFRA(keyword: string = "", category: string = "all"): Promise<FRA[]> {
-    const normalizedKeyword = keyword.trim();
-    const categoryId = category.trim();
+  // searchFRA(...)
+  async searchFRA(keyword: string = "", category: string = ""): Promise<FRA[]> {
     const supabase = createSupabaseAdminClient();
 
-    let query = supabase
+    const { data, error } = await supabase
       .from("fra")
       .select(
         "fra_id, user_id, category_id, title, description, target_amount, current_amount, start_date, status, view_count, fav_count, end_date, created_at, updated_at",
       )
       .eq("status", "active")
-      .order("updated_at", { ascending: false, nullsFirst: false });
-
-    if (normalizedKeyword) {
-      const pattern = `%${escapeSearchPattern(normalizedKeyword)}%`;
-      query = query.or(`title.ilike.${pattern},description.ilike.${pattern}`);
-    }
-
-    if (categoryId && categoryId !== "all") {
-      query = query.eq("category_id", categoryId);
-    }
-
-    const { data, error } = await query.overrideTypes<FRARow[], { merge: false }>();
+      .order("updated_at", { ascending: false, nullsFirst: false })
+      .overrideTypes<FRARow[], { merge: false }>();
 
     if (error) {
       throw new Error(error.message);
     }
 
-    return data.map(mapFRARow);
+    return FRA.searchFRA(data.map(mapFRARow), keyword, category);
   }
 
   async listCategories(): Promise<FRACategoryDTO[]> {
@@ -103,8 +93,4 @@ function mapFRARow(row: FRARow) {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   });
-}
-
-function escapeSearchPattern(value: string) {
-  return value.replaceAll("\\", "\\\\").replaceAll("%", "\\%").replaceAll("_", "\\_");
 }

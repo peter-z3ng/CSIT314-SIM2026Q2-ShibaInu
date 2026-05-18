@@ -1,0 +1,302 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { Header } from "@/components/Header";
+import type { FRADTO } from "@/entity/FRA";
+import type { FRACategoryDTO } from "@/entity/FRACategory";
+import type { UserAccountDTO } from "@/entity/UserAccount";
+import { profileToPath } from "@/entity/UserProfile";
+
+// SearchFRAPage
+export function SearchFRAPage({
+  account,
+  fraList,
+  totalFRA,
+  categories,
+}: {
+  account: UserAccountDTO;
+  fraList: FRADTO[];
+  totalFRA: number;
+  categories: FRACategoryDTO[];
+}) {
+  const profilePath = profileToPath(account.profile);
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [keyword, setKeyword] = useState(searchParams.get("keyword") ?? "");
+  const [categoryQuery, setCategoryQuery] = useState("");
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const categoryId = searchParams.get("categoryId") ?? "";
+  const selectedCategoryIds = splitFilterValues(categoryId);
+  const filteredCategories = categories.filter((category) =>
+    category.categoryName.toLowerCase().includes(categoryQuery.trim().toLowerCase()),
+  );
+
+  function updateSearchParam(name: string, value: string) {
+    updateSearchParams({ [name]: value });
+  }
+
+  function updateSearchParams(updates: Record<string, string>) {
+    const nextParams = new URLSearchParams(searchParams.toString());
+
+    Object.entries(updates).forEach(([name, value]) => {
+      const normalizedValue = value.trim();
+
+      if (normalizedValue) {
+        nextParams.set(name, normalizedValue);
+      } else {
+        nextParams.delete(name);
+      }
+    });
+
+    const queryString = nextParams.toString();
+    router.replace(queryString ? `${pathname}?${queryString}` : pathname, {
+      scroll: false,
+    });
+  }
+
+  function toggleSearchParamValue(name: string, value: string) {
+    const selectedValues = splitFilterValues(searchParams.get(name) ?? "");
+    const nextValues = selectedValues.includes(value)
+      ? selectedValues.filter((selectedValue) => selectedValue !== value)
+      : [...selectedValues, value];
+
+    updateSearchParam(name, nextValues.join(","));
+  }
+
+  function getCategoryName(categoryId: string) {
+    return (
+      categories.find((category) => category.categoryId === categoryId)?.categoryName ??
+      "Unknown Category"
+    );
+  }
+
+  // displayError(message)
+  const displayError = (message: string) => (
+    <div className="rounded-3xl border border-[#f0d8bd] bg-white/40 p-6 shadow-sm">
+      <p className="text-[#6f6258]">{message}</p>
+    </div>
+  );
+
+  // displayFRASearchResults(array[FRA])
+  const displayFRASearchResults = (results: FRADTO[]) => {
+    if (!results.length) {
+      return displayError("No matching fundraising activities found.");
+    }
+
+    return (
+      <div className="grid gap-4 md:grid-cols-2">
+        {results.map((fra) => (
+          <article
+            key={fra.fraId}
+            className="rounded-2xl border border-[#f0d8bd] bg-white/40 p-4 shadow-sm"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#c77700]">
+                  {getCategoryName(fra.categoryId)}
+                </p>
+
+                <h2 className="mt-3 min-h-[64px] text-2xl font-bold leading-8">
+                  {fra.title}
+                </h2>
+              </div>
+
+              <span className="flex h-8 w-36 items-center justify-center rounded-2xl bg-[#fff2df] px-4 text-xs font-bold uppercase tracking-[0.15em] text-[#c77700]">
+                {fra.status}
+              </span>
+            </div>
+
+            <div className="mt-5 h-3 w-full overflow-hidden rounded-full bg-[#fff2df]">
+              <div
+                className="h-full rounded-full bg-[#FFB347]"
+                style={{ width: `${fra.progressPercentage}%` }}
+              />
+            </div>
+
+            <div className="mt-3 flex items-center justify-between text-sm font-semibold">
+              <p>${fra.currentAmount.toFixed(2)} raised</p>
+              <p>${fra.targetAmount.toFixed(2)} goal</p>
+            </div>
+
+            <p className="mt-3 text-sm font-semibold text-[#FFB347]">
+              {fra.progressPercentage}% funded
+            </p>
+
+            <Link
+              href={`/${profilePath}/browse/${fra.fraId}`}
+              className="mt-4 flex w-full items-center justify-center rounded-xl bg-[#FFB347] py-2.5 text-sm font-bold text-white transition hover:bg-[#FFBE5C]"
+            >
+              View details
+            </Link>
+          </article>
+        ))}
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-[#fffaf5] text-[#1d2520]">
+      <Header account={account} />
+
+      <main className="mx-auto max-w-7xl px-5 py-8 lg:px-8">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#9b5d12]">
+              Donee
+            </p>
+            <h1 className="mt-2 text-3xl font-bold">Fundraising Activities</h1>
+          </div>
+
+          <p className="pt-8 text-sm font-semibold text-[#6f6258]">
+            {fraList.length} of {totalFRA} FRAs
+          </p>
+        </div>
+
+        <section className="mt-8 grid items-start gap-5 lg:grid-cols-[7fr_3fr]">
+          <div className="grid gap-6">
+            <div className="rounded-2xl border border-[#f0d8bd] bg-white/40 px-4 py-3 shadow-sm">
+              <input
+                value={keyword}
+                onChange={(event) => {
+                  setKeyword(event.target.value);
+                  updateSearchParam("keyword", event.target.value);
+                }}
+                placeholder="Search by title or description"
+                aria-label="Search by title or description"
+                className="h-10 w-full bg-transparent px-2 text-lg outline-none placeholder:text-[#9f9082]"
+              />
+            </div>
+
+            <section>{displayFRASearchResults(fraList)}</section>
+          </div>
+
+          <aside className="rounded-2xl border border-[#f0d8bd] bg-white/40 p-5 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <p className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.16em] text-[#9b5d12]">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M2 5h20" />
+                  <path d="M6 12h12" />
+                  <path d="M9 19h6" />
+                </svg>
+                Filters
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  updateSearchParams({
+                    categoryId: "",
+                  });
+                  setCategoryQuery("");
+                }}
+                className="rounded-md border border-[#f0d8bd] px-3 py-1.5 text-xs font-bold text-[#9b5d12] transition hover:bg-[#fff2df] hover:text-[#FFB347]"
+              >
+                Clear all
+              </button>
+            </div>
+
+            <div className="mt-5 grid gap-5">
+              <div className="border-t border-[#f0d8bd] pt-5">
+                <button
+                  type="button"
+                  onClick={() => setIsCategoryOpen((current) => !current)}
+                  className="flex w-full items-center justify-between gap-3 text-left"
+                >
+                  <span className="text-lg font-bold text-[#1d2520]">Category</span>
+                  <span className="flex size-8 items-center justify-center rounded-full bg-[#9b5d12] text-sm font-bold text-white">
+                    <ChevronIcon isOpen={isCategoryOpen} />
+                  </span>
+                </button>
+
+                {isCategoryOpen ? (
+                  <div className="mt-4">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        updateSearchParam("categoryId", "");
+                        setCategoryQuery("");
+                      }}
+                      className="text-xs font-semibold text-[#9b5d12] transition hover:text-[#FFB347]"
+                    >
+                      Clear
+                    </button>
+
+                    <input
+                      value={categoryQuery}
+                      onChange={(event) => setCategoryQuery(event.target.value)}
+                      placeholder="Search category"
+                      className="mt-4 h-10 w-full rounded-md border border-[#f0d8bd] px-3 text-sm outline-none transition focus:border-[#FFB347] focus:ring-2 focus:ring-[#FFB347]/20"
+                    />
+
+                    <div className="mt-4 grid max-h-80 gap-3 overflow-y-auto pr-1">
+                      {filteredCategories.map((category) => (
+                        <label
+                          key={category.categoryId}
+                          className="flex items-center gap-3 text-sm font-semibold text-[#6f6258]"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedCategoryIds.includes(category.categoryId)}
+                            onChange={() =>
+                              toggleSearchParamValue("categoryId", category.categoryId)
+                            }
+                            className="size-5 appearance-none rounded border border-[#8a8a8a] bg-white transition checked:border-[#9b5d12] checked:bg-[#9b5d12]"
+                          />
+                          {category.categoryName}
+                        </label>
+                      ))}
+
+                      {!filteredCategories.length ? (
+                        <p className="text-sm text-[#6f6258]">No categories found.</p>
+                      ) : null}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </aside>
+        </section>
+      </main>
+    </div>
+  );
+}
+
+function ChevronIcon({ isOpen }: { isOpen: boolean }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth="1.5"
+      stroke="currentColor"
+      className="size-5"
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d={isOpen ? "m4.5 15.75 7.5-7.5 7.5 7.5" : "m19.5 8.25-7.5 7.5-7.5-7.5"}
+      />
+    </svg>
+  );
+}
+
+function splitFilterValues(value: string) {
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}

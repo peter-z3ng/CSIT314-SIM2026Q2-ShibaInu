@@ -3,7 +3,7 @@ import { FRADetailsPage } from "@/boundary/MyFRADetailsPage";
 import { AuthController } from "@/controller/AuthController";
 import { RouteController } from "@/controller/RouteController";
 import { SaveFavouriteController } from "@/controller/SaveFavouriteController";
-import { SearchFRAController } from "@/controller/SearchFRAController";
+import { SearchFRAController } from "@/donee/controller/SearchFRAController";
 import { ViewFRADetailsController } from "@/controller/ViewFRADetailsController";
 
 export const dynamic = "force-dynamic";
