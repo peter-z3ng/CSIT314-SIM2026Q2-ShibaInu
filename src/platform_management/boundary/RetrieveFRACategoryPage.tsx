@@ -24,11 +24,16 @@ export function RetrieveFRACategoryPage({
   const searchParams = useSearchParams();
 
   const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [cannotDeleteMessage, setCannotDeleteMessage] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<RetrievedFRACategoryDTO | null>(null);
 
   useEffect(() => {
     const success = searchParams.get("success");
+    const error = searchParams.get("error");
+
+    setSuccessMessage("");
+    setErrorMessage("");
 
     if (success === "updated") {
       setSuccessMessage("Category updated successfully.");
@@ -42,8 +47,13 @@ export function RetrieveFRACategoryPage({
       setSuccessMessage("Category deleted successfully.");
     }
 
+    if (error) {
+      setErrorMessage(error);
+    }
+
     const timer = setTimeout(() => {
       setSuccessMessage("");
+      setErrorMessage("");
     }, 7000);
 
     return () => clearTimeout(timer);
@@ -64,9 +74,9 @@ export function RetrieveFRACategoryPage({
 
   // displayError()
   const displayError = () =>
-    cannotDeleteMessage ? (
+    errorMessage || cannotDeleteMessage ? (
       <div className="mt-6 w-full rounded-2xl border border-red-300 bg-red-50 px-5 py-6 text-sm font-bold text-red-700">
-        {cannotDeleteMessage}
+        {errorMessage || cannotDeleteMessage}
       </div>
     ) : null;
 

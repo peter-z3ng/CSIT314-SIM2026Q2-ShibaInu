@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
 import { createFRACategory, type CreateFRACategoryState } from "@/controller/authActions";
@@ -17,21 +17,19 @@ export function CreateFRACategoryPage({ account }: { account: UserAccountDTO }) 
   };
   const [state, formAction, isPending] = useActionState(createFRACategory, initialState);
 
-  // displaySuccess()
-  const displaySuccess = () =>
-    state.ok && state.message ? (
-      <p className="rounded-lg bg-green-100 px-3 py-2 text-xs font-semibold text-green-700">
-        {state.message}
-      </p>
-    ) : null;
+  useEffect(() => {
+    if (!state.message) {
+      return;
+    }
 
-  // displayError()
-  const displayError = () =>
-    !state.ok && state.message ? (
-      <p className="rounded-lg bg-[#fff2df] px-3 py-2 text-xs font-semibold text-[#9b5d12]">
-        {state.message}
-      </p>
-    ) : null;
+    if (state.ok) {
+      router.push(`/${profilePath}/categories?success=created`);
+    } else {
+      router.push(`/${profilePath}/categories?error=${encodeURIComponent(state.message)}`);
+    }
+
+    router.refresh();
+  }, [profilePath, router, state.message, state.ok]);
 
   return (
     <main className="min-h-screen bg-[#fffaf5] text-[#0b1f2a]">
@@ -66,16 +64,13 @@ export function CreateFRACategoryPage({ account }: { account: UserAccountDTO }) 
                 />
               </div>
 
-              {displaySuccess()}
-              {displayError()}
-
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => router.push(`/${profilePath}/categories`)}
                   className="rounded-full border border-[#f0d8bd] px-4 py-2 text-xs font-bold text-[#5f5148] hover:bg-[#ffecec]"
                 >
-                  Back
+                  Cancel
                 </button>
 
                 <button
