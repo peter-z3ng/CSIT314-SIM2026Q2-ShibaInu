@@ -12,12 +12,17 @@ export default async function AdminProfilePage({
   const { profileSlug } = await params;
   const account = await new AuthController().requireProfilePath(profileSlug);
   const adminAccount = await new AuthController().requireAdmin();
-  const profiles = await new AdminController().listProfiles();
+  const adminController = new AdminController();
+  const [profiles, userAccounts] = await Promise.all([
+    adminController.listProfiles(),
+    adminController.listUserAccounts(),
+  ]);
 
   return (
     <AdminProfileBoundary
       account={(adminAccount ?? account).toDTO()}
       profiles={profiles.map((profile) => profile.toDTO())}
+      userAccounts={userAccounts.map((userAccount) => userAccount.toDTO())}
     />
   );
 }

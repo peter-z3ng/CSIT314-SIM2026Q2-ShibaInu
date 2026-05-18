@@ -47,6 +47,32 @@ export class AdminController {
     return data.map(mapProfile);
   }
 
+  async viewUserProfile(user_id: string): Promise<Profile> {
+    if (!user_id.trim()) {
+      throw new Error("User id is required.");
+    }
+
+    const supabase = createSupabaseAdminClient();
+    const { data, error } = await supabase
+      .from("user_account")
+      .select("profile:user_profile(profile_id, profile)")
+      .eq("user_id", user_id)
+      .limit(1)
+      .overrideTypes<{ profile: ProfileRow }[], { merge: false }>();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    const account = data[0];
+
+    if (!account) {
+      throw new Error("User account was not found.");
+    }
+
+    return mapProfile(account.profile);
+  }
+
   async listPendingUserAccounts(): Promise<UserAccount[]> {
     const accounts = await this.listUserAccounts();
     return accounts.filter((account) => account.status === "pending");
