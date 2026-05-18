@@ -1,35 +1,76 @@
-"use client";
-
-import { useActionState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { Header } from "@/components/Header";
-import { createFRACategory, type CreateFRACategoryState } from "@/controller/authActions";
+import { AuthController } from "@/controller/AuthController";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 import { profileToPath } from "@/entity/UserProfile";
+import { CreateFRACategoryController } from "@/platform_management/controller/CreateFRACategoryController";
+
+export async function createCategory(formData: FormData): Promise<void> {
+  "use server";
+
+  const fallbackProfilePath = String(formData.get("profilePath") ?? "");
+  let redirectPath = fallbackProfilePath ? `/${fallbackProfilePath}/create-categories` : "/login";
+
+  try {
+    const account = await new AuthController().getCurrentAccount();
+
+    if (!account || account.status !== "active") {
+      throw new Error("You must be logged in to create a category.");
+    }
+
+    if (account.profile.profile.toLowerCase() !== "platform management") {
+      throw new Error("Only platform management can create FRA categories.");
+    }
+
+    const profilePath = profileToPath(account.profile);
+
+    await new CreateFRACategoryController().createCategory(
+      String(formData.get("categoryName") ?? ""),
+      String(formData.get("description") ?? ""),
+      account.userId,
+    );
+
+    revalidatePath(`/${profilePath}/categories`);
+    revalidatePath(`/${profilePath}/create-categories`);
+    redirectPath = `/${profilePath}/categories?success=created`;
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "FRA category could not be created.";
+    redirectPath = `${redirectPath}?error=${encodeURIComponent(message)}`;
+  }
+
+  redirect(redirectPath);
+}
 
 // CreateFRACategoryPage
-export function CreateFRACategoryPage({ account }: { account: UserAccountDTO }) {
-  const router = useRouter();
+export function CreateFRACategoryPage({
+  account,
+  successMessage = "",
+  errorMessage = "",
+}: {
+  account: UserAccountDTO;
+  successMessage?: string;
+  errorMessage?: string;
+}) {
   const profilePath = profileToPath(account.profile);
-  const initialState: CreateFRACategoryState = {
-    ok: true,
-    message: "",
-  };
-  const [state, formAction, isPending] = useActionState(createFRACategory, initialState);
 
-  useEffect(() => {
-    if (!state.message) {
-      return;
-    }
+  // displaySuccess()
+  const displaySuccess = () =>
+    successMessage ? (
+      <p className="rounded-lg bg-green-50 px-3 py-2 text-xs font-semibold text-green-700">
+        {successMessage}
+      </p>
+    ) : null;
 
-    if (state.ok) {
-      router.push(`/${profilePath}/categories?success=created`);
-    } else {
-      router.push(`/${profilePath}/categories?error=${encodeURIComponent(state.message)}`);
-    }
-
-    router.refresh();
-  }, [profilePath, router, state.message, state.ok]);
+  // displayError()
+  const displayError = () =>
+    errorMessage ? (
+      <p className="rounded-lg bg-red-50 px-3 py-2 text-xs font-semibold text-red-700">
+        {errorMessage}
+      </p>
+    ) : null;
 
   return (
     <main className="min-h-screen bg-[#fffaf5] text-[#0b1f2a]">
@@ -38,10 +79,12 @@ export function CreateFRACategoryPage({ account }: { account: UserAccountDTO }) 
       <section className="flex min-h-[calc(100vh-5rem)] items-center justify-center px-10 py-8">
         <div className="w-full max-w-2xl">
           <form
-            action={formAction}
+            action={createCategory}
             className="w-full rounded-4xl border border-[#FFB347] bg-white/40 p-8 shadow-lg"
           >
             <h1 className="text-center text-3xl text-[#FFB347] font-bold py-6">Create FRA Category</h1>
+            <input type="hidden" name="profilePath" value={profilePath} />
+
             <div className="grid gap-6">
               <div>
                 <label className="text-md font-bold text-[#9b5d12]">Category Name</label>
@@ -64,21 +107,22 @@ export function CreateFRACategoryPage({ account }: { account: UserAccountDTO }) 
                 />
               </div>
 
+              {displaySuccess()}
+              {displayError()}
+
               <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => router.push(`/${profilePath}/categories`)}
+                <Link
+                  href={`/${profilePath}/categories`}
                   className="rounded-full border border-[#f0d8bd] px-4 py-2 text-xs font-bold text-[#5f5148] hover:bg-[#ffecec]"
                 >
                   Cancel
-                </button>
+                </Link>
 
                 <button
                   type="submit"
-                  disabled={isPending}
-                  className="rounded-full bg-[#FFB347] px-4 py-2 text-xs font-bold text-white hover:bg-[#FFBE5C] disabled:opacity-60"
+                  className="rounded-full bg-[#FFB347] px-4 py-2 text-xs font-bold text-white hover:bg-[#FFBE5C]"
                 >
-                  {isPending ? "Creating..." : "Create"}
+                  Create
                 </button>
               </div>
             </div>
