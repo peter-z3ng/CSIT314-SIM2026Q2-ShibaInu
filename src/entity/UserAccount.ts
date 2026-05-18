@@ -94,6 +94,17 @@ export class UserAccount {
     return normalizedEmail;
   }
 
+  // login(string email, string password)
+  static login(email: string, password: string): boolean {
+    UserAccount.normalizeEmail(email);
+
+    if (!password) {
+      throw new Error("Password is required.");
+    }
+
+    return true;
+  }
+
   static getDailyReport(reports: Report[]): Report[] {
     return reports;
   }

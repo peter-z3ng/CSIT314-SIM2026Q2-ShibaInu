@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { LoginController } from "@/LoginController";
 import { RouteController } from "@/controller/RouteController";
 import {
   createPendingUserAccount,
@@ -10,16 +11,17 @@ import {
   type EmailLookupDTO,
 } from "@/controller/authActions";
 import type { UserProfileDTO } from "@/entity/UserProfile";
-import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type LoginStep = "email" | "password" | "signup";
 
-export function PublicLoginBoundary({ profiles }: { profiles: UserProfileDTO[] }) {
+// LoginPage
+export function LoginPage({ profiles }: { profiles: UserProfileDTO[] }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [step, setStep] = useState<LoginStep>("email");
   const [lookup, setLookup] = useState<EmailLookupDTO | null>(null);
   const [message, setMessage] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
   const email = lookup?.email ?? "";
 
   function handleEmailLookup(event: FormEvent<HTMLFormElement>) {
@@ -40,8 +42,10 @@ export function PublicLoginBoundary({ profiles }: { profiles: UserProfileDTO[] }
               ? "Your account has been suspended."
               : "",
         );
+        setIsSuccess(false);
       } catch (error) {
         setMessage(error instanceof Error ? error.message : "Unable to continue.");
+        setIsSuccess(false);
       }
     });
   }
@@ -55,18 +59,13 @@ export function PublicLoginBoundary({ profiles }: { profiles: UserProfileDTO[] }
         throw new Error("Enter an approved account email first.");
       }
 
-      const supabase = createSupabaseBrowserClient();
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password: String(form.get("password") ?? ""),
-      });
+      const loginController = new LoginController();
+      await loginController.login(email, String(form.get("password") ?? ""));
 
-      if (error) {
-        throw new Error(error.message);
-      }
-
+      displaySuccess();
       router.push(RouteController.getDashboardPath(lookup.profile));
     } catch (error) {
+      displayError();
       setMessage(error instanceof Error ? error.message : "Unable to sign in.");
     }
   }
@@ -85,6 +84,7 @@ export function PublicLoginBoundary({ profiles }: { profiles: UserProfileDTO[] }
         });
 
         setMessage(result.message);
+        setIsSuccess(result.ok);
 
         if (result.ok) {
           setStep("email");
@@ -93,6 +93,7 @@ export function PublicLoginBoundary({ profiles }: { profiles: UserProfileDTO[] }
         }
       } catch (error) {
         setMessage(error instanceof Error ? error.message : "Unable to create account.");
+        setIsSuccess(false);
       }
     });
   }
@@ -101,7 +102,18 @@ export function PublicLoginBoundary({ profiles }: { profiles: UserProfileDTO[] }
     setLookup(null);
     setStep("email");
     setMessage("");
+    setIsSuccess(false);
   }
+
+  // displaySuccess()
+  const displaySuccess = () => {
+    setIsSuccess(true);
+  };
+
+  // displayError()
+  const displayError = () => {
+    setIsSuccess(false);
+  };
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#FFF4EC] px-5 py-10 text-[#1d2520]">
@@ -175,12 +187,20 @@ export function PublicLoginBoundary({ profiles }: { profiles: UserProfileDTO[] }
         ) : null}
 
         {message ? (
-          <p className="mt-5 rounded-md bg-[#f1e7d7] px-3 py-2 text-sm text-[#7d3f24]">{message}</p>
+          <p
+            className={`mt-5 rounded-md px-3 py-2 text-sm ${
+              isSuccess ? "bg-green-50 text-green-700" : "bg-[#f1e7d7] text-[#7d3f24]"
+            }`}
+          >
+            {message}
+          </p>
         ) : null}
       </section>
     </main>
   );
 }
+
+export { LoginPage as PublicLoginBoundary };
 
 function Field({
   label,

@@ -1,4 +1,4 @@
-import { LogOutPage } from "@/boundary/LogOutPage";
+import { LogOutPage } from "@/LogoutPage";
 import { AuthController } from "@/controller/AuthController";
 
 export const dynamic = "force-dynamic";

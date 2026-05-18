@@ -1,4 +1,4 @@
-import { PublicLoginBoundary } from "@/boundary/PublicLoginBoundary";
+import { LoginPage as LoginBoundaryPage } from "@/LoginPage";
 import { listPublicProfiles } from "@/controller/authActions";
 
 export const dynamic = "force-dynamic";
@@ -6,5 +6,5 @@ export const dynamic = "force-dynamic";
 export default async function LoginPage() {
   const profiles = await listPublicProfiles();
 
-  return <PublicLoginBoundary profiles={profiles} />;
+  return <LoginBoundaryPage profiles={profiles} />;
 }

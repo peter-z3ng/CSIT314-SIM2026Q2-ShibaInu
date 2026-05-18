@@ -1,4 +1,4 @@
-import { LandingBoundary } from "@/boundary/LandingBoundary";
+import { LandingBoundary } from "@/boundary/LandingPage";
 
 export default function Home() {
   return <LandingBoundary />;
