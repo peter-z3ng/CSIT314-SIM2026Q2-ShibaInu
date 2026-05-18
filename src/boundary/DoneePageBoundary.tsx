@@ -1,4 +1,4 @@
-import { Header } from "@/components/Header";
+import { Header } from "@/boundary/Header";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 
 export function DoneePageBoundary({ account, title }: { account: UserAccountDTO; title: string }) {

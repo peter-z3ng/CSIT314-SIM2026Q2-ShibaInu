@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { DoneeFRASectionBoundary } from "@/boundary/DoneeFRASectionBoundary";
 import { DoneeGlowSectionBoundary } from "@/boundary/DoneeGlowSectionBoundary";
-import { Header } from "@/components/Header";
+import { Header } from "@/boundary/Header";
 import type { FRADTO } from "@/entity/FRA";
 import type { FRACategoryDTO } from "@/entity/FRACategory";
 import type { UserAccountDTO } from "@/entity/UserAccount";

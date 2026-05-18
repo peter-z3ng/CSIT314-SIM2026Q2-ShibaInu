@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { Header } from "@/components/Header";
+import { Header } from "@/boundary/Header";
 import { AuthController } from "@/controller/AuthController";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 import { profileToPath } from "@/entity/UserProfile";

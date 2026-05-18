@@ -4,7 +4,7 @@ import type { FormEvent } from "react";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Header } from "@/components/Header";
+import { Header } from "@/boundary/Header";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 import { createFRAAction } from "@/controller/CreateFRAActions";
 import type { FRACategoryDTO } from "@/entity/FRACategory";

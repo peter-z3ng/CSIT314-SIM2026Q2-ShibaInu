@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Header } from "@/components/Header";
+import { Header } from "@/boundary/Header";
 import { DeleteFRAPage } from "@/fundraiser/boundary/DeleteFRAPage";
 import { ViewFRACountPage } from "@/fundraiser/boundary/ViewFRACountPage";
 import { ViewFRAShortlistedPage } from "@/fundraiser/boundary/ViewFRAShortlistedPage";

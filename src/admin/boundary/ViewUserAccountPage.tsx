@@ -3,7 +3,7 @@
 import { CreateUserAccountPage } from "@/admin/boundary/CreateUserAccountPage";
 import { SearchUserAccountPage } from "@/admin/boundary/SearchUserAccountPage";
 import { UpdateUserAccountPage } from "@/admin/boundary/UpdateUserAccountPage";
-import { Header } from "@/components/Header";
+import { Header } from "@/boundary/Header";
 import { approveUserAccount } from "@/controller/authActions";
 import { useState } from "react";
 import type { UserAccountDTO } from "@/entity/UserAccount";

@@ -1,6 +1,6 @@
 "use client";
 
-import { Header } from "@/components/Header";
+import { Header } from "@/boundary/Header";
 import { useMemo, useState } from "react";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 
