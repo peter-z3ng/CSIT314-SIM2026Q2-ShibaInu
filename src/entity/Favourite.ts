@@ -24,6 +24,15 @@ export class Favourite {
     return this.user_id === user_id && this.fra_id === fra_id;
   }
 
+  // viewFavouriteList(user_id)
+  static viewFavouriteList(favourites: Favourite[], user_id: string): Favourite[] {
+    if (!user_id.trim()) {
+      throw new Error("User id is required.");
+    }
+
+    return favourites.filter((favourite) => favourite.user_id === user_id && favourite.fra);
+  }
+
   // searchFavourite(user_id, keyword, category, status)
   static searchFavourite(
     favourites: Favourite[],

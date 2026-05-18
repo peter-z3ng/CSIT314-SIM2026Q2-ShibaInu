@@ -4,6 +4,7 @@ import { AuthController } from "@/controller/AuthController";
 import { RouteController } from "@/controller/RouteController";
 import { SearchFavouriteController } from "@/donee/controller/SearchFavouriteController";
 import { SearchFRAController } from "@/donee/controller/SearchFRAController";
+import { ViewFavouriteListController } from "@/donee/controller/ViewFavouriteListController";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +31,7 @@ export default async function DoneeFavoritesPage({
   }
 
   const searchFavouriteController = new SearchFavouriteController();
+  const viewFavouriteListController = new ViewFavouriteListController();
   const [favourites, allFavourites, categories] = await Promise.all([
     searchFavouriteController.searchFavourite(
       account.userId,
@@ -39,7 +41,7 @@ export default async function DoneeFavoritesPage({
       startDate,
       endDate,
     ),
-    searchFavouriteController.searchFavourite(account.userId, "", "", "", "", ""),
+    viewFavouriteListController.viewFavouriteList(account.userId),
     new SearchFRAController().listCategories(),
   ]);
 
