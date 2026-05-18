@@ -28,8 +28,31 @@ export class AdminController {
     }
   }
 
-  async suspendUserAccount(userId: string) {
-    await this.updateUserAccountStatus(userId, "suspended");
+  async suspendUserAccount(userId: string): Promise<void>;
+  async suspendUserAccount(profileId: string, suspendReason: string): Promise<void>;
+  async suspendUserAccount(userOrProfileId: string, suspendReason?: string) {
+    if (suspendReason === undefined) {
+      await this.updateUserAccountStatus(userOrProfileId, "suspended");
+      return;
+    }
+
+    if (!userOrProfileId.trim()) {
+      throw new Error("Profile id is required.");
+    }
+
+    if (!suspendReason.trim()) {
+      throw new Error("Suspend reason is required.");
+    }
+
+    const supabase = createSupabaseAdminClient();
+    const { error } = await supabase
+      .from("user_account")
+      .update({ status: "suspended", updated_at: new Date().toISOString() })
+      .eq("profile_id", userOrProfileId);
+
+    if (error) {
+      throw new Error(error.message);
+    }
   }
 
   async listProfiles(): Promise<Profile[]> {

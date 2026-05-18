@@ -70,6 +70,33 @@ export async function suspendUserAccount(formData: FormData) {
   revalidatePath("/admin/dashboard");
 }
 
+export async function suspendUserAccountsByProfile(input: {
+  profileId: string;
+  suspendReason: string;
+}): Promise<ActionResult> {
+  await new AuthController().requireAdmin();
+
+  try {
+    await new AdminController().suspendUserAccount(
+      input.profileId,
+      input.suspendReason,
+    );
+    revalidatePath("/admin/dashboard");
+    revalidatePath("/admin/account");
+    revalidatePath("/admin/profile");
+
+    return {
+      ok: true,
+      message: "User accounts suspended.",
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      message: error instanceof Error ? error.message : "User accounts could not be suspended.",
+    };
+  }
+}
+
 export async function suspendUserAccountWithPassword(input: {
   userId: string;
   password: string;
