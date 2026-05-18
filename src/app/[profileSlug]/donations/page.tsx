@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { AuthController } from "@/controller/AuthController";
 import { RouteController } from "@/controller/RouteController";
 import { SearchDonationHistoryPage } from "@/donee/boundary/SearchDonationHistoryPage";
-import { ViewDonationHistoryPage } from "@/donee/boundary/ViewDonationHistoryPage";
 import { SearchDonationHistoryController } from "@/donee/controller/SearchDonationHistoryController";
 import { SearchFRAController } from "@/donee/controller/SearchFRAController";
 import { ViewDonationHistoryController } from "@/donee/controller/ViewDonationHistoryController";
@@ -48,19 +47,6 @@ export default async function DoneeDonationsPage({
     new ViewDonationHistoryController().viewDonationHistory(account.userId),
     new SearchFRAController().listCategories(),
   ]);
-  const hasSearchFilters = Boolean(
-    keyword.trim() || categoryId.trim() || startDate.trim() || endDate.trim() || status.trim(),
-  );
-
-  if (!hasSearchFilters) {
-    return (
-      <ViewDonationHistoryPage
-        account={account.toDTO()}
-        donations={allDonations.map((donation) => donation.toDTO())}
-        categories={categories}
-      />
-    );
-  }
 
   return (
     <SearchDonationHistoryPage

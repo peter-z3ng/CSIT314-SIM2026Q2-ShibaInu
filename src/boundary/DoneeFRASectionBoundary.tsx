@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { FRADTO } from "@/entity/FRA";
 import type { FRACategoryDTO } from "@/entity/FRACategory";
+import { getFRAStatusClass } from "@/donee/boundary/fraStatusStyles";
 
 export function DoneeFRASectionBoundary({
   fraList,
@@ -91,18 +92,6 @@ export function DoneeFRASectionBoundary({
       </div>
     </section>
   );
-}
-
-function getFRAStatusClass(status: string) {
-  if (status === "completed") {
-    return "bg-green-100 text-green-700";
-  }
-
-  if (status === "closed") {
-    return "bg-red-100 text-red-600";
-  }
-
-  return "bg-[#fff2df] text-[#c77700]";
 }
 
 function shuffleFRA(fraList: FRADTO[], seed: number) {

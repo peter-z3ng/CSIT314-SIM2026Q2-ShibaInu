@@ -6,6 +6,7 @@ import type { DonationDTO } from "@/entity/Donation";
 import type { FRADTO } from "@/entity/FRA";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 import { profileToPath } from "@/entity/UserProfile";
+import { getFRAStatusClass } from "@/donee/boundary/fraStatusStyles";
 
 // ViewFRADetailsPage
 export function ViewFRADetailsPage({
@@ -30,16 +31,6 @@ export function ViewFRADetailsPage({
   const profilePath = profileToPath(account.profile);
   const isDonee = account.profile.profile.toLowerCase() === "donee";
   const canDonate = fra.status === "active";
-  function formatDateTime(value: string) {
-    return new Date(value).toLocaleString("en-GB", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
-  }
 
   // displayFRADetails(...)
   const displayFRADetails = (selectedFRA: FRADTO) => (
@@ -122,7 +113,11 @@ export function ViewFRADetailsPage({
                 <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#9b5d12]">
                   {categoryName}
                 </p>
-                <span className="w-fit rounded-md bg-[#fff2df] px-3 py-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#9b5d12]">
+                <span
+                  className={`w-fit rounded-md px-3 py-2 text-xs font-semibold uppercase tracking-[0.1em] ${getFRAStatusClass(
+                    selectedFRA.status,
+                  )}`}
+                >
                   {selectedFRA.status}
                 </span>
               </div>

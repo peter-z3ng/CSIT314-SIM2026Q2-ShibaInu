@@ -1,4 +1,4 @@
-import { CreateFRAPage } from "@/boundary/CreateFRAPage";
+import { CreateFRAPage } from "@/fundraiser/boundary/CreateFRAPage";
 import { AuthController } from "@/controller/AuthController";
 import { FRACategoryController } from "@/controller/FRACategoryController";
 

@@ -2,23 +2,30 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Trash2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Header } from "@/components/Header";
+import { DeleteFRAPage } from "@/fundraiser/boundary/DeleteFRAPage";
+import { ViewFRACountPage } from "@/fundraiser/boundary/ViewFRACountPage";
+import { ViewFRAShortlistedPage } from "@/fundraiser/boundary/ViewFRAShortlistedPage";
 import type { FRADTO } from "@/entity/FRA";
 import type { FRACategoryDTO } from "@/entity/FRACategory";
 import type { DonationDTO } from "@/entity/Donation";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 import { deleteFRAAction } from "@/controller/deleteFRAActions";
 
+// RetrieveFRAPage
 export function RetrieveFRAPage({
   account,
   fra,
+  viewCount,
+  shortlistedCount,
   categoryList = [],
   recentDonations = [],
 }: {
   account: UserAccountDTO;
   fra: FRADTO;
+  viewCount: number;
+  shortlistedCount: number;
   categoryList?: FRACategoryDTO[];
   recentDonations?: DonationDTO[];
 }) {
@@ -28,8 +35,6 @@ export function RetrieveFRAPage({
   const isUpdated = searchParams.get("updated");
 
   const [timeLeft, setTimeLeft] = useState(getTimeLeft(fra.endDate));
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deleteMessage, setDeleteMessage] = useState("");
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -47,16 +52,24 @@ export function RetrieveFRAPage({
     categoryList.find((category) => category.categoryId === fra.categoryId)?.categoryName ??
     "Unknown Category";
 
-  async function handleDelete() {
-    try {
-      await deleteFRAAction(fra.fraId, account.userId);
-      router.push(`/${profilePath}/my-fras`);
-    } catch (error) {
-      setDeleteMessage(error instanceof Error ? error.message : "Failed to delete FRA.");
-    }
-  }
+  // selectFRA(fra_id)
+  const selectFRA = (fra_id: string): FRADTO | null => (fra.fraId === fra_id ? fra : null);
 
-  return (
+  // displayError()
+  const displayError = () => (
+    <div className="min-h-screen bg-[#fffaf5] text-[#1d2520]">
+      <Header account={account} />
+
+      <main className="mx-auto max-w-7xl px-5 py-8 lg:px-8">
+        <div className="rounded-3xl border border-[#f0d8bd] bg-white p-8 shadow-sm">
+          <p className="text-sm font-semibold text-[#9b5d12]">Unable to retrieve FRA details.</p>
+        </div>
+      </main>
+    </div>
+  );
+
+  // displayFRADetails()
+  const displayFRADetails = () => (
     <div className="min-h-screen bg-[#fffaf5] text-[#1d2520]">
       <Header account={account} />
 
@@ -107,8 +120,11 @@ export function RetrieveFRAPage({
             ) : null}
 
             <div className="mt-10 grid gap-4 md:grid-cols-2">
-              <DetailCard label="Views" value={String(fra.viewCount)} />
-              <DetailCard label="Shortlisted" value={String(fra.favCount)} />
+              <ViewFRACountPage fraId={fra.fraId} viewCount={viewCount} />
+              <ViewFRAShortlistedPage
+                fraId={fra.fraId}
+                shortlistedCount={shortlistedCount}
+              />
               <DetailCard label="Start Date" value={formatDateTime(fra.startDate)} />
               <DetailCard label="End Date" value={formatDateTime(fra.endDate)} />
             </div>
@@ -125,16 +141,13 @@ export function RetrieveFRAPage({
                 </Link>
               ) : null}
 
-              <button
-                type="button"
-                onClick={() => {
-                  setShowDeleteModal(true);
-                  setDeleteMessage("");
-                }}
-                className="flex h-12 w-12 items-center justify-center rounded-full border border-red-200 bg-red-50 text-red-600 transition hover:bg-red-100"
-              >
-                <Trash2 className="h-5 w-5" />
-              </button>
+              <DeleteFRAPage
+                fraId={fra.fraId}
+                fraTitle={fra.title}
+                userId={account.userId}
+                deleteFRAAction={deleteFRAAction}
+                onDeleted={() => router.push(`/${profilePath}/my-fras`)}
+              />
             </div>
 
             <div className="mt-6">
@@ -188,44 +201,10 @@ export function RetrieveFRAPage({
         </section>
       </main>
 
-      {showDeleteModal ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-3xl bg-white p-7 shadow-2xl">
-            <h2 className="text-2xl font-bold text-[#1d2520]">Delete FRA</h2>
-
-            {deleteMessage ? (
-              <p className="mt-4 text-sm font-semibold text-red-600">{deleteMessage}</p>
-            ) : (
-              <p className="mt-4 text-[#6f6258]">Are you sure you want to delete "{fra.title}"?</p>
-            )}
-
-            <div className="mt-8 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowDeleteModal(false);
-                  setDeleteMessage("");
-                }}
-                className="rounded-xl border border-[#f0d8bd] bg-white px-5 py-3 text-sm font-bold text-[#9b5d12] transition hover:bg-[#fff2df]"
-              >
-                Cancel
-              </button>
-
-              {!deleteMessage ? (
-                <button
-                  type="button"
-                  onClick={handleDelete}
-                  className="rounded-xl bg-red-500 px-5 py-3 text-sm font-bold text-white transition hover:bg-red-600"
-                >
-                  Delete
-                </button>
-              ) : null}
-            </div>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
+
+  return selectFRA(fra.fraId) ? displayFRADetails() : displayError();
 }
 
 function DetailCard({ label, value }: { label: string; value: string }) {

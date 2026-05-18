@@ -19,64 +19,34 @@ type FRARow = {
   updated_at: string | null;
 };
 
-export type SearchMyFRAInput = {
-  userId: string;
-  keyword?: string;
-  categoryId?: string;
-  status?: string;
-  startDate?: string;
-  endDate?: string;
-};
+// ViewCompletedFRAController
+export class ViewCompletedFRAController {
+  // getCompletedFRA(userId)
+  async getCompletedFRA(userId: string): Promise<FRA[]> {
+    if (!userId.trim()) {
+      throw new Error("User id is required.");
+    }
 
-export class SearchMyFRAController {
-  async searchMyFRAs(input: SearchMyFRAInput): Promise<FRA[]> {
     const autoCloseController = new AutoCloseFRAController();
     await autoCloseController.autoCloseExpiredFRAs();
 
     const supabase = createSupabaseAdminClient();
 
-    let query = supabase
+    const { data, error } = await supabase
       .from("fra")
       .select(
         "fra_id, user_id, category_id, title, description, target_amount, current_amount, start_date, status, view_count, fav_count, end_date, created_at, updated_at",
       )
-      .eq("user_id", input.userId)
-      .neq("status", "completed")
-      .order("updated_at", { ascending: false, nullsFirst: false });
-
-    if (input.keyword) {
-      query = query.ilike("title", `%${input.keyword}%`);
-    }
-
-    const categoryIds = splitFilterValues(input.categoryId);
-
-    if (categoryIds.length) {
-      query = query.in("category_id", categoryIds);
-    }
-
-    const statuses = splitFilterValues(input.status).filter((status) =>
-      ["active", "closed"].includes(status),
-    );
-
-    if (statuses.length) {
-      query = query.in("status", statuses);
-    }
-
-    if (input.startDate) {
-      query = query.gte("start_date", input.startDate);
-    }
-
-    if (input.endDate) {
-      query = query.lte("end_date", input.endDate);
-    }
-
-    const { data, error } = await query.overrideTypes<FRARow[], { merge: false }>();
+      .eq("user_id", userId)
+      .eq("status", "completed")
+      .order("updated_at", { ascending: false, nullsFirst: false })
+      .overrideTypes<FRARow[], { merge: false }>();
 
     if (error) {
       throw new Error(error.message);
     }
 
-    return data.map(
+    const completedFRAs = data.map(
       (fra) =>
         new FRA({
           fraId: fra.fra_id,
@@ -95,12 +65,7 @@ export class SearchMyFRAController {
           updatedAt: fra.updated_at,
         }),
     );
-  }
-}
 
-function splitFilterValues(value?: string) {
-  return (value ?? "")
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean);
+    return FRA.getCompletedFRA(completedFRAs, userId);
+  }
 }

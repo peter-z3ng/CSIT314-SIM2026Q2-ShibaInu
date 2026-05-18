@@ -1,8 +1,24 @@
 "use server";
 
-import { CreateFRAController, type CreateFRAInput } from "@/controller/CreateFRAController";
+import { CreateFRAController } from "@/fundraiser/controller/CreateFRAController";
 
-export async function createFRAAction(input: CreateFRAInput) {
+export async function createFRAAction(
+  fundraiser_id: string,
+  title: string,
+  description: string,
+  targetAmount: number,
+  category: string,
+  startDate: string,
+  endDate: string,
+) {
   const controller = new CreateFRAController();
-  return controller.createFRA(input);
+  return controller.createFRA(
+    fundraiser_id,
+    title,
+    description,
+    targetAmount,
+    category,
+    startDate,
+    endDate,
+  );
 }

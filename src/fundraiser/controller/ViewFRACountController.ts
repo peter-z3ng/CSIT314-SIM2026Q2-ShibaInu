@@ -1,6 +1,5 @@
 import { FRA } from "@/entity/FRA";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { AutoCloseFRAController } from "@/controller/AutoCloseFRAController";
 
 type FRARow = {
   fra_id: string;
@@ -19,18 +18,13 @@ type FRARow = {
   updated_at: string | null;
 };
 
-export class RetrieveFRAController {
-  async retrieveFRA(fraId: string, userId: string): Promise<FRA> {
+// ViewFRACountController
+export class ViewFRACountController {
+  // getFRAviewCount(fraId)
+  async getFRAviewCount(fraId: string): Promise<number> {
     if (!fraId.trim()) {
       throw new Error("FRA id is required.");
     }
-
-    if (!userId.trim()) {
-      throw new Error("User id is required.");
-    }
-
-    const autoCloseController = new AutoCloseFRAController();
-    await autoCloseController.autoCloseExpiredFRAs();
 
     const supabase = createSupabaseAdminClient();
 
@@ -40,7 +34,6 @@ export class RetrieveFRAController {
         "fra_id, user_id, category_id, title, description, target_amount, current_amount, start_date, status, view_count, fav_count, end_date, created_at, updated_at",
       )
       .eq("fra_id", fraId)
-      .eq("user_id", userId)
       .single()
       .overrideTypes<FRARow, { merge: false }>();
 
@@ -63,6 +56,6 @@ export class RetrieveFRAController {
       endDate: data.end_date,
       createdAt: data.created_at,
       updatedAt: data.updated_at,
-    });
+    }).getFRAviewCount(fraId);
   }
 }

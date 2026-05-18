@@ -1,6 +1,6 @@
-import { CompletedFRAPage } from "@/boundary/CompletedFRAPage";
+import { SearchCompletedFRAPage } from "@/fundraiser/boundary/SearchCompletedFRAPage";
 import { AuthController } from "@/controller/AuthController";
-import { CompletedFRAController } from "@/controller/CompletedFRAController";
+import { SearchCompletedFRAController } from "@/fundraiser/controller/SearchCompletedFRAController";
 import { FRACategoryController } from "@/controller/FRACategoryController";
 
 export const dynamic = "force-dynamic";
@@ -21,12 +21,12 @@ export default async function CompletedFRARoutePage({
   const filters = await searchParams;
 
   const authController = new AuthController();
-  const completedFRAController = new CompletedFRAController();
+  const searchCompletedFRAController = new SearchCompletedFRAController();
   const categoryController = new FRACategoryController();
 
   const account = await authController.requireProfilePath(profileSlug);
 
-  const fraList = await completedFRAController.searchCompletedFRAs({
+  const fraList = await searchCompletedFRAController.searchCompletedFRAs({
     userId: account.userId,
     keyword: filters.keyword,
     categoryId: filters.categoryId,
@@ -37,7 +37,7 @@ export default async function CompletedFRARoutePage({
   const categoryList = await categoryController.listCategories();
 
   return (
-    <CompletedFRAPage
+    <SearchCompletedFRAPage
       account={account.toDTO()}
       fraList={fraList.map((fra) => fra.toDTO())}
       categoryList={categoryList}

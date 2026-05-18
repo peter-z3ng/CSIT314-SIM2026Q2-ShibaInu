@@ -1,28 +1,24 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { Header } from "@/components/Header";
+import { ViewCompletedFRAPage } from "@/fundraiser/boundary/ViewCompletedFRAPage";
 import type { FRADTO } from "@/entity/FRA";
 import type { FRACategoryDTO } from "@/entity/FRACategory";
 import type { UserAccountDTO } from "@/entity/UserAccount";
-import { profileToPath } from "@/entity/UserProfile";
-import { getFRAStatusClass } from "@/donee/boundary/fraStatusStyles";
 
-// SearchFRAPage
-export function SearchFRAPage({
+// SearchCompletedFRAPage
+export function SearchCompletedFRAPage({
   account,
   fraList,
-  totalFRA,
-  categories,
+  categoryList = [],
 }: {
   account: UserAccountDTO;
   fraList: FRADTO[];
-  totalFRA: number;
-  categories: FRACategoryDTO[];
+  categoryList?: FRACategoryDTO[];
 }) {
-  const profilePath = profileToPath(account.profile);
+  const profilePath = account.profile.profile.toLowerCase().replace(" ", "-");
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -33,13 +29,13 @@ export function SearchFRAPage({
   const categoryId = searchParams.get("categoryId") ?? "";
   const startDate = searchParams.get("startDate") ?? "";
   const endDate = searchParams.get("endDate") ?? "";
-  const selectedCategoryIds = splitFilterValues(categoryId);
   const [calendarMonth, setCalendarMonth] = useState(() => {
     const initialDate = startDate ? parseDateValue(startDate) : new Date();
     return new Date(initialDate.getFullYear(), initialDate.getMonth(), 1);
   });
+  const selectedCategoryIds = splitFilterValues(categoryId);
   const calendarDays = getCalendarDays(calendarMonth);
-  const filteredCategories = categories.filter((category) =>
+  const filteredCategories = categoryList.filter((category) =>
     category.categoryName.toLowerCase().includes(categoryQuery.trim().toLowerCase()),
   );
   const dateRangeLabel =
@@ -83,13 +79,6 @@ export function SearchFRAPage({
     updateSearchParam(name, nextValues.join(","));
   }
 
-  function getCategoryName(categoryId: string) {
-    return (
-      categories.find((category) => category.categoryId === categoryId)?.categoryName ??
-      "Unknown Category"
-    );
-  }
-
   function selectDateRangeValue(dateValue: string) {
     if (!startDate || endDate || dateValue < startDate) {
       updateSearchParams({ startDate: dateValue, endDate: "" });
@@ -100,91 +89,25 @@ export function SearchFRAPage({
     setIsDateRangeOpen(false);
   }
 
-  // displayError(message)
-  const displayError = (message: string) => (
-    <div className="rounded-3xl border border-[#f0d8bd] bg-white/40 p-6 shadow-sm">
+  // displayMessage(message)
+  const displayMessage = (message: string) => (
+    <div className="rounded-2xl border border-[#f0d8bd] bg-white/40 p-6 shadow-sm">
       <p className="text-[#6f6258]">{message}</p>
     </div>
   );
-
-  // displayFRASearchResults(array[FRA])
-  const displayFRASearchResults = (results: FRADTO[]) => {
-    if (!results.length) {
-      return displayError("No matching fundraising activities found.");
-    }
-
-    return (
-      <div className="grid gap-4 md:grid-cols-2">
-        {results.map((fra) => (
-          <article
-            key={fra.fraId}
-            className="rounded-2xl border border-[#f0d8bd] bg-white/40 p-4 shadow-sm"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#c77700]">
-                  {getCategoryName(fra.categoryId)}
-                </p>
-
-                <h2 className="mt-3 min-h-[64px] text-2xl font-bold leading-8">
-                  {fra.title}
-                </h2>
-              </div>
-
-              <span
-                className={`flex h-8 w-36 items-center justify-center rounded-2xl px-4 text-xs font-bold uppercase tracking-[0.15em] ${getFRAStatusClass(
-                  fra.status,
-                )}`}
-              >
-                {fra.status}
-              </span>
-            </div>
-
-            <div className="mt-5 h-3 w-full overflow-hidden rounded-full bg-[#fff2df]">
-              <div
-                className="h-full rounded-full bg-[#FFB347]"
-                style={{ width: `${fra.progressPercentage}%` }}
-              />
-            </div>
-
-            <div className="mt-3 flex items-center justify-between text-sm font-semibold">
-              <p>${fra.currentAmount.toFixed(2)} raised</p>
-              <p>${fra.targetAmount.toFixed(2)} goal</p>
-            </div>
-
-            <p className="mt-3 text-sm font-semibold text-[#FFB347]">
-              {fra.progressPercentage}% funded
-            </p>
-
-            <Link
-              href={`/${profilePath}/browse/${fra.fraId}`}
-              className="mt-4 flex w-full items-center justify-center rounded-xl bg-[#FFB347] py-2.5 text-sm font-bold text-white transition hover:bg-[#FFBE5C]"
-            >
-              View details
-            </Link>
-          </article>
-        ))}
-      </div>
-    );
-  };
 
   return (
     <div className="min-h-screen bg-[#fffaf5] text-[#1d2520]">
       <Header account={account} />
 
       <main className="mx-auto max-w-7xl px-5 py-8 lg:px-8">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#9b5d12]">
-              Donee
-            </p>
-            <h1 className="mt-2 text-3xl font-bold">Fundraising Activities</h1>
-          </div>
+        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#9b5d12]">
+          Fundraiser
+        </p>
 
-          <p className="pt-8 text-sm font-semibold text-[#6f6258]">
-            {fraList.length} of {totalFRA} FRAs
-          </p>
-        </div>
+        <h1 className="mt-2 text-3xl font-bold">Completed FRAs</h1>
+
+        <p className="mt-2 text-[#6f6258]">View your completed fundraising activities.</p>
 
         <section className="mt-8 grid items-start gap-5 lg:grid-cols-[7fr_3fr]">
           <div className="grid gap-6">
@@ -195,13 +118,20 @@ export function SearchFRAPage({
                   setKeyword(event.target.value);
                   updateSearchParam("keyword", event.target.value);
                 }}
-                placeholder="Search fundraising activities"
-                aria-label="Search fundraising activities"
+                placeholder="Search by title"
+                aria-label="Search by title"
                 className="h-10 w-full bg-transparent px-2 text-lg outline-none placeholder:text-[#9f9082]"
               />
             </div>
 
-            <section>{displayFRASearchResults(fraList)}</section>
+            <section>
+              <ViewCompletedFRAPage
+                profilePath={profilePath}
+                fraList={fraList}
+                categoryList={categoryList}
+                displayMessage={displayMessage}
+              />
+            </section>
           </div>
 
           <aside className="rounded-2xl border border-[#f0d8bd] bg-white/40 p-5 shadow-sm">
@@ -229,10 +159,12 @@ export function SearchFRAPage({
                 type="button"
                 onClick={() => {
                   updateSearchParams({
+                    keyword: "",
                     categoryId: "",
                     startDate: "",
                     endDate: "",
                   });
+                  setKeyword("");
                   setCategoryQuery("");
                   setIsDateRangeOpen(false);
                 }}
@@ -244,16 +176,18 @@ export function SearchFRAPage({
 
             <div className="mt-5 grid gap-5">
               <div className="border-t border-[#f0d8bd] pt-5">
-                <button
-                  type="button"
-                  onClick={() => setIsCategoryOpen((current) => !current)}
-                  className="flex w-full items-center justify-between gap-3 text-left"
-                >
-                  <span className="text-lg font-bold text-[#1d2520]">Category</span>
-                  <span className="flex size-8 items-center justify-center rounded-full bg-[#9b5d12] text-sm font-bold text-white">
-                    <ChevronIcon isOpen={isCategoryOpen} />
-                  </span>
-                </button>
+                <div className="flex items-center justify-between gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsCategoryOpen((current) => !current)}
+                    className="flex flex-1 items-center justify-between gap-3 text-left"
+                  >
+                    <span className="text-lg font-bold text-[#1d2520]">Category</span>
+                    <span className="flex size-8 items-center justify-center rounded-full bg-[#9b5d12] text-sm font-bold text-white">
+                      <ChevronIcon isOpen={isCategoryOpen} />
+                    </span>
+                  </button>
+                </div>
 
                 {isCategoryOpen ? (
                   <div className="mt-4">
@@ -405,7 +339,9 @@ export function SearchFRAPage({
                       <div className="flex justify-between gap-3">
                         <button
                           type="button"
-                          onClick={() => updateSearchParams({ startDate: "", endDate: "" })}
+                          onClick={() => {
+                            updateSearchParams({ startDate: "", endDate: "" });
+                          }}
                           className="h-10 rounded-md border border-[#f0d8bd] px-4 text-sm font-semibold text-[#9b5d12] transition hover:bg-[#fff2df]"
                         >
                           Clear
@@ -428,6 +364,16 @@ export function SearchFRAPage({
       </main>
     </div>
   );
+}
+
+function formatDateLabel(date: string) {
+  const [year, month, day] = date.split("-");
+
+  if (!year || !month || !day) {
+    return date;
+  }
+
+  return `${day}/${month}/${year}`;
 }
 
 function ChevronIcon({ isOpen }: { isOpen: boolean }) {
@@ -455,16 +401,6 @@ function splitFilterValues(value: string) {
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
-}
-
-function formatDateLabel(date: string) {
-  const [year, month, day] = date.split("-");
-
-  if (!year || !month || !day) {
-    return date;
-  }
-
-  return `${day}/${month}/${year}`;
 }
 
 function parseDateValue(date: string) {

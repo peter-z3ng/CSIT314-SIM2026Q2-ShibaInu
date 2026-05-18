@@ -4,6 +4,7 @@ import type { DonationDTO } from "@/entity/Donation";
 import type { FRACategoryDTO } from "@/entity/FRACategory";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 import { profileToPath } from "@/entity/UserProfile";
+import { getFRAStatusClass } from "@/donee/boundary/fraStatusStyles";
 
 // ViewDonationHistoryPage
 export function ViewDonationHistoryPage({
@@ -61,7 +62,11 @@ export function ViewDonationHistoryPage({
                   </h2>
                 </div>
 
-                <span className="flex h-8 w-36 items-center justify-center rounded-2xl bg-[#fff2df] px-4 text-xs font-bold uppercase tracking-[0.15em] text-[#c77700]">
+                <span
+                  className={`flex h-8 w-36 items-center justify-center rounded-2xl px-4 text-xs font-bold uppercase tracking-[0.15em] ${getFRAStatusClass(
+                    fra.status,
+                  )}`}
+                >
                   {fra.status}
                 </span>
               </div>
