@@ -4,7 +4,7 @@ import type { FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Header } from "@/boundary/Header";
+import { Header } from "@/components/Header";
 import type { FRADTO } from "@/entity/FRA";
 import type { FRACategoryDTO } from "@/entity/FRACategory";
 import type { UserAccountDTO } from "@/entity/UserAccount";

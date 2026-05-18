@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Header } from "@/boundary/Header";
+import { Header } from "@/components/Header";
 import type { DonationDTO } from "@/entity/Donation";
 import type { FRACategoryDTO } from "@/entity/FRACategory";
 import type { UserAccountDTO } from "@/entity/UserAccount";

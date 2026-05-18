@@ -1,6 +1,6 @@
 import { CreateUserProfilePage } from "@/admin/boundary/CreateUserProfilePage";
 import { SearchUserProfilePage } from "@/admin/boundary/SearchUserProfilePage";
-import { Header } from "@/boundary/Header";
+import { Header } from "@/components/Header";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 import type { UserProfileDTO } from "@/entity/UserProfile";
 

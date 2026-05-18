@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Header } from "@/boundary/Header";
+import { Header } from "@/components/Header";
 import { DonatePage } from "@/boundary/DonatePage";
 import { SaveFavouritePage } from "@/donee/boundary/SaveFavouritePage";
 import type { DonationDTO } from "@/entity/Donation";

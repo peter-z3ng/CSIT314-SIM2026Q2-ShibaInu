@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Header } from "@/boundary/Header";
+import { Header } from "@/components/Header";
 import { DeleteFRACategoryPage } from "@/platform_management/boundary/DeleteFRACategoryPage";
 import { SearchFRACategoryPage } from "@/platform_management/boundary/SearchFRACategoryPage";
 import type { RetrievedFRACategoryDTO } from "@/platform_management/controller/RetrieveFRACategoryController";

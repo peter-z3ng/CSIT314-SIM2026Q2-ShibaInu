@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import { Header } from "@/boundary/Header";
-import { ReportPeriodToggle } from "@/boundary/ReportPeriodToggle";
+import { Header } from "@/components/Header";
+import { ReportPeriodToggle } from "@/components/ReportPeriodToggle";
 import type { Report, UserAccountDTO } from "@/entity/UserAccount";
 import { profileToPath } from "@/entity/UserProfile";
 
