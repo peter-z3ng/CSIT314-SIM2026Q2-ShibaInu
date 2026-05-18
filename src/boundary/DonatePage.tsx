@@ -34,10 +34,14 @@ export function DonatePage({
   profilePath,
   fra_id,
   fraTitle,
+  disabled = false,
+  disabledReason = "Donations are not available for this FRA.",
 }: {
   profilePath: string;
   fra_id: string;
   fraTitle: string;
+  disabled?: boolean;
+  disabledReason?: string;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [formKey, setFormKey] = useState(0);
@@ -51,8 +55,14 @@ export function DonatePage({
     <>
       <button
         type="button"
-        onClick={() => setIsOpen(true)}
-        className="h-12 rounded-md bg-[#FFB347] px-4 text-sm font-bold text-white transition hover:bg-[#FFBE5C]"
+        onClick={() => {
+          if (!disabled) {
+            setIsOpen(true);
+          }
+        }}
+        disabled={disabled}
+        title={disabled ? disabledReason : undefined}
+        className="h-12 rounded-md bg-[#FFB347] px-4 text-sm font-bold text-white transition hover:bg-[#FFBE5C] disabled:cursor-not-allowed disabled:bg-[#d8c7b7] disabled:text-white/80"
       >
         Donate
       </button>

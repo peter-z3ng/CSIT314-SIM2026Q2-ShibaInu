@@ -13,6 +13,7 @@ type DonationRow = {
 
 type FRAAmountRow = {
   current_amount: number;
+  status: string;
 };
 
 export class DonateController {
@@ -41,6 +42,9 @@ export class DonateController {
 
     const paydate = new Date().toISOString();
     const supabase = createSupabaseAdminClient();
+
+    await this.ensureFRAAcceptsDonations(fra_id);
+
     const { data, error } = await supabase
       .from("donation")
       .insert({
@@ -83,7 +87,7 @@ export class DonateController {
     const supabase = createSupabaseAdminClient();
     const { data, error } = await supabase
       .from("fra")
-      .select("current_amount")
+      .select("current_amount, status")
       .eq("fra_id", fra_id)
       .limit(1)
       .overrideTypes<FRAAmountRow[], { merge: false }>();
@@ -104,5 +108,29 @@ export class DonateController {
     }
 
     return nextAmount;
+  }
+
+  private async ensureFRAAcceptsDonations(fra_id: string): Promise<void> {
+    const supabase = createSupabaseAdminClient();
+    const { data, error } = await supabase
+      .from("fra")
+      .select("current_amount, status")
+      .eq("fra_id", fra_id)
+      .limit(1)
+      .overrideTypes<FRAAmountRow[], { merge: false }>();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    const fra = data[0];
+
+    if (!fra) {
+      throw new Error("FRA does not exist.");
+    }
+
+    if (fra.status !== "active") {
+      throw new Error("Donations are only available for active FRAs.");
+    }
   }
 }

@@ -28,6 +28,7 @@ export function FRADetailsPage({
 }) {
   const profilePath = profileToPath(account.profile);
   const isDonee = account.profile.profile.toLowerCase() === "donee";
+  const canDonate = fra.status === "active";
   function formatDateTime(value: string) {
     return new Date(value).toLocaleString("en-GB", {
       day: "2-digit",
@@ -163,6 +164,8 @@ export function FRADetailsPage({
                 profilePath={profilePath}
                 fra_id={selectedFRA.fraId}
                 fraTitle={selectedFRA.title}
+                disabled={!canDonate}
+                disabledReason="Donations are only available for active FRAs."
               />
             ) : null}
           </div>
