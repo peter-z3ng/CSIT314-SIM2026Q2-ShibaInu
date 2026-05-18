@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { Header } from "@/components/Header";
-import { ReportPeriodToggle } from "@/platform_management/components/ReportPeriodToggle";
+import { ReportPeriodToggle } from "@/components/ReportPeriodToggle";
 import type { Report, UserAccountDTO } from "@/entity/UserAccount";
 import { profileToPath } from "@/entity/UserProfile";
 

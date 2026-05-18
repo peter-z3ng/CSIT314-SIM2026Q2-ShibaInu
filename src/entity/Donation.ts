@@ -45,6 +45,7 @@ export class Donation {
     this.fra = input.fra ?? null;
   }
 
+  // viewDonationHistory(user_id)
   viewDonationHistory(user_id: string): Donation[] {
     return this.userId === user_id ? [this] : [];
   }

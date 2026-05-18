@@ -30,7 +30,9 @@ type FRARow = {
   updated_at: string | null;
 };
 
+// ViewDonationHistoryController
 export class ViewDonationHistoryController {
+  // viewDonationHistory(user_id)
   async viewDonationHistory(user_id: string): Promise<Donation[]> {
     if (!user_id.trim()) {
       throw new Error("User id is required.");
