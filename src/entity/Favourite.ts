@@ -24,28 +24,39 @@ export class Favourite {
     return this.user_id === user_id && this.fra_id === fra_id;
   }
 
-  searchFavourite(user_id: string, keyword: string, category: string, status: string): Favourite[] {
-    if (this.user_id !== user_id || !this.fra) {
-      return [];
-    }
-
+  // searchFavourite(user_id, keyword, category, status)
+  static searchFavourite(
+    favourites: Favourite[],
+    user_id: string,
+    keyword: string,
+    category: string,
+    status: string,
+    startDate: string = "",
+    endDate: string = "",
+  ): Favourite[] {
     const normalizedKeyword = keyword.trim().toLowerCase();
-    const normalizedCategory = category.trim();
-    const normalizedStatus = status.trim().toLowerCase();
-    const matchesKeyword =
-      !normalizedKeyword ||
-      this.fra.title.toLowerCase().includes(normalizedKeyword) ||
-      (this.fra.description?.toLowerCase().includes(normalizedKeyword) ?? false);
-    const matchesCategory =
-      !normalizedCategory ||
-      normalizedCategory === "all" ||
-      this.fra.categoryId === normalizedCategory;
-    const matchesStatus =
-      !normalizedStatus ||
-      normalizedStatus === "all" ||
-      this.fra.status.toLowerCase() === normalizedStatus;
+    const categoryIds = splitFilterValues(category);
+    const statuses = splitFilterValues(status).map((item) => item.toLowerCase());
 
-    return matchesKeyword && matchesCategory && matchesStatus ? [this] : [];
+    return favourites.filter((favourite) => {
+      if (favourite.user_id !== user_id || !favourite.fra) {
+        return false;
+      }
+
+      const matchesKeyword =
+        !normalizedKeyword ||
+        favourite.fra.title.toLowerCase().includes(normalizedKeyword) ||
+        (favourite.fra.description?.toLowerCase().includes(normalizedKeyword) ?? false);
+      const matchesCategory =
+        !categoryIds.length || categoryIds.includes(favourite.fra.categoryId);
+      const matchesStatus =
+        !statuses.length || statuses.includes(favourite.fra.status.toLowerCase());
+      const matchesStartDate = !startDate || favourite.fra.startDate >= startDate;
+      const matchesEndDate =
+        !endDate || (favourite.fra.endDate ?? favourite.fra.startDate) <= endDate;
+
+      return matchesKeyword && matchesCategory && matchesStatus && matchesStartDate && matchesEndDate;
+    });
   }
 
   toDTO(): FavouriteDTO {
@@ -56,4 +67,11 @@ export class Favourite {
       fra: this.fra?.toDTO() ?? null,
     };
   }
+}
+
+function splitFilterValues(value: string) {
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter((item) => item && item !== "all");
 }

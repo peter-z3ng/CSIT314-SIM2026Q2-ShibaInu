@@ -46,6 +46,14 @@ export class FRACategory {
     return true;
   }
 
+  static deleteFRACategory(categoryId: string): boolean {
+    if (!categoryId.trim()) {
+      throw new Error("Category id is required.");
+    }
+
+    return true;
+  }
+
   searchCategory(keyword: string): boolean {
     const normalizedKeyword = keyword.trim().toLowerCase();
 

@@ -26,12 +26,16 @@ type FRARow = {
   updated_at: string | null;
 };
 
+// SearchFavouriteController
 export class SearchFavouriteController {
+  // searchFavourite(user_id, keyword, category, status)
   async searchFavourite(
     user_id: string,
     keyword: string = "",
     category: string = "all",
     status: string = "all",
+    startDate: string = "",
+    endDate: string = "",
   ): Promise<Favourite[]> {
     if (!user_id.trim()) {
       throw new Error("User id is required.");
@@ -50,9 +54,15 @@ export class SearchFavouriteController {
       throw new Error(error.message);
     }
 
-    return data
-      .map(mapFavouriteRow)
-      .flatMap((favourite) => favourite.searchFavourite(user_id, keyword, category, status));
+    return Favourite.searchFavourite(
+      data.map(mapFavouriteRow),
+      user_id,
+      keyword,
+      category,
+      status,
+      startDate,
+      endDate,
+    );
   }
 }
 

@@ -1,23 +1,31 @@
 "use client";
 
-type DeleteCategoryPageProps = {
+import type { ReactNode } from "react";
+
+type DeleteFRACategoryPageProps = {
   categoryId: string;
   categoryName: string;
   isUsed?: boolean;
   isOpen: boolean;
   onClose: () => void;
-  deleteCategoryAction: (formData: FormData) => Promise<{ success: boolean }>;
+  deleteFRACategoryAction: (formData: FormData) => Promise<{ success: boolean; message: string }>;
 };
 
-export function DeleteCategoryPage({
+// DeleteFRACategoryPage
+export function DeleteFRACategoryPage({
   categoryId,
   categoryName,
   isUsed = false,
   isOpen,
   onClose,
-  deleteCategoryAction,
-}: DeleteCategoryPageProps) {
+  deleteFRACategoryAction,
+}: DeleteFRACategoryPageProps) {
   if (!isOpen) return null;
+
+  // displayMessage(message)
+  const displayMessage = (message: ReactNode) => (
+    <p className="mt-4 text-sm text-[#5f5148]">{message}</p>
+  );
 
   if (isUsed) {
     return (
@@ -25,9 +33,11 @@ export function DeleteCategoryPage({
         <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
           <h2 className="text-xl font-bold text-[#0b1f2a]">Failed to Delete</h2>
 
-          <p className="mt-4 text-sm text-[#5f5148]">
-            <span className="font-bold">"{categoryName}"</span> is being used by FRAs.
-          </p>
+          {displayMessage(
+            <>
+              <span className="font-bold">{categoryName}</span> is being used by FRAs.
+            </>,
+          )}
 
           <div className="mt-8 flex justify-end">
             <button
@@ -46,11 +56,13 @@ export function DeleteCategoryPage({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
       <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
-        <h2 className="text-xl font-bold text-[#0b1f2a]">Delete Category</h2>
+        <h2 className="text-xl font-bold text-[#0b1f2a]">Delete FRA Category</h2>
 
-        <p className="mt-4 text-sm text-[#5f5148]">
-          Are you sure you want to delete <span className="font-bold">"{categoryName}"</span>?
-        </p>
+        {displayMessage(
+          <>
+            Are you sure you want to delete <span className="font-bold">{categoryName}</span>?
+          </>,
+        )}
 
         <div className="mt-8 flex justify-end gap-3">
           <button
@@ -63,11 +75,12 @@ export function DeleteCategoryPage({
 
           <form
             action={async (formData) => {
-              const result = await deleteCategoryAction(formData);
+              const result = await deleteFRACategoryAction(formData);
+              const query = result.success
+                ? "success=deleted"
+                : `error=${encodeURIComponent(result.message)}`;
 
-              if (result.success) {
-                window.location.href = `${window.location.pathname}?success=deleted`;
-              }
+              window.location.href = `${window.location.pathname}?${query}`;
             }}
           >
             <input type="hidden" name="categoryId" value={categoryId} />

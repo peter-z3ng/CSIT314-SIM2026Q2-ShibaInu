@@ -4,21 +4,23 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { Header } from "@/components/Header";
-import type { FRADTO } from "@/entity/FRA";
+import type { FavouriteDTO } from "@/entity/Favourite";
 import type { FRACategoryDTO } from "@/entity/FRACategory";
 import type { UserAccountDTO } from "@/entity/UserAccount";
 import { profileToPath } from "@/entity/UserProfile";
 
-// SearchFRAPage
-export function SearchFRAPage({
+const statusOptions = ["active", "closed", "completed"];
+
+// SearchFavouriteListPage
+export function SearchFavouriteListPage({
   account,
-  fraList,
-  totalFRA,
+  favouriteList,
+  totalFavourites,
   categories,
 }: {
   account: UserAccountDTO;
-  fraList: FRADTO[];
-  totalFRA: number;
+  favouriteList: FavouriteDTO[];
+  totalFavourites: number;
   categories: FRACategoryDTO[];
 }) {
   const profilePath = profileToPath(account.profile);
@@ -28,11 +30,12 @@ export function SearchFRAPage({
   const [keyword, setKeyword] = useState(searchParams.get("keyword") ?? "");
   const [categoryQuery, setCategoryQuery] = useState("");
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [isStatusOpen, setIsStatusOpen] = useState(false);
   const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
-  const categoryId = searchParams.get("categoryId") ?? "";
   const startDate = searchParams.get("startDate") ?? "";
   const endDate = searchParams.get("endDate") ?? "";
-  const selectedCategoryIds = splitFilterValues(categoryId);
+  const selectedCategoryIds = splitFilterValues(searchParams.get("categoryId") ?? "");
+  const selectedStatuses = splitFilterValues(searchParams.get("status") ?? "");
   const [calendarMonth, setCalendarMonth] = useState(() => {
     const initialDate = startDate ? parseDateValue(startDate) : new Date();
     return new Date(initialDate.getFullYear(), initialDate.getMonth(), 1);
@@ -89,6 +92,10 @@ export function SearchFRAPage({
     );
   }
 
+  function formatStatus(status: string) {
+    return status.charAt(0).toUpperCase() + status.slice(1);
+  }
+
   function selectDateRangeValue(dateValue: string) {
     if (!startDate || endDate || dateValue < startDate) {
       updateSearchParams({ startDate: dateValue, endDate: "" });
@@ -106,59 +113,67 @@ export function SearchFRAPage({
     </div>
   );
 
-  // displayFRASearchResults(array[FRA])
-  const displayFRASearchResults = (results: FRADTO[]) => {
+  // displayFavouriteSearchResults(array[Favourite])
+  const displayFavouriteSearchResults = (results: FavouriteDTO[]) => {
     if (!results.length) {
-      return displayError("No matching fundraising activities found.");
+      return displayError("No matching favourite fundraising activities found.");
     }
 
     return (
       <div className="grid gap-4 md:grid-cols-2">
-        {results.map((fra) => (
-          <article
-            key={fra.fraId}
-            className="rounded-2xl border border-[#f0d8bd] bg-white/40 p-4 shadow-sm"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#c77700]">
-                  {getCategoryName(fra.categoryId)}
-                </p>
+        {results.map((favourite) => {
+          const fra = favourite.fra;
 
-                <h2 className="mt-3 min-h-[64px] text-2xl font-bold leading-8">
-                  {fra.title}
-                </h2>
+          if (!fra) {
+            return null;
+          }
+
+          return (
+            <article
+              key={favourite.fav_id}
+              className="rounded-2xl border border-[#f0d8bd] bg-white/40 p-4 shadow-sm"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#c77700]">
+                    {getCategoryName(fra.categoryId)}
+                  </p>
+
+                  <h2 className="mt-3 min-h-[64px] text-2xl font-bold leading-8">
+                    {fra.title}
+                  </h2>
+                </div>
+
+                <span className="flex h-8 w-36 items-center justify-center rounded-2xl bg-[#fff2df] px-4 text-xs font-bold uppercase tracking-[0.15em] text-[#c77700]">
+                  {fra.status}
+                </span>
               </div>
 
-              <span className="flex h-8 w-36 items-center justify-center rounded-2xl bg-[#fff2df] px-4 text-xs font-bold uppercase tracking-[0.15em] text-[#c77700]">
-                {fra.status}
-              </span>
-            </div>
+              <div className="mt-5 h-3 w-full overflow-hidden rounded-full bg-[#fff2df]">
+                <div
+                  className="h-full rounded-full bg-[#FFB347]"
+                  style={{ width: `${fra.progressPercentage}%` }}
+                />
+              </div>
 
-            <div className="mt-5 h-3 w-full overflow-hidden rounded-full bg-[#fff2df]">
-              <div
-                className="h-full rounded-full bg-[#FFB347]"
-                style={{ width: `${fra.progressPercentage}%` }}
-              />
-            </div>
+              <div className="mt-3 flex items-center justify-between text-sm font-semibold">
+                <p>${fra.currentAmount.toFixed(2)} raised</p>
+                <p>${fra.targetAmount.toFixed(2)} goal</p>
+              </div>
 
-            <div className="mt-3 flex items-center justify-between text-sm font-semibold">
-              <p>${fra.currentAmount.toFixed(2)} raised</p>
-              <p>${fra.targetAmount.toFixed(2)} goal</p>
-            </div>
+              <p className="mt-3 text-sm font-semibold text-[#FFB347]">
+                {fra.progressPercentage}% funded
+              </p>
 
-            <p className="mt-3 text-sm font-semibold text-[#FFB347]">
-              {fra.progressPercentage}% funded
-            </p>
-
-            <Link
-              href={`/${profilePath}/browse/${fra.fraId}`}
-              className="mt-4 flex w-full items-center justify-center rounded-xl bg-[#FFB347] py-2.5 text-sm font-bold text-white transition hover:bg-[#FFBE5C]"
-            >
-              View details
-            </Link>
-          </article>
-        ))}
+              <Link
+                href={`/${profilePath}/browse/${fra.fraId}`}
+                className="mt-4 flex w-full items-center justify-center rounded-xl bg-[#FFB347] py-2.5 text-sm font-bold text-white transition hover:bg-[#FFBE5C]"
+              >
+                View details
+              </Link>
+            </article>
+          );
+        })}
       </div>
     );
   };
@@ -173,11 +188,11 @@ export function SearchFRAPage({
             <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#9b5d12]">
               Donee
             </p>
-            <h1 className="mt-2 text-3xl font-bold">Fundraising Activities</h1>
+            <h1 className="mt-2 text-3xl font-bold">Favourites</h1>
           </div>
 
           <p className="pt-8 text-sm font-semibold text-[#6f6258]">
-            {fraList.length} of {totalFRA} FRAs
+            {favouriteList.length} of {totalFavourites} favourites
           </p>
         </div>
 
@@ -190,13 +205,13 @@ export function SearchFRAPage({
                   setKeyword(event.target.value);
                   updateSearchParam("keyword", event.target.value);
                 }}
-                placeholder="Search fundraising activities"
-                aria-label="Search fundraising activities"
+                placeholder="Search favourites"
+                aria-label="Search favourites"
                 className="h-10 w-full bg-transparent px-2 text-lg outline-none placeholder:text-[#9f9082]"
               />
             </div>
 
-            <section>{displayFRASearchResults(fraList)}</section>
+            <section>{displayFavouriteSearchResults(favouriteList)}</section>
           </div>
 
           <aside className="rounded-2xl border border-[#f0d8bd] bg-white/40 p-5 shadow-sm">
@@ -225,6 +240,7 @@ export function SearchFRAPage({
                 onClick={() => {
                   updateSearchParams({
                     categoryId: "",
+                    status: "",
                     startDate: "",
                     endDate: "",
                   });
@@ -291,6 +307,48 @@ export function SearchFRAPage({
                       {!filteredCategories.length ? (
                         <p className="text-sm text-[#6f6258]">No categories found.</p>
                       ) : null}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="border-t border-[#f0d8bd] pt-5">
+                <button
+                  type="button"
+                  onClick={() => setIsStatusOpen((current) => !current)}
+                  className="flex w-full items-center justify-between gap-3 text-left"
+                >
+                  <span className="text-lg font-bold text-[#1d2520]">Status</span>
+                  <span className="flex size-8 items-center justify-center rounded-full bg-[#9b5d12] text-sm font-bold text-white">
+                    <ChevronIcon isOpen={isStatusOpen} />
+                  </span>
+                </button>
+
+                {isStatusOpen ? (
+                  <div className="mt-4">
+                    <button
+                      type="button"
+                      onClick={() => updateSearchParam("status", "")}
+                      className="text-xs font-semibold text-[#9b5d12] transition hover:text-[#FFB347]"
+                    >
+                      Clear
+                    </button>
+
+                    <div className="mt-4 grid gap-3">
+                      {statusOptions.map((status) => (
+                        <label
+                          key={status}
+                          className="flex items-center gap-3 text-sm font-semibold text-[#6f6258]"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedStatuses.includes(status)}
+                            onChange={() => toggleSearchParamValue("status", status)}
+                            className="size-5 appearance-none rounded border border-[#8a8a8a] bg-white transition checked:border-[#9b5d12] checked:bg-[#9b5d12]"
+                          />
+                          {formatStatus(status)}
+                        </label>
+                      ))}
                     </div>
                   </div>
                 ) : null}

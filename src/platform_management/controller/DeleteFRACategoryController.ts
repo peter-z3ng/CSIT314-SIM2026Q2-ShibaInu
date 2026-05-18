@@ -1,7 +1,12 @@
+import { FRACategory } from "@/entity/FRACategory";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
-export class DeleteCategoryController {
-  async deleteCategory(categoryId: string) {
+// DeleteFRACategoryController
+export class DeleteFRACategoryController {
+  // deleteFRACategory(categoryId)
+  async deleteFRACategory(categoryId: string): Promise<boolean> {
+    FRACategory.deleteFRACategory(categoryId);
+
     const supabase = createSupabaseAdminClient();
 
     const { count, error: checkError } = await supabase

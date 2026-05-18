@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Header } from "@/components/Header";
-import { DeleteCategoryPage } from "@/boundary/DeleteCategoryPage";
+import { DeleteFRACategoryPage } from "@/platform_management/boundary/DeleteFRACategoryPage";
 import { SearchFRACategoryPage } from "@/platform_management/boundary/SearchFRACategoryPage";
 import type { RetrievedFRACategoryDTO } from "@/platform_management/controller/RetrieveFRACategoryController";
 import type { UserAccountDTO } from "@/entity/UserAccount";
@@ -14,50 +14,26 @@ import { profileToPath } from "@/entity/UserProfile";
 export function RetrieveFRACategoryPage({
   account,
   categories,
-  deleteCategoryAction,
+  deleteFRACategoryAction,
 }: {
   account: UserAccountDTO;
   categories: RetrievedFRACategoryDTO[];
-  deleteCategoryAction: (formData: FormData) => Promise<{ success: boolean }>;
+  deleteFRACategoryAction: (formData: FormData) => Promise<{ success: boolean; message: string }>;
 }) {
   const profilePath = profileToPath(account.profile);
   const searchParams = useSearchParams();
 
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [cannotDeleteMessage, setCannotDeleteMessage] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<RetrievedFRACategoryDTO | null>(null);
-
-  useEffect(() => {
-    const success = searchParams.get("success");
-    const error = searchParams.get("error");
-
-    setSuccessMessage("");
-    setErrorMessage("");
-
-    if (success === "updated") {
-      setSuccessMessage("Category updated successfully.");
-    }
-
-    if (success === "created") {
-      setSuccessMessage("Category created successfully.");
-    }
-
-    if (success === "deleted") {
-      setSuccessMessage("Category deleted successfully.");
-    }
-
-    if (error) {
-      setErrorMessage(error);
-    }
-
-    const timer = setTimeout(() => {
-      setSuccessMessage("");
-      setErrorMessage("");
-    }, 7000);
-
-    return () => clearTimeout(timer);
-  }, [searchParams]);
+  const success = searchParams.get("success");
+  const errorMessage = searchParams.get("error") ?? "";
+  const successMessage =
+    success === "updated"
+      ? "Category updated successfully."
+      : success === "created"
+        ? "Category created successfully."
+        : success === "deleted"
+          ? "Category deleted successfully."
+          : "";
 
   function handleDeleteClick(category: RetrievedFRACategoryDTO) {
     setSelectedCategory(category);
@@ -72,11 +48,17 @@ export function RetrieveFRACategoryPage({
     />
   );
 
-  // displayError()
-  const displayError = () =>
-    errorMessage || cannotDeleteMessage ? (
-      <div className="mt-6 w-full rounded-2xl border border-red-300 bg-red-50 px-5 py-6 text-sm font-bold text-red-700">
-        {errorMessage || cannotDeleteMessage}
+  // displayMessage(message)
+  const displayMessage = (message: string, type: "success" | "error") =>
+    message ? (
+      <div
+        className={`mt-6 w-full rounded-2xl border px-5 py-4 text-sm font-bold ${
+          type === "success"
+            ? "border-green-300 bg-green-50 text-green-700"
+            : "border-red-300 bg-red-50 text-red-700"
+        }`}
+      >
+        {message}
       </div>
     ) : null;
 
@@ -96,23 +78,18 @@ export function RetrieveFRACategoryPage({
           </Link>
         </div>
 
-        {successMessage && (
-          <div className="mt-6 w-full rounded-2xl border border-green-300 bg-green-50 px-5 py-4 text-sm font-bold text-green-700">
-            {successMessage}
-          </div>
-        )}
-
-        {displayError()}
+        {displayMessage(successMessage, "success")}
+        {displayMessage(errorMessage, "error")}
         {displayCategories()}
       </section>
 
-      <DeleteCategoryPage
+      <DeleteFRACategoryPage
         categoryId={selectedCategory?.categoryId || ""}
         categoryName={selectedCategory?.categoryName || ""}
         isUsed={selectedCategory?.isUsed || false}
         isOpen={selectedCategory !== null}
         onClose={() => setSelectedCategory(null)}
-        deleteCategoryAction={deleteCategoryAction}
+        deleteFRACategoryAction={deleteFRACategoryAction}
       />
     </main>
   );
