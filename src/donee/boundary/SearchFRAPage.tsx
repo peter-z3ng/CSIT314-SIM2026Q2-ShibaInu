@@ -28,11 +28,27 @@ export function SearchFRAPage({
   const [keyword, setKeyword] = useState(searchParams.get("keyword") ?? "");
   const [categoryQuery, setCategoryQuery] = useState("");
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
   const categoryId = searchParams.get("categoryId") ?? "";
+  const startDate = searchParams.get("startDate") ?? "";
+  const endDate = searchParams.get("endDate") ?? "";
   const selectedCategoryIds = splitFilterValues(categoryId);
+  const [calendarMonth, setCalendarMonth] = useState(() => {
+    const initialDate = startDate ? parseDateValue(startDate) : new Date();
+    return new Date(initialDate.getFullYear(), initialDate.getMonth(), 1);
+  });
+  const calendarDays = getCalendarDays(calendarMonth);
   const filteredCategories = categories.filter((category) =>
     category.categoryName.toLowerCase().includes(categoryQuery.trim().toLowerCase()),
   );
+  const dateRangeLabel =
+    startDate && endDate
+      ? `${formatDateLabel(startDate)} - ${formatDateLabel(endDate)}`
+      : startDate
+        ? `${formatDateLabel(startDate)} - Select end`
+        : endDate
+          ? `Select start - ${formatDateLabel(endDate)}`
+          : "";
 
   function updateSearchParam(name: string, value: string) {
     updateSearchParams({ [name]: value });
@@ -71,6 +87,16 @@ export function SearchFRAPage({
       categories.find((category) => category.categoryId === categoryId)?.categoryName ??
       "Unknown Category"
     );
+  }
+
+  function selectDateRangeValue(dateValue: string) {
+    if (!startDate || endDate || dateValue < startDate) {
+      updateSearchParams({ startDate: dateValue, endDate: "" });
+      return;
+    }
+
+    updateSearchParams({ endDate: dateValue });
+    setIsDateRangeOpen(false);
   }
 
   // displayError(message)
@@ -199,8 +225,11 @@ export function SearchFRAPage({
                 onClick={() => {
                   updateSearchParams({
                     categoryId: "",
+                    startDate: "",
+                    endDate: "",
                   });
                   setCategoryQuery("");
+                  setIsDateRangeOpen(false);
                 }}
                 className="rounded-md border border-[#f0d8bd] px-3 py-1.5 text-xs font-bold text-[#9b5d12] transition hover:bg-[#fff2df] hover:text-[#FFB347]"
               >
@@ -266,6 +295,128 @@ export function SearchFRAPage({
                   </div>
                 ) : null}
               </div>
+
+              <div className="border-t border-[#f0d8bd] pt-5">
+                <button
+                  type="button"
+                  onClick={() => setIsDateRangeOpen((current) => !current)}
+                  className="flex w-full items-center justify-between gap-3 text-left"
+                >
+                  <span>
+                    <span className="text-lg font-bold text-[#1d2520]">Date range</span>
+                    {dateRangeLabel ? (
+                      <span className="mt-1 block text-sm font-semibold text-[#6f6258]">
+                        {dateRangeLabel}
+                      </span>
+                    ) : null}
+                  </span>
+                  <span className="flex size-8 items-center justify-center rounded-full bg-[#9b5d12] text-sm font-bold text-white">
+                    <ChevronIcon isOpen={isDateRangeOpen} />
+                  </span>
+                </button>
+
+                {isDateRangeOpen ? (
+                  <div className="mt-4 rounded-xl border border-[#f0d8bd] bg-white/40 p-4 shadow-sm">
+                    <div className="grid gap-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setCalendarMonth(
+                              new Date(
+                                calendarMonth.getFullYear(),
+                                calendarMonth.getMonth() - 1,
+                                1,
+                              ),
+                            )
+                          }
+                          className="size-9 rounded-md border border-[#f0d8bd] text-sm font-bold text-[#9b5d12] transition hover:bg-[#fff2df]"
+                        >
+                          {"<"}
+                        </button>
+                        <p className="text-sm font-bold text-[#1d2520]">
+                          {getMonthLabel(calendarMonth)}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setCalendarMonth(
+                              new Date(
+                                calendarMonth.getFullYear(),
+                                calendarMonth.getMonth() + 1,
+                                1,
+                              ),
+                            )
+                          }
+                          className="size-9 rounded-md border border-[#f0d8bd] text-sm font-bold text-[#9b5d12] transition hover:bg-[#fff2df]"
+                        >
+                          {">"}
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold uppercase text-[#9b5d12]">
+                        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+                          <span key={day}>{day}</span>
+                        ))}
+                      </div>
+
+                      <div className="grid grid-cols-7 gap-1">
+                        {calendarDays.map((calendarDay) => {
+                          const dateValue = toDateValue(calendarDay.date);
+                          const isOutsideMonth =
+                            calendarDay.date.getMonth() !== calendarMonth.getMonth();
+                          const isStart = dateValue === startDate;
+                          const isEnd = dateValue === endDate;
+                          const isInRange =
+                            startDate && endDate && dateValue > startDate && dateValue < endDate;
+
+                          return (
+                            <button
+                              key={dateValue}
+                              type="button"
+                              onClick={() => selectDateRangeValue(dateValue)}
+                              className={`flex aspect-square items-center justify-center rounded-md text-sm font-semibold transition ${
+                                isStart || isEnd
+                                  ? "bg-[#FFB347] text-white"
+                                  : isInRange
+                                    ? "bg-[#fff2df] text-[#9b5d12]"
+                                    : isOutsideMonth
+                                      ? "text-[#c8b9aa] hover:bg-[#fff7ee]"
+                                      : "text-[#1d2520] hover:bg-[#fff2df]"
+                              }`}
+                            >
+                              {calendarDay.date.getDate()}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <p className="text-xs font-semibold text-[#6f6258]">
+                        {startDate && !endDate
+                          ? "Choose an end date."
+                          : "Choose a start date, then an end date."}
+                      </p>
+
+                      <div className="flex justify-between gap-3">
+                        <button
+                          type="button"
+                          onClick={() => updateSearchParams({ startDate: "", endDate: "" })}
+                          className="h-10 rounded-md border border-[#f0d8bd] px-4 text-sm font-semibold text-[#9b5d12] transition hover:bg-[#fff2df]"
+                        >
+                          Clear
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setIsDateRangeOpen(false)}
+                          className="h-10 rounded-md bg-[#9b5d12] px-4 text-sm font-semibold text-white transition hover:bg-[#8a510f]"
+                        >
+                          Done
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
             </div>
           </aside>
         </section>
@@ -299,4 +450,52 @@ function splitFilterValues(value: string) {
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
+}
+
+function formatDateLabel(date: string) {
+  const [year, month, day] = date.split("-");
+
+  if (!year || !month || !day) {
+    return date;
+  }
+
+  return `${day}/${month}/${year}`;
+}
+
+function parseDateValue(date: string) {
+  const [year, month, day] = date.split("-").map(Number);
+
+  if (!year || !month || !day) {
+    return new Date();
+  }
+
+  return new Date(year, month - 1, day);
+}
+
+function toDateValue(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+function getCalendarDays(monthDate: Date) {
+  const firstDayOfMonth = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+  const calendarStart = new Date(firstDayOfMonth);
+  calendarStart.setDate(firstDayOfMonth.getDate() - firstDayOfMonth.getDay());
+
+  return Array.from({ length: 42 }, (_, index) => {
+    const date = new Date(calendarStart);
+    date.setDate(calendarStart.getDate() + index);
+
+    return { date };
+  });
+}
+
+function getMonthLabel(date: Date) {
+  return date.toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  });
 }

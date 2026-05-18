@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
-import { FRADetailsPage } from "@/boundary/MyFRADetailsPage";
+import { ViewFRADetailsPage } from "@/donee/boundary/ViewFRADetailsPage";
 import { AuthController } from "@/controller/AuthController";
 import { RouteController } from "@/controller/RouteController";
-import { SaveFavouriteController } from "@/controller/SaveFavouriteController";
+import { isFavourite as getIsFavourite } from "@/donee/controller/SaveFavouriteController";
 import { SearchFRAController } from "@/donee/controller/SearchFRAController";
-import { ViewFRADetailsController } from "@/controller/ViewFRADetailsController";
+import { ViewFRADetailsController } from "@/donee/controller/ViewFRADetailsController";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +21,6 @@ export default async function DoneeFRADetailsRoute({
   }
 
   const searchFRAController = new SearchFRAController();
-  const saveFavouriteController = new SaveFavouriteController();
   const viewFRADetailsController = new ViewFRADetailsController();
   await viewFRADetailsController.incrementFRAViewCount(fraId);
 
@@ -30,7 +29,7 @@ export default async function DoneeFRADetailsRoute({
     searchFRAController.listCategories(),
     searchFRAController.searchFRA("", "all"),
     viewFRADetailsController.viewRecentDonations(fraId),
-    saveFavouriteController.isFavourite(account.userId, fraId),
+    getIsFavourite(account.userId, fraId),
   ]);
   const fundraiserUsername = await viewFRADetailsController.viewFundraiserUsername(fra.userId);
   const categoryName =
@@ -42,7 +41,7 @@ export default async function DoneeFRADetailsRoute({
     currentIndex >= 0 && currentIndex < fraList.length - 1 ? fraList[currentIndex + 1].fraId : null;
 
   return (
-    <FRADetailsPage
+    <ViewFRADetailsPage
       account={account.toDTO()}
       fra={fra.toDTO()}
       categoryName={categoryName}

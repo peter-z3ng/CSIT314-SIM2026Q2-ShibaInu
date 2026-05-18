@@ -1,48 +1,62 @@
-"use client";
+import { revalidatePath } from "next/cache";
+import { AuthController } from "@/controller/AuthController";
+import { SaveFavouriteController } from "@/donee/controller/SaveFavouriteController";
 
-import { useActionState, useState } from "react";
-import { processFavourite, type SaveFavouriteState } from "@/controller/saveFavouriteActions";
+// processFavourite(user_id, fra_id)
+export async function processFavourite(formData: FormData): Promise<void> {
+  "use server";
 
+  const profilePath = String(formData.get("profilePath") ?? "");
+  const user_id = String(formData.get("user_id") ?? "");
+  const fra_id = String(formData.get("fra_id") ?? "");
+  const favouriteAction = String(formData.get("favouriteAction") ?? "save");
+  const account = await new AuthController().requireProfilePath(profilePath);
+
+  if (account.userId !== user_id) {
+    throw new Error("Unable to save favourite.");
+  }
+
+  const controller = new SaveFavouriteController();
+
+  if (favouriteAction === "remove") {
+    await controller.removeFavourite(user_id, fra_id);
+  } else {
+    await controller.saveFavourite(user_id, fra_id);
+  }
+
+  revalidatePath(`/${profilePath}/browse/${fra_id}`);
+  revalidatePath(`/${profilePath}/favorites`);
+}
+
+// SaveFavouritePage
 export function SaveFavouritePage({
   profilePath,
+  user_id,
   fra_id,
   isSavedInitially,
 }: {
   profilePath: string;
+  user_id: string;
   fra_id: string;
   isSavedInitially: boolean;
 }) {
-  const initialState: SaveFavouriteState = {
-    ok: true,
-    message: "",
-    saved: isSavedInitially,
-  };
-  const [state, formAction, isPending] = useActionState(processFavourite, initialState);
-  const [isSaved, setIsSaved] = useState(isSavedInitially);
-  const [message, setMessage] = useState("");
-  const hasError = Boolean(state.message && !state.ok);
-  const displayedMessage = hasError ? state.message : message || state.message;
-  const isHeartFilled = hasError ? state.saved : isSaved;
+  const isHeartFilled = isSavedInitially;
   const nextAction = isHeartFilled ? "remove" : "save";
 
+  // displaySavedState(fra_id)
   const displaySavedState = (fra_id: string) => (
     <form
-      action={formAction}
+      action={processFavourite}
       className="relative flex w-10 flex-col items-center"
-      onSubmit={() => {
-        const nextSavedState = !isHeartFilled;
-        setIsSaved(nextSavedState);
-        setMessage(nextSavedState ? "Saved" : "");
-      }}
     >
       <input type="hidden" name="profilePath" value={profilePath} />
+      <input type="hidden" name="user_id" value={user_id} />
       <input type="hidden" name="fra_id" value={fra_id} />
       <input type="hidden" name="favouriteAction" value={nextAction} />
       <button
         type="submit"
         aria-label={isHeartFilled ? "FRA saved as favourite" : "Save FRA as favourite"}
-        disabled={isPending}
-        className={`flex size-10 items-center justify-center rounded-full border transition disabled:cursor-not-allowed disabled:opacity-70 ${
+        className={`flex size-10 items-center justify-center rounded-full border transition ${
           isHeartFilled
             ? "border-[#FFB347] bg-[#fff2df] text-[#FFB347]"
             : "border-[#f0d8bd] bg-[#fffaf5] text-[#9b5d12] hover:border-[#FFB347] hover:bg-[#fff2df] hover:text-[#FFB347]"
@@ -63,16 +77,6 @@ export function SaveFavouritePage({
           />
         </svg>
       </button>
-      {displayedMessage ? (
-        <p
-          role="status"
-          className={`absolute left-1/2 top-12 -translate-x-1/2 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold shadow-sm ${
-            hasError ? "bg-[#fff2df] text-[#9b2f12]" : "bg-[#fff2df] text-[#9b5d12]"
-          }`}
-        >
-          {displayedMessage}
-        </p>
-      ) : null}
     </form>
   );
 

@@ -7,6 +7,7 @@ type FavouriteRow = {
   fra_id: string;
 };
 
+// SaveFavouriteController
 export class SaveFavouriteController {
   async isFavourite(user_id: string, fra_id: string): Promise<boolean> {
     if (!user_id.trim() || !fra_id.trim()) {
@@ -29,6 +30,7 @@ export class SaveFavouriteController {
     return Boolean(data[0]?.fav_id);
   }
 
+  // saveFavourite(...)
   async saveFavourite(user_id: string, fra_id: string): Promise<string> {
     if (!user_id.trim()) {
       throw new Error("User id is required.");
@@ -141,6 +143,10 @@ export class SaveFavouriteController {
 
     return mapFavouriteRow(data[0]);
   }
+}
+
+export async function isFavourite(user_id: string, fra_id: string): Promise<boolean> {
+  return new SaveFavouriteController().isFavourite(user_id, fra_id);
 }
 
 function mapFavouriteRow(row: FavouriteRow) {

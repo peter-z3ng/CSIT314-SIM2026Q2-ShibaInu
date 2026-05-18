@@ -1,7 +1,7 @@
 import { RetrieveFRAPage } from "@/boundary/RetrieveFRAPage";
 import { AuthController } from "@/controller/AuthController";
 import { RetrieveFRAController } from "@/controller/RetrieveFRAController";
-import { ViewFRADetailsController } from "@/controller/ViewFRADetailsController";
+import { ViewFRADetailsController } from "@/donee/controller/ViewFRADetailsController";
 import { FRACategoryController } from "@/controller/FRACategoryController";
 
 export const dynamic = "force-dynamic";

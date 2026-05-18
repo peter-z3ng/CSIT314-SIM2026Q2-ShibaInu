@@ -41,7 +41,9 @@ type DonationUserRow = {
   username: string;
 };
 
+// ViewFRADetailsController
 export class ViewFRADetailsController {
+  // viewFRADetails(...)
   async viewFRADetails(fra_id: string): Promise<FRA> {
     if (!fra_id.trim()) {
       throw new Error("FRA id is required.");

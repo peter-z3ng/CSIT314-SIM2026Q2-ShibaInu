@@ -14,6 +14,8 @@ export default async function DoneeBrowsePage({
   searchParams: Promise<{
     keyword?: string;
     categoryId?: string;
+    startDate?: string;
+    endDate?: string;
   }>;
 }) {
   const { profileSlug } = await params;
@@ -26,7 +28,12 @@ export default async function DoneeBrowsePage({
 
   const searchFRAController = new SearchFRAController();
   const [fraList, allFRAList, categories] = await Promise.all([
-    searchFRAController.searchFRA(filters.keyword ?? "", filters.categoryId ?? ""),
+    searchFRAController.searchFRA(
+      filters.keyword ?? "",
+      filters.categoryId ?? "",
+      filters.startDate ?? "",
+      filters.endDate ?? "",
+    ),
     searchFRAController.searchFRA("", ""),
     searchFRAController.listCategories(),
   ]);

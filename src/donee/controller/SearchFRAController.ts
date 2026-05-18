@@ -32,7 +32,12 @@ type FRACategoryRow = {
 // SearchFRAController
 export class SearchFRAController {
   // searchFRA(...)
-  async searchFRA(keyword: string = "", category: string = ""): Promise<FRA[]> {
+  async searchFRA(
+    keyword: string = "",
+    category: string = "",
+    startDate: string = "",
+    endDate: string = "",
+  ): Promise<FRA[]> {
     const supabase = createSupabaseAdminClient();
 
     const { data, error } = await supabase
@@ -48,7 +53,7 @@ export class SearchFRAController {
       throw new Error(error.message);
     }
 
-    return FRA.searchFRA(data.map(mapFRARow), keyword, category);
+    return FRA.searchFRA(data.map(mapFRARow), keyword, category, startDate, endDate);
   }
 
   async listCategories(): Promise<FRACategoryDTO[]> {

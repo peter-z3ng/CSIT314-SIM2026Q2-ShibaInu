@@ -54,6 +54,7 @@ export class FRA {
     return Math.min(100, Math.round((this.currentAmount / this.targetAmount) * 100));
   }
 
+  // viewFRADetails(...)
   viewFRADetails(fraId: string) {
     if (this.fraId !== fraId) {
       throw new Error("FRA details do not match the requested id.");
@@ -63,7 +64,13 @@ export class FRA {
   }
 
   // searchFRA(...)
-  static searchFRA(fraList: FRA[], keyword: string = "", category: string = "") {
+  static searchFRA(
+    fraList: FRA[],
+    keyword: string = "",
+    category: string = "",
+    startDate: string = "",
+    endDate: string = "",
+  ) {
     const normalizedKeyword = keyword.trim().toLowerCase();
     const categoryIds = category
       .split(",")
@@ -76,8 +83,10 @@ export class FRA {
         fra.title.toLowerCase().includes(normalizedKeyword) ||
         (fra.description?.toLowerCase().includes(normalizedKeyword) ?? false);
       const matchesCategory = !categoryIds.length || categoryIds.includes(fra.categoryId);
+      const matchesStartDate = !startDate || fra.startDate >= startDate;
+      const matchesEndDate = !endDate || (fra.endDate ?? fra.startDate) <= endDate;
 
-      return matchesKeyword && matchesCategory;
+      return matchesKeyword && matchesCategory && matchesStartDate && matchesEndDate;
     });
   }
 
