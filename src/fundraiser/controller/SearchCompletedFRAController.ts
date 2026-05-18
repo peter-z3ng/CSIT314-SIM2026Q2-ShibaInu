@@ -3,7 +3,6 @@ import { ViewCompletedFRAController } from "@/fundraiser/controller/ViewComplete
 
 export type SearchCompletedFRAInput = {
   userId: string;
-  keyword?: string;
   categoryId?: string;
   startDate?: string;
   endDate?: string;
@@ -11,7 +10,7 @@ export type SearchCompletedFRAInput = {
 
 // SearchCompletedFRAController
 export class SearchCompletedFRAController {
-  // searchCompletedFRAs(keyword, categoryId, startDate, endDate)
+  // searchCompletedFRAs(categoryId, startDate, endDate)
   async searchCompletedFRAs(input: SearchCompletedFRAInput): Promise<FRA[]> {
     if (!input.userId.trim()) {
       throw new Error("User id is required.");
@@ -22,7 +21,6 @@ export class SearchCompletedFRAController {
 
     return FRA.searchCompletedFRAs(
       completedFRAs,
-      input.keyword,
       input.categoryId,
       input.startDate,
       input.endDate,

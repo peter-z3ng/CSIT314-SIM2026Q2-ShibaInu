@@ -1,4 +1,5 @@
 import { FRA } from "@/entity/FRA";
+import { SaveFavouriteController } from "@/donee/controller/SaveFavouriteController";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { AutoCloseFRAController } from "@/controller/AutoCloseFRAController";
 
@@ -32,6 +33,7 @@ export class SearchFRAController {
   ): Promise<FRA[]> {
     const autoCloseController = new AutoCloseFRAController();
     await autoCloseController.autoCloseExpiredFRAs();
+    await new SaveFavouriteController().syncAllFavouriteCounts();
 
     const supabase = createSupabaseAdminClient();
 

@@ -1,6 +1,7 @@
 import { FRA } from "@/entity/FRA";
 import { FRACategory } from "@/entity/FRACategory";
 import type { FRACategoryDTO } from "@/entity/FRACategory";
+import { SaveFavouriteController } from "@/donee/controller/SaveFavouriteController";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 type FRARow = {
@@ -38,6 +39,8 @@ export class SearchFRAController {
     startDate: string = "",
     endDate: string = "",
   ): Promise<FRA[]> {
+    await new SaveFavouriteController().syncAllFavouriteCounts();
+
     const supabase = createSupabaseAdminClient();
 
     const { data, error } = await supabase

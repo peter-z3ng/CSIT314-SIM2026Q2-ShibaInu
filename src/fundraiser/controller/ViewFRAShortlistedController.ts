@@ -1,4 +1,5 @@
 import { FRA } from "@/entity/FRA";
+import { SaveFavouriteController } from "@/donee/controller/SaveFavouriteController";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 type FRARow = {
@@ -27,6 +28,8 @@ export class ViewFRAShortlistedController {
     }
 
     const supabase = createSupabaseAdminClient();
+    const saveFavouriteController = new SaveFavouriteController();
+    const syncedFavouriteCount = await saveFavouriteController.syncFavouriteCount(fraId);
 
     const { data, error: fraError } = await supabase
       .from("fra")
@@ -41,15 +44,6 @@ export class ViewFRAShortlistedController {
       throw new Error(fraError.message);
     }
 
-    const { count, error: favouriteError } = await supabase
-      .from("favourite")
-      .select("user_id", { count: "exact", head: true })
-      .eq("fra_id", fraId);
-
-    if (favouriteError) {
-      throw new Error(favouriteError.message);
-    }
-
     return new FRA({
       fraId: data.fra_id,
       userId: data.user_id,
@@ -61,7 +55,7 @@ export class ViewFRAShortlistedController {
       startDate: data.start_date,
       status: data.status,
       viewCount: Number(data.view_count),
-      favCount: count ?? 0,
+      favCount: syncedFavouriteCount,
       endDate: data.end_date,
       createdAt: data.created_at,
       updatedAt: data.updated_at,

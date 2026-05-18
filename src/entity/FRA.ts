@@ -239,34 +239,22 @@ export class FRA {
     return fraList.filter((fra) => fra.userId === userId && fra.status === "completed");
   }
 
-  // searchCompletedFRAs(keyword, categoryId, startDate, endDate)
+  // searchCompletedFRAs(categoryId, startDate, endDate)
   static searchCompletedFRAs(
     fraList: FRA[],
-    keyword: string = "",
     categoryId: string = "",
     startDate: string = "",
     endDate: string = "",
   ): FRA[] {
-    const normalizedKeyword = keyword.trim().toLowerCase();
     const categoryIds = splitFilterValues(categoryId);
 
     return fraList.filter((fra) => {
       const matchesCompletedStatus = fra.status === "completed";
-      const matchesKeyword =
-        !normalizedKeyword ||
-        fra.title.toLowerCase().includes(normalizedKeyword) ||
-        (fra.description?.toLowerCase().includes(normalizedKeyword) ?? false);
       const matchesCategory = !categoryIds.length || categoryIds.includes(fra.categoryId);
       const matchesStartDate = !startDate || fra.startDate >= startDate;
       const matchesEndDate = !endDate || (fra.endDate ?? fra.startDate) <= endDate;
 
-      return (
-        matchesCompletedStatus &&
-        matchesKeyword &&
-        matchesCategory &&
-        matchesStartDate &&
-        matchesEndDate
-      );
+      return matchesCompletedStatus && matchesCategory && matchesStartDate && matchesEndDate;
     });
   }
 

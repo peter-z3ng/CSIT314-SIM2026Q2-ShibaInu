@@ -11,7 +11,6 @@ export default async function CompletedFRARoutePage({
 }: {
   params: Promise<{ profileSlug: string }>;
   searchParams: Promise<{
-    keyword?: string;
     categoryId?: string;
     startDate?: string;
     endDate?: string;
@@ -28,7 +27,6 @@ export default async function CompletedFRARoutePage({
 
   const fraList = await searchCompletedFRAController.searchCompletedFRAs({
     userId: account.userId,
-    keyword: filters.keyword,
     categoryId: filters.categoryId,
     startDate: filters.startDate,
     endDate: filters.endDate,

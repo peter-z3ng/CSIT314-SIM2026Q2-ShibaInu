@@ -1,5 +1,6 @@
 import { Donation } from "@/entity/Donation";
 import { FRA } from "@/entity/FRA";
+import { SaveFavouriteController } from "@/donee/controller/SaveFavouriteController";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { AutoCloseFRAController } from "@/controller/AutoCloseFRAController";
 
@@ -28,14 +29,6 @@ type FundraiserRow = {
   username: string;
 };
 
-type DonationRow = {
-  user_id: string;
-  amount: number;
-  message: string | null;
-  payment_method: string | null;
-  paydate: string;
-};
-
 type DonationUserRow = {
   user_id: string;
   username: string;
@@ -51,6 +44,7 @@ export class ViewFRADetailsController {
 
     const autoCloseController = new AutoCloseFRAController();
     await autoCloseController.autoCloseExpiredFRAs();
+    await new SaveFavouriteController().syncFavouriteCount(fra_id);
 
     const supabase = createSupabaseAdminClient();
 

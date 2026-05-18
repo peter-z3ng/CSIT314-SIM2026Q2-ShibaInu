@@ -7,6 +7,15 @@ type FavouriteRow = {
   fra_id: string;
 };
 
+type FavouriteCountRow = {
+  user_id: string;
+  fra_id: string;
+};
+
+type FRAIdRow = {
+  fra_id: string;
+};
+
 // SaveFavouriteController
 export class SaveFavouriteController {
   async isFavourite(user_id: string, fra_id: string): Promise<boolean> {
@@ -99,11 +108,11 @@ export class SaveFavouriteController {
     return true;
   }
 
-  private async syncFavouriteCount(fra_id: string): Promise<number> {
+  async syncFavouriteCount(fra_id: string): Promise<number> {
     const supabase = createSupabaseAdminClient();
     const { count, error: countError } = await supabase
       .from("favourite")
-      .select("fav_id", { count: "exact", head: true })
+      .select("user_id", { count: "exact", head: true })
       .eq("fra_id", fra_id);
 
     if (countError) {
@@ -121,6 +130,50 @@ export class SaveFavouriteController {
     }
 
     return favCount;
+  }
+
+  async syncAllFavouriteCounts(): Promise<Map<string, number>> {
+    const supabase = createSupabaseAdminClient();
+
+    const { data: fraRows, error: fraError } = await supabase
+      .from("fra")
+      .select("fra_id")
+      .overrideTypes<FRAIdRow[], { merge: false }>();
+
+    if (fraError) {
+      throw new Error(fraError.message);
+    }
+
+    const { data: favourites, error: favouriteError } = await supabase
+      .from("favourite")
+      .select("user_id, fra_id")
+      .overrideTypes<FavouriteCountRow[], { merge: false }>();
+
+    if (favouriteError) {
+      throw new Error(favouriteError.message);
+    }
+
+    const countByFRAId = new Map<string, number>();
+
+    for (const favourite of favourites) {
+      countByFRAId.set(favourite.fra_id, (countByFRAId.get(favourite.fra_id) ?? 0) + 1);
+    }
+
+    await Promise.all(
+      fraRows.map(async (fra) => {
+        const favCount = countByFRAId.get(fra.fra_id) ?? 0;
+        const { error } = await supabase
+          .from("fra")
+          .update({ fav_count: favCount })
+          .eq("fra_id", fra.fra_id);
+
+        if (error) {
+          throw new Error(error.message);
+        }
+      }),
+    );
+
+    return countByFRAId;
   }
 
   private async getExistingFavourite(user_id: string, fra_id: string) {

@@ -22,7 +22,6 @@ export function SearchCompletedFRAPage({
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [keyword, setKeyword] = useState(searchParams.get("keyword") ?? "");
   const [categoryQuery, setCategoryQuery] = useState("");
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
@@ -96,6 +95,16 @@ export function SearchCompletedFRAPage({
     </div>
   );
 
+  // displayCompletedFRAList(array[FRA])
+  const displayCompletedFRAList = (results: FRADTO[]) => (
+    <ViewCompletedFRAPage
+      profilePath={profilePath}
+      fraList={results}
+      categoryList={categoryList}
+      displayMessage={displayMessage}
+    />
+  );
+
   return (
     <div className="min-h-screen bg-[#fffaf5] text-[#1d2520]">
       <Header account={account} />
@@ -111,27 +120,7 @@ export function SearchCompletedFRAPage({
 
         <section className="mt-8 grid items-start gap-5 lg:grid-cols-[7fr_3fr]">
           <div className="grid gap-6">
-            <div className="rounded-2xl border border-[#f0d8bd] bg-white/40 px-4 py-3 shadow-sm">
-              <input
-                value={keyword}
-                onChange={(event) => {
-                  setKeyword(event.target.value);
-                  updateSearchParam("keyword", event.target.value);
-                }}
-                placeholder="Search by title"
-                aria-label="Search by title"
-                className="h-10 w-full bg-transparent px-2 text-lg outline-none placeholder:text-[#9f9082]"
-              />
-            </div>
-
-            <section>
-              <ViewCompletedFRAPage
-                profilePath={profilePath}
-                fraList={fraList}
-                categoryList={categoryList}
-                displayMessage={displayMessage}
-              />
-            </section>
+            <section>{displayCompletedFRAList(fraList)}</section>
           </div>
 
           <aside className="rounded-2xl border border-[#f0d8bd] bg-white/40 p-5 shadow-sm">
@@ -159,12 +148,10 @@ export function SearchCompletedFRAPage({
                 type="button"
                 onClick={() => {
                   updateSearchParams({
-                    keyword: "",
                     categoryId: "",
                     startDate: "",
                     endDate: "",
                   });
-                  setKeyword("");
                   setCategoryQuery("");
                   setIsDateRangeOpen(false);
                 }}
