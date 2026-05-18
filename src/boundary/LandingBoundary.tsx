@@ -12,18 +12,30 @@ export function LandingBoundary() {
     <main className="min-h-screen bg-[#fffaf5] text-[#1d2520]">
       <header className="border-b border-[#f0d8bd] bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
-          <Link href="/" className="text-xl font-black tracking-tight">
-            Hope Spring
+          
+          <div className="flex w-[120px] justify-start">
+            <Link href="/" className="text-xl font-black tracking-tight">
+              Hope Spring
+            </Link>
+          </div>
+
+          <Link href="/" className="flex items-center justify-center">
+            <img
+              src="/logo.jpeg"
+              alt="Hope Spring Logo"
+              className="h-16 w-16 object-contain"
+            />
           </Link>
 
-          <div className="flex items-center gap-3">
+          <div className="flex w-[120px] justify-end">
             <Link
               href="/login"
-              className="hidden rounded-xl bg-[#FFB347] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#FFBE5C] sm:inline-flex"
+              className="rounded-xl bg-[#FFB347] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#FFBE5C]"
             >
               Log In
             </Link>
           </div>
+
         </div>
       </header>
 
